@@ -1,5 +1,21 @@
 {
   "name": "rltm",
+  "description": "Rocket League Tournament Manager",
+  "author": {
+    "name": "Mathis Serrieres Maniecki",
+    "email": "contact@minarox.fr",
+    "url": "https://minarox.fr/"
+  },
+  "bugs": {
+    "url": "https://github.com/Minarox/RLTM/issues",
+    "email": "contact@minarox.fr"
+  },
+  "homepage": "https://github.com/Minarox/RLTM#readme",
+  "readme": "./README.md",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Minarox/RLTM.git"
+  },
   "module": "index.ts",
   "type": "module",
   "devDependencies": {
