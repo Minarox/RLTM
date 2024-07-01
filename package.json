@@ -23,5 +23,10 @@
   },
   "peerDependencies": {
     "typescript": "^5.0.0"
+  },
+  "scripts": {
+    "dev": "bun run --watch ./index.ts",
+    "start": "bun run ./build/index.js",
+    "build": "bun build --entrypoints ./index.ts --outdir ./build --target bun"
   }
 }
