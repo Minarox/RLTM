@@ -19,10 +19,10 @@
   "module": "src/index.js",
   "type": "module",
   "scripts": {
-    "dev": "bun run --watch src/index.ts",
-    "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "bun run build/index.js",
-    "build": "bun build --minify --entrypoints src/index.ts --outdir build --target bun"
+    "build": "bun build --minify --entrypoints src/index.ts --outdir build --target bun",
+    "dev": "bun --watch src/index.ts",
+    "start": "bun build/index.js",
+    "test": "bun test"
   },
   "devDependencies": {
     "@types/bun": "latest"
