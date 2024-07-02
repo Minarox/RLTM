@@ -1,8 +1,13 @@
 import { Elysia } from "elysia";
 import gameController from "./controllers/gameController.ts";
+import logestic from "./plugins/logestic.ts";
 
-const app: Elysia = new Elysia()
     .use(gameController)
+const app = new Elysia()
+    // Plugins
+    .use(logestic)
+
+    // Controllers
 
     .get("/", (): string => "Hello World!")
 
