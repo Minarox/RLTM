@@ -1,7 +1,11 @@
 import { Elysia } from "elysia";
+import gameController from "./controllers/gameController.ts";
 
 const app: Elysia = new Elysia()
-    .get("/", (): string => "Hello Elysia")
+    .use(gameController)
+
+    .get("/", (): string => "Hello World!")
+
     .listen(3000);
 
-console.log(`🦊 Elysia is running at ${app.server?.hostname}:${app.server?.port}`);
+console.log(`🏎️ RLTM is running at http://${app.server?.hostname}:${app.server?.port}`);
