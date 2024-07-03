@@ -2,7 +2,8 @@ import { Elysia } from "elysia";
 
 export default new Elysia({
     websocket: {
-        perMessageDeflate: true
+        perMessageDeflate: true,
+        idleTimeout: 60
     }
 })
     .ws('/', {
