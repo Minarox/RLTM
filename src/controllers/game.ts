@@ -13,7 +13,7 @@ export default new Elysia({
                 throw (set.status = 'Unauthorized')
             }
         },
-        message(ws, message): void {
-            ws.send(message);
+        message(_ws, message): void {
+            console.log(message);
         }
     })
