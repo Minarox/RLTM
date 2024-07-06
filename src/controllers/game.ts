@@ -3,7 +3,7 @@ import { Elysia } from "elysia";
 export default new Elysia({
     websocket: {
         perMessageDeflate: true,
-        idleTimeout: 10
+        idleTimeout: 5
     }
 })
     .ws('/', {
@@ -13,7 +13,10 @@ export default new Elysia({
                 throw (set.status = 'Unauthorized')
             }
         },
-        message(_ws, message): void {
-            console.log(message);
+        message(_ws, message: any): void {
+            if (message.topic === "players") {
+                console.clear();
+                console.log(message);
+            }
         }
     })
