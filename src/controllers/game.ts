@@ -1,9 +1,10 @@
 import { Elysia } from "elysia";
+import {GameTopic, type PlayersPayload, type MatchPayload, type StatisticsPayload, type StatisticPayload } from "../types/game.ts";
 
 export default new Elysia({
     websocket: {
         perMessageDeflate: true,
-        idleTimeout: 5
+        idleTimeout: 10
     }
 })
     .ws('/', {
@@ -14,9 +15,46 @@ export default new Elysia({
             }
         },
         message(_ws, message: any): void {
-            if (message.topic === "players") {
-                console.clear();
-                console.log(message);
+            switch (message?.topic) {
+                case GameTopic.PLAYERS:
+                    getPlayers(message.payload);
+                    break;
+
+                case GameTopic.MATCH:
+                    getMatch(message.payload);
+                    break;
+
+                case GameTopic.STATISTICS:
+                    getStatistics(message.payload);
+                    break;
+
+                case GameTopic.STATISTIC:
+                    getStatistic(message.payload);
+                    break;
+
+                case GameTopic.ENTITIES:
+                    getEntities(message.payload);
+                    break;
             }
         }
     })
+
+function getPlayers(payload: PlayersPayload): void {
+    console.log(payload);
+}
+
+function getMatch(payload: MatchPayload): void {
+    console.log(payload);
+}
+
+function getStatistics(payload: StatisticsPayload): void {
+    console.log(payload);
+}
+
+function getStatistic(payload: StatisticPayload): void {
+    console.log(payload);
+}
+
+function getEntities(payload: any): void {
+    console.log(payload);
+}
