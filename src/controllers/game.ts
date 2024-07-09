@@ -1,4 +1,5 @@
 import { Elysia } from "elysia";
+import { app } from "../index.ts";
 import {GameTopic, type MatchPayload, type StatisticsPayload, type StatisticPayload } from "../types/game.ts";
 import type { Player } from "../databases/players.ts";
 
@@ -14,6 +15,10 @@ export default new Elysia({
             if (!query.hasOwnProperty('token')) {
                 throw (set.status = 'Unauthorized')
             }
+        },
+        open(_ws): void {
+            console.log('Connection opened');
+            console.log(app.server?.pendingWebSockets.toString())
         },
         message(_ws, message: any): void {
             switch (message?.topic) {
@@ -37,6 +42,9 @@ export default new Elysia({
                     getEntities(message.payload);
                     break;
             }
+        },
+        close(_ws): void {
+            console.log('Connection closed');
         }
     })
 

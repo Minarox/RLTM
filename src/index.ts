@@ -1,20 +1,20 @@
 import { Elysia } from "elysia";
 import logestic from "./plugins/logestic.ts";
+import sqlite from "./plugins/sqlite.ts";
 import game from "./controllers/game.ts";
-import {PlayersDatabase} from "./databases/players.ts";
 
-const app = new Elysia()
-    // Plugins
+export const app = new Elysia()
+    // Extensions
     .use(logestic)
-
-    // Databases
-    .decorate('players', new PlayersDatabase())
+    .decorate('db', sqlite())
 
     // Controllers
     .use(game)
 
-    .get("/", (): string => "Hello World!")
+    .get("/", ({ db }): string => JSON.stringify(db.query("SELECT * FROM players").all(), null, 4))
 
+    // Start the server
+    .onStart((app): void =>  {
+        console.log(`🏎️ RLTM is running at http://${app.server?.hostname}:${app.server?.port}`)
+    })
     .listen(3000);
-
-console.log(`🏎️ RLTM is running at http://${app.server?.hostname}:${app.server?.port}`);
