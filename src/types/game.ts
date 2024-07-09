@@ -6,13 +6,6 @@ export enum GameTopic {
     ENTITIES = "entities"
 }
 
-export interface PlayersPayload {
-    name: string;
-    uid: string;
-    plateforme: string;
-    bot: boolean;
-}
-
 export interface MatchPayload {
     map: string;
     score: Array<number>;

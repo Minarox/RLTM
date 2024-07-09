@@ -1,5 +1,6 @@
 import { Elysia } from "elysia";
-import {GameTopic, type PlayersPayload, type MatchPayload, type StatisticsPayload, type StatisticPayload } from "../types/game.ts";
+import {GameTopic, type MatchPayload, type StatisticsPayload, type StatisticPayload } from "../types/game.ts";
+import type { Player } from "../databases/players.ts";
 
 export default new Elysia({
     websocket: {
@@ -7,7 +8,7 @@ export default new Elysia({
         idleTimeout: 10
     }
 })
-    .ws('/', {
+    .ws('/game', {
         beforeHandle({set, query}): string | void {
             query = Object.assign({}, query);
             if (!query.hasOwnProperty('token')) {
@@ -39,7 +40,7 @@ export default new Elysia({
         }
     })
 
-function getPlayers(payload: PlayersPayload): void {
+function getPlayers(payload: Player): void {
     console.log(payload);
 }
 
