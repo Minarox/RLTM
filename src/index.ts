@@ -1,20 +1,20 @@
 import { Elysia } from "elysia";
-import compression from "./plugins/compression.ts";
-import logestic from "./plugins/logestic.ts";
-import sqlite from "./plugins/sqlite.ts";
+import compression from "./extensions/compression.ts";
+import logestic from "./extensions/logestic.ts";
+import drizzle from "./extensions/drizzle.ts";
 
 import game from "./controllers/game.ts";
 
 export const app = new Elysia()
     // Extensions
     .use(logestic)
-    .decorate('db', sqlite())
     .use(compression)
+    .decorate('db', drizzle())
 
     // Controllers
     .use(game)
 
-    .get("/", ({ db }): string => JSON.stringify(db.query("SELECT * FROM players").all(), null, 4))
+    .get("/", (): string => "Hello World!")
 
     // Start the server
     .onStart((app): void =>  {

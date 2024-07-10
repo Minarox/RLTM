@@ -132,6 +132,7 @@ build
 
 # Database
 *.sqlite*
+*.db*
 
 # yarn v2
 .yarn/cache
