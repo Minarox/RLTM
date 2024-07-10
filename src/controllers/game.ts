@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
 import { app } from "../index.ts";
 import {GameTopic, type MatchPayload, type StatisticsPayload, type StatisticPayload } from "../types/game.ts";
-import type { Player } from "../databases/players.ts";
+import type { Player } from "../schemas/players.ts";
 
 export default new Elysia({
     websocket: {
