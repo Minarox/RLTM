@@ -16,9 +16,8 @@ export default new Elysia({
                 throw (set.status = 'Unauthorized')
             }
         },
-        open(_ws): void {
-            console.log('Connection opened');
-            console.log(app.server?.pendingWebSockets.toString())
+        open(ws): void {
+            app.decorator.logestic.info(`Game ${ws.id} connected with token ${(ws.data.query as any).token}`);
         },
         message(_ws, message: any): void {
             switch (message?.topic) {
@@ -43,8 +42,8 @@ export default new Elysia({
                     break;
             }
         },
-        close(_ws): void {
-            console.log('Connection closed');
+        close(ws): void {
+            app.decorator.logestic.info(`Game ${ws.id} disconnected`);
         }
     })
 
