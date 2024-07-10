@@ -1,11 +1,14 @@
 import { Elysia } from "elysia";
 import logestic from "./plugins/logestic.ts";
+import { compression } from 'elysia-compression'
 import sqlite from "./plugins/sqlite.ts";
+
 import game from "./controllers/game.ts";
 
 export const app = new Elysia()
     // Extensions
     .use(logestic)
+    .use(compression())
     .decorate('db', sqlite())
 
     // Controllers

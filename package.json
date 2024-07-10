@@ -28,10 +28,11 @@
     "@types/bun": "latest"
   },
   "peerDependencies": {
-    "typescript": "^5.0.0"
+    "typescript": "latest"
   },
   "dependencies": {
     "elysia": "latest",
+    "elysia-compression": "latest",
     "logestic": "latest"
   }
 }
