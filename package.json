@@ -34,7 +34,7 @@
   "dependencies": {
     "drizzle-orm": "^0.32.0",
     "elysia": "^1.0.27",
-    "elysia-compression": "^0.0.7",
+    "elysia-compress": "^1.2.0",
     "logestic": "^1.2.0"
   }
 }
