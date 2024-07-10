@@ -25,14 +25,16 @@
     "test": "bun test"
   },
   "devDependencies": {
-    "@types/bun": "latest"
+    "@types/bun": "^1.1.6",
+    "drizzle-kit": "^0.23.0"
   },
   "peerDependencies": {
-    "typescript": "latest"
+    "typescript": "^5.5.3"
   },
   "dependencies": {
-    "elysia": "latest",
-    "elysia-compression": "latest",
-    "logestic": "latest"
+    "drizzle-orm": "^0.32.0",
+    "elysia": "^1.0.27",
+    "elysia-compression": "^0.0.7",
+    "logestic": "^1.2.0"
   }
 }
