@@ -4,7 +4,7 @@ import type {BunSQLiteDatabase} from "drizzle-orm/bun-sqlite";
 // import {migrate} from "drizzle-orm/bun-sqlite/migrator";
 
 export default function database(): BunSQLiteDatabase {
-    const sqlite: Database = new Database("sqlite.db");
+    const sqlite: Database = new Database("database/sqlite.db");
     sqlite.exec("PRAGMA journal_mode = WAL;");
 
     const db: BunSQLiteDatabase = drizzle(sqlite);
