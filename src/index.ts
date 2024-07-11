@@ -1,25 +1,34 @@
 import { Elysia } from "elysia";
 import compression from "./extensions/compression.ts";
-import logestic from "./extensions/logestic.ts";
+import logger from "./extensions/logger.ts";
 import drizzle from "./extensions/drizzle.ts";
-import {sql} from "drizzle-orm";
+import { sql } from "drizzle-orm";
 
 import game from "./controllers/game.ts";
 
+export const log = logger;
+
 export const app = new Elysia()
     // Extensions
+    .use(log.into())
     .use(compression)
-    .use(logestic)
     .decorate('db', drizzle())
     .decorate('sql', sql)
 
     // Controllers
     .use(game)
 
-    .get("/", ({ logestic, db, sql }): string => {
-        logestic.info("Hello World!");
+    .get("/", ({ db, sql, log }): string => {
+        log.info("Hello World!")
+        log.error("Hello World!")
         const query = sql`select "Hello World!" as text`;
         return db.get<string[]>(query)[0];
+    })
+    .get("/test", (ctx) => {
+        ctx.log.info(ctx, "Context");
+        ctx.log.error(ctx, "Context");
+
+        return "with-context";
     })
 
     // Start the server

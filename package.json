@@ -32,9 +32,10 @@
     "typescript": "^5.5.3"
   },
   "dependencies": {
+    "@bogeychan/elysia-logger": "^0.0.22",
     "drizzle-orm": "^0.32.0",
     "elysia": "^1.0.27",
     "elysia-compress": "^1.2.0",
-    "logestic": "^1.2.0"
+    "pino-pretty": "^11.2.1"
   }
 }

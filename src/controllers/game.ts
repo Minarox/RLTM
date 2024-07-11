@@ -1,7 +1,6 @@
 import { Elysia } from "elysia";
-import { app } from "../index.ts";
+import {log} from "../index.ts";
 import {GameTopic, type MatchPayload, type StatisticsPayload, type StatisticPayload } from "../types/game.ts";
-import type { Player } from "../schemas/players.ts";
 
 export default new Elysia({
     websocket: {
@@ -17,7 +16,7 @@ export default new Elysia({
             }
         },
         open(ws): void {
-            app.decorator.logestic.info(`Game ${ws.id} connected with token ${(ws.data.query as any).token}`);
+            log.info(`Game ${ws.id} connected with token ${(ws.data.query as any).token}`);
         },
         message(_ws, message: any): void {
             switch (message?.topic) {
@@ -43,11 +42,11 @@ export default new Elysia({
             }
         },
         close(ws): void {
-            app.decorator.logestic.info(`Game ${ws.id} disconnected`);
+            log.info(`Game ${ws.id} disconnected`);
         }
     })
 
-function getPlayers(payload: Player): void {
+function getPlayers(payload: any): void {
     console.log(payload);
 }
 
