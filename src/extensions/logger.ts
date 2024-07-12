@@ -4,14 +4,14 @@ import fs from "node:fs";
 
 export default createPinoLogger({
     level: "debug",
-    /* transport: {
-        target: "pino-pretty",
-        options: {
-            colorize: true,
-        },
-    }, */
     stream: pino.multistream([
-        {level: 'debug', stream: pinopretty()},
+        {level: 'debug', stream: pinopretty({
+                singleLine: true,
+                hideObject: true,
+                messageFormat: (log) => {
+                    return `${JSON.stringify(log)}\n`
+                }
+            })},
         {level: 'info', stream: fs.createWriteStream('logs/debug.log')},
         {level: 'error', stream: fs.createWriteStream('logs/error.log')}
     ]),

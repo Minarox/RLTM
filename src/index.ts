@@ -19,16 +19,9 @@ export const app = new Elysia()
     .use(game)
 
     .get("/", ({ db, sql, log }): string => {
-        log.info("Hello World!")
-        log.error("Hello World!")
+        log.info("Hello World!");
         const query = sql`select "Hello World!" as text`;
         return db.get<string[]>(query)[0];
-    })
-    .get("/test", (ctx) => {
-        ctx.log.info(ctx, "Context");
-        ctx.log.error(ctx, "Context");
-
-        return "with-context";
     })
 
     // Start the server
