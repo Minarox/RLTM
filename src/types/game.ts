@@ -1,5 +1,4 @@
 export enum GameTopic {
-    PLAYERS = "players",
     MATCH = "match",
     STATISTICS = "statistics",
     STATISTIC = "statistic",
