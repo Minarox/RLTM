@@ -1,6 +1,6 @@
 import { Elysia } from "elysia";
-import {log} from "../index.ts";
-import {GameTopic, type MatchPayload, type StatisticsPayload, type StatisticPayload } from "../types/game.ts";
+import { app } from "../index.ts";
+import { GameTopic, type MatchPayload, type StatisticsPayload, type StatisticPayload } from "../types/game.ts";
 
 export default new Elysia({
     websocket: {
@@ -12,18 +12,16 @@ export default new Elysia({
         beforeHandle({set, query}): string | void {
             query = Object.assign({}, query);
             if (!query.hasOwnProperty('token')) {
-                throw (set.status = 'Unauthorized')
+                set.status = "Unauthorized";
+                app.decorator.logestic.warn(set.status);
+                return set.status;
             }
         },
         open(ws): void {
-            log.info(`Game ${ws.id} connected with token ${(ws.data.query as any).token}`);
+            app.decorator.logestic.info(`Game ${ws.id} connected with token ${(ws.data.query as any).token}`);
         },
         message(_ws, message: any): void {
             switch (message?.topic) {
-                case GameTopic.PLAYERS:
-                    getPlayers(message.payload);
-                    break;
-
                 case GameTopic.MATCH:
                     getMatch(message.payload);
                     break;
@@ -42,13 +40,9 @@ export default new Elysia({
             }
         },
         close(ws): void {
-            log.info(`Game ${ws.id} disconnected`);
+            app.decorator.logestic.info(`Game ${ws.id} disconnected`);
         }
     })
-
-function getPlayers(payload: any): void {
-    console.log(payload);
-}
 
 function getMatch(payload: MatchPayload): void {
     console.log(payload);
