@@ -5,7 +5,7 @@ import drizzle from "./extensions/drizzle.ts";
 
 import { game } from "./controllers/game.ts";
 
-new Elysia({
+export const app = new Elysia({
     websocket: {
         perMessageDeflate: true,
         idleTimeout: 10

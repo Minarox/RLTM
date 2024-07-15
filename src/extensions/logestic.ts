@@ -1,5 +1,6 @@
 import { Logestic } from "logestic";
 import colors from "colors";
+import {app} from "../index.ts";
 
 function formatStatus(status: number): string {
     const result: string = `${status}`;
@@ -40,11 +41,16 @@ export default new Logestic({
     .use(['duration', 'method', 'path', 'status', 'time'])
     .format({
         onSuccess({duration, method, path, status, time}): string {
-            const request: string = colors.blue(`${method} ${path}`);
-            return `[${time.toLocaleString()}] ${formatStatus(status)} | ${request} ${formatTime(duration)}`;
+            const requestTo: string = colors.blue(`${method} ${path}`);
+
+            return `[${time.toLocaleString()}] ${formatStatus(status)} | ${requestTo} ${formatTime(duration)}`;
         },
-        onFailure({ code, datetime, error }): string {
+        onFailure({ request, code, datetime, error }): string {
             code = colors.red(code);
-            return `[${datetime.toLocaleString()}] ${code} \r\n ${error}`;
+            const origin: string = app.server?.url?.origin ?? '';
+            const path: string = request.url.slice(origin.length);
+            const requestTo: string = colors.blue(`${request.method} ${path}`);
+
+            return `[${datetime.toLocaleString()}] ${code} | ${requestTo} \r\n ${error}`;
         }
     });
