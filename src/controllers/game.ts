@@ -12,9 +12,8 @@ export default new Elysia({
         beforeHandle({set, query}): string | void {
             query = Object.assign({}, query);
             if (!query.hasOwnProperty('token')) {
-                set.status = "Unauthorized";
-                app.decorator.logestic.warn(set.status);
-                return set.status;
+                app.decorator.logestic.warn("Token is missing");
+                return (set.status = "Unauthorized");
             }
         },
         open(ws): void {

@@ -19,10 +19,8 @@ export const app = new Elysia()
     })
 
     // Start the server
-    .onError(({ error, logestic }): void => {
-        logestic.error(error?.message);
-    })
     .onStart(({ server, decorator }): void =>  {
+        console.clear();
         decorator.logestic.info(`🏎️ RLTM is running at ${server?.url}.`)
     })
     .listen(3000);
