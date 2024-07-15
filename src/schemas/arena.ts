@@ -7,3 +7,10 @@ export const arena = sqliteTable("arena", {
     name: text("name").notNull(),
     createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`)
 });
+
+export interface Arena {
+    id: number;
+    code: string;
+    name: string;
+    createdAt: string;
+}

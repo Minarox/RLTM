@@ -12,3 +12,14 @@ export const player = sqliteTable("player", {
     createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
     updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`).$onUpdate(() => sql`CURRENT_TIMESTAMP`)
 });
+
+export interface Player {
+    id: number;
+    uid: string;
+    plateform: string;
+    splitScreenId: string;
+    name: string;
+    carId: number;
+    createdAt: string;
+    updatedAt: string;
+}

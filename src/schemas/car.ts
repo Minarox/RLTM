@@ -7,3 +7,10 @@ export const car = sqliteTable("car", {
     picture: blob("picture").notNull(),
     createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`)
 });
+
+export interface Car {
+    id: number;
+    name: string;
+    picture: Uint8Array;
+    createdAt: string;
+}

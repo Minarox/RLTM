@@ -15,3 +15,17 @@ export const season = sqliteTable("season", {
     createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
     updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`).$onUpdate(() => sql`CURRENT_TIMESTAMP`)
 });
+
+export interface Season {
+    id: number;
+    tournamentId: number;
+    name: string;
+    description: string;
+    teamLength: number;
+    defaultGameLength: number;
+    startAt: string;
+    endAt: string;
+    logo: Uint8Array;
+    createdAt: string;
+    updatedAt: string;
+}
