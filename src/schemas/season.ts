@@ -1,8 +1,8 @@
-import {sqliteTable, text, integer, SQLiteTable, blob} from "drizzle-orm/sqlite-core";
+import { sqliteTable, text, integer, blob } from "drizzle-orm/sqlite-core";
 import { sql } from "drizzle-orm";
 import { tournament } from "./tournament.ts";
 
-export const season: SQLiteTable = sqliteTable("season", {
+export const season = sqliteTable("season", {
     id: integer("id").primaryKey({ autoIncrement: true }),
     tournamentId: integer("tournament_id").references(() => tournament.id),
     name: text("name").notNull(),
