@@ -1,18 +1,14 @@
 import { Elysia } from "elysia";
-import { app } from "../index.ts";
 import { GameTopic, type MatchPayload, type StatisticsPayload, type StatisticPayload } from "../types/game.ts";
+import type {Logestic} from "logestic";
+import type {BunSQLiteDatabase} from "drizzle-orm/bun-sqlite";
 
-export default new Elysia({
-    websocket: {
-        perMessageDeflate: true,
-        idleTimeout: 10
-    }
-})
+export const game = (app: Elysia<"", false, {decorator: { logestic: Logestic, db: BunSQLiteDatabase }, store: {}, derive: {}, resolve: {}}>) => app
     .ws('/game', {
-        beforeHandle({set, query}): string | void {
+        beforeHandle({set, query, logestic}): string | void {
             query = Object.assign({}, query);
             if (!query.hasOwnProperty('token')) {
-                app.decorator.logestic.warn("Token is missing");
+                logestic.warn("Token is missing");
                 return (set.status = "Unauthorized");
             }
         },

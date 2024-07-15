@@ -3,9 +3,14 @@ import compression from "./extensions/compression.ts";
 import logestic from "./extensions/logestic.ts";
 import drizzle from "./extensions/drizzle.ts";
 
-import game from "./controllers/game.ts";
+import { game } from "./controllers/game.ts";
 
-export const app = new Elysia()
+new Elysia({
+    websocket: {
+        perMessageDeflate: true,
+        idleTimeout: 10
+    }
+})
     // Extensions
     .use(logestic)
     .use(compression)
