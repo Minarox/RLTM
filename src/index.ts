@@ -1,6 +1,7 @@
 import { Elysia } from "elysia";
 import logestic from "./extensions/logestic.ts";
 import drizzle from "./extensions/drizzle.ts";
+import compression from "./extensions/compression.ts";
 
 import { game } from "./controllers/game.ts";
 
@@ -13,6 +14,7 @@ export const app = new Elysia({
     // Extensions
     .use(logestic)
     .decorate('db', drizzle())
+    .use(compression)
 
     // Controllers
     .use(game)
