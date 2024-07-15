@@ -21,7 +21,7 @@
   "scripts": {
     "build": "bun build --minify --entrypoints src/index.ts --outdir build --target bun",
     "migrate": "bunx drizzle-kit generate --dialect sqlite --schema src/schemas --out database/migrations",
-    "seed": "bun run src/seeders/arenas.ts; bun run src/seeders/cars.ts",
+    "seed": "bun run src/seeders/arena.ts; bun run src/seeders/car.ts",
     "dev": "bun --watch src/index.ts",
     "start": "bun build/index.js",
     "test": "bun test"

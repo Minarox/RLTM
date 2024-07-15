@@ -1,7 +1,7 @@
 import db from "../extensions/drizzle.ts";
-import { cars } from "../schemas/cars.ts";
+import { car } from "../schemas/car.ts";
 
-await db().insert(cars).values([
+await db().insert(car).values([
     {
         name:  "Armadillo",
         picture: "a9ea160e791509568760.png"
