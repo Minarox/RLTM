@@ -1,17 +1,24 @@
 import { Elysia } from "elysia";
-import { GameTopic, type MatchPayload, type StatisticsPayload, type StatisticPayload } from "../types/game.ts";
-import type {Logestic} from "logestic";
-import type {BunSQLiteDatabase} from "drizzle-orm/bun-sqlite";
 import { GameTopic, type MatchPayload } from "../types/game.ts";
 import type { Logestic } from "logestic";
 import type { BunSQLiteDatabase } from "drizzle-orm/bun-sqlite";
 import { type Tournament, tournament } from "../schemas/tournament.ts";
 import { eq } from "drizzle-orm";
+import { Stream } from "@elysiajs/stream";
 
 export const game = (app: Elysia<"", false, {decorator: { logestic: Logestic, db: BunSQLiteDatabase }, store: {}, derive: {}, resolve: {}}>) => app
     // Web overlay
-    .get("/game", (): string => {
-        return 'Game';
+    .get("/game", () => {
+        new Stream((stream) => {
+            const interval = setInterval(() => {
+                stream.send('hello world')
+            }, 500)
+
+            setTimeout(() => {
+                clearInterval(interval)
+                stream.close()
+            }, 3000)
+        })
     })
 
     // Rocket League
