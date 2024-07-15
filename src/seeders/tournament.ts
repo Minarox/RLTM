@@ -3,8 +3,7 @@ import { tournament } from "../schemas/tournament.ts";
 
 await db().insert(tournament).values([
     {
-        name: 'Default tournament',
-        description: 'Default tournament'
+        name: 'Default tournament'
     }
 ]);
 
