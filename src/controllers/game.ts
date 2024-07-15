@@ -2,6 +2,11 @@ import { Elysia } from "elysia";
 import { GameTopic, type MatchPayload, type StatisticsPayload, type StatisticPayload } from "../types/game.ts";
 import type {Logestic} from "logestic";
 import type {BunSQLiteDatabase} from "drizzle-orm/bun-sqlite";
+import { GameTopic, type MatchPayload } from "../types/game.ts";
+import type { Logestic } from "logestic";
+import type { BunSQLiteDatabase } from "drizzle-orm/bun-sqlite";
+import { type Tournament, tournament } from "../schemas/tournament.ts";
+import { eq } from "drizzle-orm";
 
 export const game = (app: Elysia<"", false, {decorator: { logestic: Logestic, db: BunSQLiteDatabase }, store: {}, derive: {}, resolve: {}}>) => app
     // Web overlay
@@ -11,23 +16,39 @@ export const game = (app: Elysia<"", false, {decorator: { logestic: Logestic, db
 
     // Rocket League
     .ws("/game", {
-        beforeHandle({set, query, logestic}): string | void {
+        beforeHandle({ set, query, logestic, db }): string | void {
             query = Object.assign({}, query);
+
+            logestic.debug("Checking token...");
             if (!query.hasOwnProperty('token')) {
                 logestic.warn("Token is missing");
                 return (set.status = "Unauthorized");
             }
+
+            const token: string = query["token"] as string;
+            const tournamentFound: Tournament = db.select().from(tournament).where(eq(tournament.token, token)).get() as Tournament;
+
+            logestic.debug(`Token "${token}" found in database: ${tournamentFound ? "yes" : "no"}`);
+            if (!tournamentFound) {
+                logestic.warn("Token is invalid");
+                return (set.status = "Unauthorized");
+            }
+
+            app.state(token, tournamentFound)
         },
         open(ws): void {
-            app.decorator.logestic.info(`Game ${ws.id} connected with token ${(ws.data.query as any).token}`);
+            const token: string = ws.data.query["token"] as string; // @ts-ignore
+            const tournament: Tournament = app.store[token] as Tournament;
+
+            app.decorator.logestic.info(`Tournament "${tournament.name}" - Game ${ws.id} connected.`);
         },
         message(_ws, message: any): void {
             switch (message?.topic) {
                 case GameTopic.MATCH:
-                    getMatch(message.payload);
+                    computeMatch(message.payload);
                     break;
 
-                case GameTopic.STATISTICS:
+                /* case GameTopic.STATISTICS:
                     getStatistics(message.payload);
                     break;
 
@@ -37,26 +58,19 @@ export const game = (app: Elysia<"", false, {decorator: { logestic: Logestic, db
 
                 case GameTopic.ENTITIES:
                     getEntities(message.payload);
-                    break;
+                    break; */
             }
         },
         close(ws): void {
-            app.decorator.logestic.info(`Game ${ws.id} disconnected`);
+            const token: string = ws.data.query["token"] as string; // @ts-ignore
+            const tournament: Tournament = app.store[token] as Tournament;
+
+            app.decorator.logestic.info(`Tournament "${tournament.name}" - Game ${ws.id} disconnected.`);
+            app.state(token, null);
         }
     })
 
-function getMatch(payload: MatchPayload): void {
-    console.log(payload);
-}
-
-function getStatistics(payload: StatisticsPayload): void {
-    console.log(payload);
-}
-
-function getStatistic(payload: StatisticPayload): void {
-    console.log(payload);
-}
-
-function getEntities(payload: any): void {
+function computeMatch(payload: MatchPayload): void {
+    if (!payload) return;
     console.log(payload);
 }
