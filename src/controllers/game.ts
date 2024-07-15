@@ -4,7 +4,13 @@ import type {Logestic} from "logestic";
 import type {BunSQLiteDatabase} from "drizzle-orm/bun-sqlite";
 
 export const game = (app: Elysia<"", false, {decorator: { logestic: Logestic, db: BunSQLiteDatabase }, store: {}, derive: {}, resolve: {}}>) => app
-    .ws('/game', {
+    // Web overlay
+    .get("/game", (): string => {
+        return 'Game';
+    })
+
+    // Rocket League
+    .ws("/game", {
         beforeHandle({set, query, logestic}): string | void {
             query = Object.assign({}, query);
             if (!query.hasOwnProperty('token')) {
