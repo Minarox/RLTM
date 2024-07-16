@@ -33,33 +33,44 @@ export const game = (app: Elysia<"", false, {decorator: { logestic: Logestic, db
             }
 
             const token: string = query["token"] as string;
-            const tournamentFound: Tournament = db.select().from(tournament).where(eq(tournament.token, token)).get() as Tournament;
+            const tournamentDatas: Tournament = db.select().from(tournament).where(eq(tournament.token, token)).get() as Tournament;
 
-            logestic.debug(`Token "${token}" found in database: ${tournamentFound ? "yes" : "no"}`);
-            if (!tournamentFound) {
+            logestic.debug(`Token "${token}" found in database: ${tournamentDatas ? "yes" : "no"}`);
+            if (!tournamentDatas) {
                 logestic.warn("Token is invalid");
                 return (set.status = "Unauthorized");
             }
 
-            app.state(token, tournamentFound)
+            app.state(token, {
+                tournament: tournamentDatas,
+                match: null,
+                statistics: null
+            });
         },
         open(ws): void {
             const token: string = ws.data.query["token"] as string; // @ts-ignore
-            const tournament: Tournament = app.store[token] as Tournament;
+            const tournament: Tournament = app.store[token].tournament as Tournament;
 
             app.decorator.logestic.info(`Tournament "${tournament.name}" - Game ${ws.id} connected.`);
         },
-        message(_ws, message: any): void {
+        message(ws, message: any): void {
+            const token: string = ws.data.query["token"] as string; // @ts-ignore
+            let store = app.store[token];
+
             switch (message?.topic) {
                 case GameTopic.MATCH:
+                    store = Object.assign({}, store, { match: message.payload });
+                    app.state(token, store);
                     computeMatch(message.payload);
                     break;
 
-                /* case GameTopic.STATISTICS:
-                    getStatistics(message.payload);
+                case GameTopic.STATISTICS:
+                    store = Object.assign({}, store, { statistics: message.payload });
+                    app.state(token, store);
+                    computeStatistics(message.payload);
                     break;
 
-                case GameTopic.STATISTIC:
+                /* case GameTopic.STATISTIC:
                     getStatistic(message.payload);
                     break;
 
@@ -70,7 +81,7 @@ export const game = (app: Elysia<"", false, {decorator: { logestic: Logestic, db
         },
         close(ws): void {
             const token: string = ws.data.query["token"] as string; // @ts-ignore
-            const tournament: Tournament = app.store[token] as Tournament;
+            const tournament: Tournament = app.store[token].tournament as Tournament;
 
             app.decorator.logestic.info(`Tournament "${tournament.name}" - Game ${ws.id} disconnected.`);
             app.state(token, null);
@@ -78,6 +89,9 @@ export const game = (app: Elysia<"", false, {decorator: { logestic: Logestic, db
     })
 
 function computeMatch(payload: MatchPayload): void {
-    if (!payload) return;
+    console.log(payload);
+}
+
+function computeStatistics(payload: MatchPayload): void {
     console.log(payload);
 }
