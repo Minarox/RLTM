@@ -12,16 +12,17 @@ export const app = new Elysia({
     }
 })
     // Extensions
+    .state("version", "1.0.0")
     .decorate('db', drizzle())
     .use(logestic)
     .use(compression)
 
+    // Routes
+    .get("/", "Hello World")
+    .get("/version", ({ store }): string => store.version)
+
     // Controllers
     .use(game)
-
-    .get("/", (): string => {
-        return 'Hello World';
-    })
 
     // Start the server
     .onStart(({ server, decorator }): void =>  {
