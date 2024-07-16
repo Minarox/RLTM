@@ -1,8 +1,7 @@
 import { Elysia } from "elysia";
-import logestic from "./extensions/logestic.ts";
 import drizzle from "./extensions/drizzle.ts";
+import logestic from "./extensions/logestic.ts";
 import compression from "./extensions/compression.ts";
-import { nocache } from "elysia-nocache";
 
 import { game } from "./controllers/game.ts";
 
@@ -13,10 +12,9 @@ export const app = new Elysia({
     }
 })
     // Extensions
-    .use(logestic)
     .decorate('db', drizzle())
+    .use(logestic)
     .use(compression)
-    .use(nocache)
 
     // Controllers
     .use(game)
