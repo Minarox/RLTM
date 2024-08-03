@@ -1,6 +1,7 @@
 import { Elysia } from "elysia";
 import logger from "./extensions/logger.ts";
 import drizzle from "./extensions/drizzle.ts";
+import { EventEmitter } from "events";
 import files from "./extensions/files.ts";
 import compression from "./extensions/compression.ts";
 
@@ -15,6 +16,7 @@ export const app = new Elysia({
     // Extensions
     .decorate('log', logger)
     .decorate('db', drizzle())
+    .decorate('event', new EventEmitter())
     .use(files)
     .use(compression)
 

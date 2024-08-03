@@ -1,0 +1,49 @@
+@font-face {
+    font-family: Gotham Pro;
+    font-weight: 800;
+    src: url("../otf/GothamPro/GothaProBla.otf") format("opentype");
+}
+
+@font-face {
+    font-family: Gotham Pro;
+    font-weight: 700;
+    src: url("../otf/GothamPro/GothaProBol.otf") format("opentype");
+}
+
+@font-face {
+    font-family: Gotham Pro;
+    font-weight: 500;
+    src: url("../otf/GothamPro/GothaProMed.otf") format("opentype");
+}
+
+@font-face {
+    font-family: Gotham Pro;
+    font-weight: 400;
+    src: url("../otf/GothamPro/GothaProReg.otf") format("opentype");
+}
+
+@font-face {
+    font-family: Gotham Pro;
+    font-weight: 300;
+    src: url("../otf/GothamPro/GothaProLig.otf") format("opentype");
+}
+
+.hidden {
+    display: none !important;
+}
+
+body {
+    margin: 0;
+    overflow: hidden;
+    padding: 0;
+}
+
+p,
+span {
+    color: #fff;
+    font-family: "Gotham Pro";
+    font-size: 1.1rem;
+    margin: 0;
+    padding: 0;
+    text-transform: uppercase;
+}

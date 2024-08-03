@@ -1,0 +1,431 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta content="width=device-width, initial-scale=1.0" name="viewport">
+    <title>Overlay</title>
+    <link href="img/favicon.ico" rel="icon"/>
+    <link href="css/style.css" rel="stylesheet">
+    <style>
+        :root {
+            --animation-delay: 0s;
+        }
+
+        body {
+            height: 100vh;
+            width: 100vw;
+        }
+
+        #app {
+            display: flex;
+            height: inherit;
+            justify-content: center;
+            width: inherit;
+        }
+
+        #app > article:first-of-type {
+            align-items: center;
+            background-color: rgb(27, 27, 27);
+            border-radius: 0 0 16px 16px;
+            display: flex;
+            gap: 0.6rem;
+            height: 42px;
+            justify-content: center;
+            left: 50%;
+            position: absolute;
+            top: 0;
+            transform: translateX(-50%);
+            width: 800px;
+            z-index: 10;
+        }
+
+        #app > article:nth-of-type(2) {
+            position: relative;
+            top: 42px;
+        }
+
+        #app > article:nth-of-type(2) > section {
+            left: 50%;
+            position: absolute;
+            top: 0;
+            transform: translateX(-50%);
+        }
+
+        #app > article:nth-of-type(3) {
+            display: flex;
+            gap: 1rem;
+            position: absolute;
+            top: 200px;
+            left: 0;
+            right: 0;
+            border: 2px solid red;
+        }
+
+        #app #shadow {
+            filter: blur(50px) brightness(0);
+            left: 0;
+            position: absolute;
+            top: 0;
+            z-index: -1;
+        }
+
+        #app #replay,
+        #app #overtime {
+            align-items: flex-end;
+            background-color: transparent;
+            background-size: 150% 150%;
+            border-radius: 16px;
+            display: flex;
+            font-weight: 500;
+            height: 56px;
+            justify-content: center;
+            left: 50%;
+            overflow: hidden;
+            padding-bottom: 0.4rem;
+            position: absolute;
+            top: 20px;
+            transform: translateX(-50%);
+            transition: top 0.3s cubic-bezier(0.250, 0.460, 0.450, 0.940);
+            width: 160px;
+            z-index: -1;
+        }
+
+        #app #replay:after,
+        #app #overtime:after {
+            animation: rotate-gradient linear 5s infinite;
+            background-image: linear-gradient(45deg, rgb(240, 0, 0) 0%, rgb(155, 0, 0) 100%);
+            bottom: -2rem;
+            content: '';
+            display: block;
+            left: 0;
+            position: absolute;
+            right: 0;
+            top: -2rem;
+            z-index: -1;
+        }
+
+        @keyframes rotate-gradient {
+            from {
+                transform: rotate(0) scale(1.32);
+            }
+            to {
+                transform: rotate(360deg) scale(1.32);
+            }
+        }
+
+        #app #score {
+            align-items: center;
+            background: linear-gradient(90deg, rgb(33, 150, 243) 0%, rgb(33, 150, 243) 50%, rgb(249, 86, 34) 50%, rgb(249, 86, 34) 100%);
+            border-radius: 16px;
+            display: flex;
+            height: 84px;
+            justify-content: space-between;
+            left: 50%;
+            padding-inline: 1rem;
+            position: absolute;
+            top: 0;
+            transform: translateX(-50%);
+            width: 380px;
+            z-index: -1;
+        }
+
+        #app #score div {
+            align-items: center;
+            display: flex;
+            justify-content: center;
+            width: 60px;
+        }
+
+        #app #score div p {
+            font-size: 3.5em;
+            font-weight: 800;
+        }
+
+        #app #timer {
+            font-size: 3.1em;
+            font-weight: 700;
+            left: 50%;
+            letter-spacing: 0.04em;
+            position: absolute;
+            top: 8px;
+            transform: translateX(-50%);
+            width: max-content;
+        }
+
+        #app #match {
+            font-size: 1.2em;
+            font-weight: 400;
+            left: 50%;
+            position: absolute;
+            top: 110px;
+            transform: translateX(-50%);
+            transition: top 0.3s cubic-bezier(0.250, 0.460, 0.450, 0.940);
+            width: max-content;
+        }
+
+        #app #match.show {
+            top: 144px;
+        }
+
+        #app #replay.show,
+        #app #overtime.show {
+            top: 70px;
+        }
+
+        #app section:last-of-type {
+            display: flex;
+            gap: 29rem;
+            top: 12px !important;
+        }
+
+        #app section:last-of-type > div {
+            align-items: center;
+            background-blend-mode: soft-light;
+            background-color: rgb(27, 27, 27);
+            background-image: url("img/bg_team_blue.png");
+            background-size: 100% 100%;
+            border-radius: 16px;
+            display: flex;
+            height: 62px;
+            justify-content: center;
+            position: relative;
+            width: 360px;
+        }
+
+        #app section:last-of-type > div:last-of-type {
+            background-image: url("img/bg_team_orange.png");
+        }
+
+        #app #team_1_name,
+        #app #team_2_name {
+            color: rgb(33, 150, 243);
+            font-size: 1.6em;
+            font-weight: bold;
+        }
+
+        #app #team_2_name {
+            color: rgb(249, 86, 34);
+        }
+
+        #app section:last-of-type > div > div:first-of-type {
+            align-items: center;
+            background-color: rgb(44, 44, 44);
+            border-radius: 16px 0 0 16px;
+            display: flex;
+            height: inherit;
+            justify-content: center;
+            left: -86px;
+            padding-right: 1rem;
+            position: absolute;
+            width: 86px;
+            z-index: -1;
+        }
+
+        #app section:last-of-type > div:last-of-type > div:first-of-type {
+            border-radius: 0 16px 16px 0;
+            left: unset;
+            padding-left: 1rem;
+            padding-right: 0;
+            right: -86px;
+        }
+
+        #app section:last-of-type > div > div:first-of-type img {
+            height: calc(100% - 0.9rem);
+            object-fit: contain;
+            width: calc(100% - 0.9rem);
+        }
+
+        #app section:last-of-type > div > div:last-of-type {
+            align-items: center;
+            display: flex;
+            flex-direction: row-reverse;
+            gap: 1rem;
+            height: 24px;
+            justify-content: space-between;
+            margin-inline: 1rem;
+            position: absolute;
+            top: calc(100% - 24px / 2);
+            width: 320px;
+            z-index: -1;
+        }
+
+        #app section:last-of-type > div:last-of-type > div:last-of-type {
+            flex-direction: row;
+        }
+
+        #app section:last-of-type > div > div:last-of-type i {
+            background-color: rgb(44, 44, 44);
+            border-radius: 16px;
+            box-shadow: inset 0 0 0 6px rgb(27, 27, 27);
+            height: inherit;
+            width: 100%;
+        }
+
+        #app section:last-of-type > div > div:last-of-type i.fill {
+            background-color: rgb(33, 150, 243);
+        }
+
+        #app section:last-of-type > div:last-of-type > div:last-of-type i.fill {
+            background-color: rgb(249, 86, 34);
+        }
+    </style>
+</head>
+
+<body>
+<main class="animation" id="app">
+    <article>
+        <p>DawaEsport ChampionShip</p>
+        <p>-</p>
+        <p id="season">Saison 0</p>
+    </article>
+    <article>
+        <section>
+            <img alt="Time" src="img/counter.png">
+            <img alt="Time" id="shadow" src="img/counter.png">
+            <div id="score">
+                <div>
+                    <p id="score_team_1">0</p>
+                </div>
+                <div>
+                    <p id="score_team_2">0</p>
+                </div>
+            </div>
+            <div id="replay">
+                <p>Replay</p>
+            </div>
+            <div id="overtime">
+                <p>Overtime</p>
+            </div>
+            <p id="timer">0:00</p>
+            <p id="match">Match 0 - BO 0</p>
+        </section>
+        <section>
+            <div>
+                <p id="team_1_name">Blue</p>
+                <div>
+                    <img alt="Team 1" id="team_1_logo" src="img/Logo.png">
+                </div>
+                <div id="team_1_round"></div>
+            </div>
+            <div>
+                <p id="team_2_name">Orange</p>
+                <div>
+                    <img alt="Team 2" id="team_2_logo" src="img/Logo.png">
+                </div>
+                <div id="team_2_round"></div>
+            </div>
+        </section>
+    </article>
+    <article>
+        <section id="team_1">
+
+        </section>
+        <section id="team_2">
+
+        </section>
+    </article>
+</main>
+
+<script>
+    function setData(data) {
+        document.getElementById("season").textContent = `Saison ${data.season}`;
+        document.getElementById("match").textContent = `Match ${data.match_count + 1} - BO ${data.length}`;
+
+        for (let i = 0; i < Object.keys(data.teams).length; i++) {
+            document.getElementById(`team_${i + 1}_name`).textContent = data.teams[`team_${i + 1}`].name;
+            document.getElementById(`team_${i + 1}_logo`).src = `img/teams/logo/${data.teams[`team_${i + 1}`].logo}`;
+
+            document.getElementById(`team_${i + 1}_round`).innerHTML = '';
+            for (let j = 0; j < 3; j++) {
+                const round = document.createElement("i");
+                if (j < data.teams[`team_${i + 1}`].score) {
+                    round.classList.add("fill");
+                }
+                document.getElementById(`team_${i + 1}_round`).appendChild(round);
+            }
+        }
+    }
+
+    function showOvertime(boolean) {
+        const overtime_element = document.getElementById("overtime");
+        const match_element = document.getElementById("match");
+
+        if (boolean) {
+            overtime_element.classList.add("show");
+            match_element.classList.add("show");
+        } else {
+            overtime_element.classList.remove("show");
+            match_element.classList.remove("show");
+        }
+    }
+
+    function showReplay(boolean) {
+        const replay_element = document.getElementById("replay");
+        const match_element = document.getElementById("match");
+
+        if (boolean) {
+            showOvertime(false);
+            replay_element.classList.add("show");
+            match_element.classList.add("show");
+        } else {
+            replay_element.classList.remove("show");
+            match_element.classList.remove("show");
+        }
+    }
+
+    function updateTimer(data) {
+        showOvertime(data?.overtime);
+        const timer = document.getElementById("timer");
+        timer.innerText = `${data?.overtime ? '+' : ''}${Math.floor(data.time / 60)}:${(data.time % 60).toString().padStart(2, "0")}`;
+    }
+
+    function showData() {
+        document.getElementById("app").classList.add("animation");
+        document.getElementById("app").classList.remove("hidden");
+    }
+
+    function hideData() {
+        document.getElementById("app").classList.add("hidden");
+        document.getElementById("app").classList.remove("animation");
+    }
+
+    const match = new EventSource("http://localhost:3000/game/match");
+    match.onmessage = function (event) {
+        if (event.data !== 'null') {
+            const data = JSON.parse(event.data);
+            document.getElementById("timer").textContent = `${data?.isOvertime ? '+' : ''}${Math.floor(data.time / 60)}:${(data.time % 60).toString().padStart(2, "0")}`;
+            document.getElementById("score_team_1").textContent = data?.score[0].toString();
+            document.getElementById("score_team_2").textContent = data?.score[1].toString();
+            showReplay(data?.isReplay);
+            showOvertime(data?.isOvertime);
+        } else {
+            document.getElementById("timer").textContent = "0:00";
+            document.getElementById("score_team_1").textContent = "0";
+            document.getElementById("score_team_2").textContent = "0";
+            showReplay(false);
+            showOvertime(false);
+        }
+    }
+
+    const entities = new EventSource("http://localhost:3000/game/entities");
+    entities.onmessage = function (event) {
+        if (event.data !== 'null') {
+            const data = JSON.parse(event.data);
+            document.getElementById("team_1").innerHTML = '';
+            document.getElementById("team_2").innerHTML = '';
+
+            data.cars.forEach((team, teamIndex) => {
+                Object.keys(team).forEach((car) => {
+                    const div = document.createElement("div");
+                    div.innerText = `${car.split('_')[1]} - ${team[car].boost}`;
+                    document.getElementById(`team_${teamIndex + 1}`).appendChild(div);
+                })
+            })
+        } else {
+            document.getElementById("team_1").innerHTML = '';
+            document.getElementById("team_2").innerHTML = '';
+        }
+    }
+</script>
+</body>
+</html>
