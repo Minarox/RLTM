@@ -1,6 +1,6 @@
 import { Elysia } from "elysia";
+import logger from "./extensions/logger.ts";
 import drizzle from "./extensions/drizzle.ts";
-import logestic from "./extensions/logestic.ts";
 import compression from "./extensions/compression.ts";
 
 import { game } from "./controllers/game.ts";
@@ -12,21 +12,27 @@ export const app = new Elysia({
     }
 })
     // Extensions
-    .state("version", "1.0.0")
+    .decorate('log', logger)
     .decorate('db', drizzle())
-    .use(logestic)
     .use(compression)
-
-    // Routes
-    .get("/", "Hello World")
-    .get("/version", ({ store }): string => store.version)
 
     // Controllers
     .use(game)
 
-    // Start the server
     .onStart(({ server, decorator }): void =>  {
         console.clear();
-        decorator.logestic.info(`🏎️ RLTM is running at ${server?.url}.`)
+        decorator.log.info(`🚀 RLTM is running at ${server?.url}.`)
+    })
+    .onRequest(({ request, server, log }): void => {
+        const origin: string = server?.url?.origin ?? '';
+        const path: string = request.url.slice(origin.length);
+
+        log.http(`${request.method} ${path}`);
+    })
+    .onError(({ error, request, code, server, log }): void => {
+        const origin: string = server?.url?.origin ?? '';
+        const path: string = request.url.slice(origin.length);
+
+        log.error(`${request.method} ${path} ${code} | ${error}`);
     })
     .listen(3000);

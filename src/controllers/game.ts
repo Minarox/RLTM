@@ -1,17 +1,19 @@
 import { Elysia } from "elysia";
 import {GameTopic, type MatchPayload, type StatisticsPayload} from "../types/game.ts";
-import type { Logestic } from "logestic";
 import type { BunSQLiteDatabase } from "drizzle-orm/bun-sqlite";
+import logger from "../extensions/logger.ts";
 
-export const game = (app: Elysia<"", false, {decorator: { logestic: Logestic, db: BunSQLiteDatabase }, store: { match: MatchPayload | null; statistics: StatisticsPayload | null }, derive: {}, resolve: {}}>) => app
+export const game = (app: Elysia<"", false, {decorator: { log: typeof logger, db: BunSQLiteDatabase, event: EventEmitter }, store: { match: MatchPayload | null; statistics: StatisticsPayload | null }, derive: {}, resolve: {}}>) => app
     .state("match", null)
     .state("statistics", null)
 
     .ws("/game", {
+        perMessageDeflate: true,
         open(ws): void {
-            app.decorator.logestic.info(`Game ${ws.id} connected.`);
+            app.decorator.log.info(`Game ${ws.id} connected.`);
         },
         message(_ws, message: any): void {
+            // console.log(message?.topic)
             switch (message?.topic) {
                 case GameTopic.MATCH:
                     app.store.match = message.payload;
@@ -32,6 +34,6 @@ export const game = (app: Elysia<"", false, {decorator: { logestic: Logestic, db
             app.store.match = null;
             app.store.statistics = null;
 
-            app.decorator.logestic.info(`Game ${ws.id} disconnected.`);
+            app.decorator.log.info(`Game ${ws.id} disconnected.`);
         }
     });

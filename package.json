@@ -39,6 +39,6 @@
     "drizzle-orm": "^0.32.1",
     "elysia": "^1.1.5",
     "elysia-compression": "^0.0.7",
-    "logestic": "^1.2.3"
+    "winston": "^3.13.1"
   }
 }
