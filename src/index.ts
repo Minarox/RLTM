@@ -1,6 +1,7 @@
 import { Elysia } from "elysia";
 import logger from "./extensions/logger.ts";
 import drizzle from "./extensions/drizzle.ts";
+import files from "./extensions/files.ts";
 import compression from "./extensions/compression.ts";
 
 import { game } from "./controllers/game.ts";
@@ -14,6 +15,7 @@ export const app = new Elysia({
     // Extensions
     .decorate('log', logger)
     .decorate('db', drizzle())
+    .use(files)
     .use(compression)
 
     // Controllers

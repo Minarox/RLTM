@@ -34,6 +34,7 @@
     "typescript": "^5.5.3"
   },
   "dependencies": {
+    "@elysiajs/static": "^1.1.0",
     "@elysiajs/stream": "^1.1.0",
     "colors": "^1.4.0",
     "drizzle-orm": "^0.32.1",
