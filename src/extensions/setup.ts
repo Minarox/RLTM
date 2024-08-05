@@ -18,6 +18,11 @@ const setup = new Elysia({
         }
     }))
     .use(staticPlugin({
+        assets: "public",
+        prefix: "/"
+    }))
+    .use(staticPlugin({
+        assets: "interface",
         prefix: "/"
     }))
 
