@@ -1,21 +1,23 @@
-import { Elysia } from "elysia";
-import {GameTopic, type MatchPayload, type StatisticPayload, type StatisticsPayload} from "../types/game.ts";
-import type { BunSQLiteDatabase } from "drizzle-orm/bun-sqlite";
+import {Elysia} from "elysia";
+import setup from "../extensions/setup.ts";
+import { GameTopic, type StatisticPayload } from "../types/game.ts";
 import Stream from "@elysiajs/stream";
-import type { EventEmitter } from "events";
-import logger from "../extensions/logger.ts";
 
-export const game = (app: Elysia<"", false, {decorator: { log: typeof logger, db: BunSQLiteDatabase, event: EventEmitter }, store: { match: MatchPayload | null; statistics: StatisticsPayload | null }, derive: {}, resolve: {}}>) => app
-    .state("match", null)
-    .state("statistics", null)
-
-    .ws("/game", {
+const app = new Elysia({
+    name: "Game",
+    websocket: {
         perMessageDeflate: true,
-        open(ws): void {
+        idleTimeout: 10
+    }
+})
+    .use(setup)
+
+    .ws("/", {
+        perMessageDeflate: true,
+        open(ws: any): void {
             app.decorator.log.info(`Game ${ws.id} connected.`);
         },
-        message(_ws, message: any): void {
-            // console.log(message?.topic)
+        message(_ws: any, message: any): void {
             switch (message?.topic) {
                 case GameTopic.MATCH:
                     app.store.match = message.payload;
@@ -40,7 +42,7 @@ export const game = (app: Elysia<"", false, {decorator: { log: typeof logger, db
                     break;
             }
         },
-        close(ws): void {
+        close(ws: any): void {
             app.store.match = null;
             app.store.statistics = null;
 
@@ -48,7 +50,7 @@ export const game = (app: Elysia<"", false, {decorator: { log: typeof logger, db
         }
     })
 
-    .get("/game/match", () =>
+    .get("/api/game/match", () =>
         new Stream((stream): void => {
             stream.send(app.store.match || 'null');
 
@@ -58,7 +60,7 @@ export const game = (app: Elysia<"", false, {decorator: { log: typeof logger, db
 
         }))
 
-    .get("/game/statistics", () =>
+    .get("/api/game/statistics", () =>
         new Stream((stream): void => {
             stream.send(app.store.statistics || 'null');
 
@@ -67,16 +69,18 @@ export const game = (app: Elysia<"", false, {decorator: { log: typeof logger, db
             });
         }))
 
-    .get("/game/statistic", () =>
+    .get("/api/game/statistic", () =>
         new Stream((stream): void => {
             app.decorator.event.on("statistic", (statistic: StatisticPayload): void => {
                 stream.send(statistic);
             });
         }))
 
-    .get("/game/entities", () =>
+    .get("/api/game/entities", () =>
         new Stream((stream): void => {
             app.decorator.event.on("entities", (entities: any): void => {
                 stream.send(entities);
             });
         }));
+
+export default app;

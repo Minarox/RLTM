@@ -389,7 +389,7 @@
         document.getElementById("app").classList.remove("animation");
     }
 
-    const match = new EventSource("http://localhost:3000/game/match");
+    const match = new EventSource("http://localhost:3000/api/game/match");
     match.onmessage = function (event) {
         if (event.data !== 'null') {
             const data = JSON.parse(event.data);
@@ -407,7 +407,7 @@
         }
     }
 
-    const entities = new EventSource("http://localhost:3000/game/entities");
+    const entities = new EventSource("http://localhost:3000/api/game/entities");
     entities.onmessage = function (event) {
         if (event.data !== 'null') {
             const data = JSON.parse(event.data);
