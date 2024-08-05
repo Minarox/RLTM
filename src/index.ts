@@ -1,12 +1,11 @@
 import { Elysia } from "elysia";
-import setup from "./extensions/setup.ts";
+import ws from "./controllers/ws.ts";
 import game from "./controllers/game.ts";
 
 const app = new Elysia({
     name: "RLTM"
 })
-    .use(setup)
-
+    .use(ws)
     .use(game)
 
     .listen(3000);

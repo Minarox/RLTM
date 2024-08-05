@@ -41,7 +41,7 @@ const setup = new Elysia({
         log.http(`${request.method} ${path}`);
     })
 
-    .onError(({ error, request, code, server, log }): void => {
+    .onError(({ error, request, code, server, log }) => {
         const origin: string = server?.url?.origin ?? '';
         const path: string = request.url.slice(origin.length);
 
