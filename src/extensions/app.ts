@@ -6,8 +6,8 @@ import logger from "./logger.ts";
 import database from "./database.ts";
 import { EventEmitter } from "events";
 
-const setup = new Elysia({
-    name: "Setup"
+const app = new Elysia({
+    name: "App"
 })
     .use(HttpStatusCode())
     .use(compression({
@@ -33,8 +33,6 @@ const setup = new Elysia({
     })
 
     .state("version", "1.0.0")
-    .state("match", null)
-    .state("statistics", null)
 
     .onRequest(({ request, server, log }): void => {
         const origin: string = server?.url?.origin ?? '';
@@ -50,4 +48,4 @@ const setup = new Elysia({
         log.error(`${request.method} ${path} ${code} | ${error}`);
     });
 
-export default setup;
+export default app;
