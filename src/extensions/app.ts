@@ -1,5 +1,4 @@
 import { Elysia } from "elysia";
-import { HttpStatusCode } from "elysia-http-status-code";
 import { compression } from "elysia-compression";
 import { staticPlugin } from "@elysiajs/static";
 import logger from "./logger.ts";
@@ -9,7 +8,6 @@ import { EventEmitter } from "events";
 const app = new Elysia({
     name: "App"
 })
-    .use(HttpStatusCode())
     .use(compression({
         type: 'gzip',
         options: {
