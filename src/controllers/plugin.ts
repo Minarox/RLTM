@@ -61,15 +61,10 @@ export default new Elysia({
         close({ data, id }): void {
             const token: string = data.params.token;
 
-            app.store[token] = {
-                tournament: app.store[token].tournament,
-                season: app.store[token].season,
-                game: app.store[token].game,
-                match: null,
-                statistics: null
-            };
-
+            app.store[token].match = null;
             app.decorator.event.emit(`${token}.live.match`);
+
+            app.store[token].statistics = null;
             app.decorator.event.emit(`${token}.live.statistics`);
 
             app.decorator.log.info(`Game ${id} disconnected.`);
