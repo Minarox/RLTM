@@ -20,8 +20,8 @@
   "type": "module",
   "scripts": {
     "build": "bun build --minify --entrypoints src/index.ts --outdir build --target bun",
-    "migrate": "bunx drizzle-kit generate --dialect sqlite --schema src/schemas --out database/migrations",
-    "seed": "bun run src/seeders/arena.ts; bun run src/seeders/car.ts; bun run src/seeders/tournament.ts",
+    "migrate": "bunx drizzle-kit generate --dialect sqlite --schema src/database/schemas --out src/database/migrations",
+    "seed": "bun run src/database/seeders/arena.ts; bun run src/database/seeders/car.ts; bun run src/database/seeders/tournament.ts; bun run src/database/seeders/season.ts",
     "dev": "bun --watch src/index.ts",
     "start": "bun build/index.js",
     "test": "bun test"

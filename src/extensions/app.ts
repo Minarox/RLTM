@@ -3,7 +3,7 @@ import { HttpStatusCode } from "elysia-http-status-code";
 import { compression } from "elysia-compression";
 import { staticPlugin } from "@elysiajs/static";
 import logger from "./logger.ts";
-import drizzle from "./drizzle.ts";
+import database from "./database.ts";
 import { EventEmitter } from "events";
 
 const setup = new Elysia({
@@ -26,9 +26,11 @@ const setup = new Elysia({
         prefix: "/"
     }))
 
-    .decorate('log', logger)
-    .decorate('db', drizzle())
-    .decorate('event', new EventEmitter())
+    .decorate({
+        log: logger,
+        db: database,
+        event: new EventEmitter()
+    })
 
     .state("version", "1.0.0")
     .state("match", null)

@@ -1,7 +1,7 @@
-import db from "../extensions/drizzle.ts";
+import db from "../../extensions/database.ts";
 import { arena } from "../schemas/arena.ts";
 
-await db().insert(arena).values([
+await db.insert(arena).values([
     {
         code: "stadium_p",
         name: "DFH Stadium"
