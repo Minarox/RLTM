@@ -327,6 +327,9 @@
 </main>
 
 <script>
+    const params = new URLSearchParams(window.location.search);
+    const token = params.get('token');
+
     function setData(data) {
         document.getElementById("season").textContent = `Saison ${data.season}`;
         document.getElementById("match").textContent = `Match ${data.match_count + 1} - BO ${data.length}`;
@@ -373,12 +376,6 @@
         }
     }
 
-    function updateTimer(data) {
-        showOvertime(data?.overtime);
-        const timer = document.getElementById("timer");
-        timer.innerText = `${data?.overtime ? '+' : ''}${Math.floor(data.time / 60)}:${(data.time % 60).toString().padStart(2, "0")}`;
-    }
-
     function showData() {
         document.getElementById("app").classList.add("animation");
         document.getElementById("app").classList.remove("hidden");
@@ -389,15 +386,21 @@
         document.getElementById("app").classList.remove("animation");
     }
 
-    const match = new EventSource("http://localhost:3000/api/game/match");
+    const info = new EventSource(`http://localhost:3000/api/${token}/live/info`);
+    info.onmessage = function (event) {
+        const data = JSON.parse(event.data);
+        console.log(data);
+    }
+
+    const match = new EventSource(`http://localhost:3000/api/${token}/live/match`);
     match.onmessage = function (event) {
-        if (event.data !== 'null') {
-            const data = JSON.parse(event.data);
-            document.getElementById("timer").textContent = `${data?.isOvertime ? '+' : ''}${Math.floor(data.time / 60)}:${(data.time % 60).toString().padStart(2, "0")}`;
-            document.getElementById("score_team_1").textContent = data?.score[0].toString();
-            document.getElementById("score_team_2").textContent = data?.score[1].toString();
-            showReplay(data?.isReplay);
-            showOvertime(data?.isOvertime);
+        const data = JSON.parse(event.data);
+        if (data) {
+            document.getElementById("timer").textContent = `${data.isOvertime ? '+' : ''}${Math.floor(data.time / 60)}:${(data.time % 60).toString().padStart(2, "0")}`;
+            document.getElementById("score_team_1").textContent = data.score[0].toString();
+            document.getElementById("score_team_2").textContent = data.score[1].toString();
+            showReplay(data.isReplay);
+            showOvertime(data.isOvertime);
         } else {
             document.getElementById("timer").textContent = "0:00";
             document.getElementById("score_team_1").textContent = "0";
@@ -407,24 +410,30 @@
         }
     }
 
-    const entities = new EventSource("http://localhost:3000/api/game/entities");
+    const entities = new EventSource(`http://localhost:3000/api/${token}/live/entities`);
     entities.onmessage = function (event) {
-        if (event.data !== 'null') {
-            const data = JSON.parse(event.data);
-            document.getElementById("team_1").innerHTML = '';
-            document.getElementById("team_2").innerHTML = '';
-
+        const data = JSON.parse(event.data);
+        if (data.cars) {
             data.cars.forEach((team, teamIndex) => {
-                Object.keys(team).forEach((car) => {
-                    const div = document.createElement("div");
-                    div.innerText = `${car.split('_')[1]} - ${team[car].boost}`;
-                    document.getElementById(`team_${teamIndex + 1}`).appendChild(div);
-                })
+                if (team) {
+                    Object.keys(team).forEach((car) => {
+                        const div = document.createElement("div");
+                        div.innerText = `${car.split('_')[1]} - ${team[car].boost}`;
+                        document.getElementById(`team_${teamIndex + 1}`).innerHTML = '';
+                        document.getElementById(`team_${teamIndex + 1}`).appendChild(div);
+                    })
+                }
             })
         } else {
             document.getElementById("team_1").innerHTML = '';
             document.getElementById("team_2").innerHTML = '';
         }
+    }
+
+    const statistic = new EventSource(`http://localhost:3000/api/${token}/live/statistic`);
+    statistic.onmessage = function (event) {
+        const data = JSON.parse(event.data);
+        console.log(data);
     }
 </script>
 </body>

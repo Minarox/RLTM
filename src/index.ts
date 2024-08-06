@@ -1,17 +1,17 @@
 import { Elysia } from "elysia";
-import ws from "./controllers/ws.ts";
-import game from "./controllers/game.ts";
 import app from "./extensions/app.ts";
+import plugin from "./controllers/plugin.ts";
+import live from "./controllers/live.ts";
 import { getTournaments } from "./database/queries/tournament.ts";
 import { getCurrentSeason } from "./database/queries/season.ts";
 
 new Elysia({
     name: "RLTM"
 })
-    .use(ws)
-    .use(game)
     .use(app)
 
+    .use(plugin)
+    .use(live)
 
     .onStart(({ server }): void => {
         console.clear();

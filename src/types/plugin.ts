@@ -6,16 +6,17 @@ export enum GameTopic {
 }
 
 export interface MatchPayload {
+    duration: number;
+    id: string;
+    isEnded: boolean;
+    isOvertime: boolean;
+    isPaused: boolean;
+    isReplay: boolean;
+    isStarted: boolean;
+    isUnlimited: boolean;
     map: string;
     score: Array<number>;
     time: number;
-    duration: number;
-    isUnlimited: boolean;
-    isStarted: boolean;
-    isPaused: boolean;
-    isOvertime: boolean;
-    isEnded: boolean;
-    isReplay: boolean;
 }
 
 export interface StatisticsPayload {
@@ -37,4 +38,25 @@ export interface StatisticPayload {
     name: string;
     uid: string;
     eventName: string;
+}
+
+export interface EntititesPayload {
+    balls: Array<Balls>;
+    cars: Array<{ [key: string]: Cars }>;
+}
+
+interface Balls {
+    location: Array<number>;
+}
+
+interface Cars {
+    asFlip: boolean;
+    boost: number;
+    isDodging: boolean;
+    isInGoal: boolean;
+    isOnGround: boolean;
+    isOnWall: boolean;
+    isSuperSonic: boolean;
+    location: Array<number>;
+    speed: number;
 }

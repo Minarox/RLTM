@@ -29,7 +29,7 @@
     "noPropertyAccessFromIndexSignature": true,
     "forceConsistentCasingInFileNames": true,
     "strictNullChecks": true,
-    "noImplicitAny": true,
+    "noImplicitAny": false,
     "allowUnusedLabels": false,
     "allowUnreachableCode": false,
     "strictFunctionTypes": true
