@@ -4,10 +4,24 @@ import plugin from "./controllers/plugin.ts";
 import live from "./controllers/live.ts";
 import { getTournaments } from "./database/queries/tournament.ts";
 import { getCurrentSeason } from "./database/queries/season.ts";
+import { compression } from "elysia-compression";
+import { staticPlugin } from "@elysiajs/static";
 
 new Elysia({
     name: "RLTM"
 })
+    .use(compression({
+        type: 'gzip',
+        options: {
+            level: 9,
+            memLevel: 9
+        }
+    }))
+    .use(staticPlugin({
+        prefix: "/",
+        noCache: true
+    }))
+
     .use(app)
 
     .use(plugin)
