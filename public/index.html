@@ -274,9 +274,7 @@
 <body>
 <main class="animation" id="app">
     <article>
-        <p>DawaEsport ChampionShip</p>
-        <p>-</p>
-        <p id="season">Saison 0</p>
+        <p id="tournament"></p>
     </article>
     <article>
         <section>
@@ -389,7 +387,13 @@
     const info = new EventSource(`http://localhost:3000/api/${token}/live/info`);
     info.onmessage = function (event) {
         const data = JSON.parse(event.data);
-        console.log(data);
+        if (data) {
+            if (data.tournament) {
+                document.getElementById("tournament").textContent = `${data.tournament.name}`;
+            }
+        } else {
+            document.getElementById("tournament").textContent = "";
+        }
     }
 
     const match = new EventSource(`http://localhost:3000/api/${token}/live/match`);
