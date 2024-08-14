@@ -5,7 +5,6 @@ import { type Season, season } from "../schemas/season.ts";
 export function getCurrentSeason(tournamentId: number) {
     const currentDate: string = new Date().toISOString().split('T')[0].split('-').join('');
 
-
     return db
         .select()
         .from(season)
