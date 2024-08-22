@@ -12,4 +12,4 @@ await db.insert(season).values([
     }
 ]);
 
-console.log("Seasons seeded successfully.")
+console.log("Season table seeded successfully.")

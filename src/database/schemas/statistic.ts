@@ -1,62 +1,7 @@
 import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
-import { sql } from "drizzle-orm";
+import { type InferSelectModel, sql } from "drizzle-orm";
 import { game } from "./game.ts";
 import { player } from "./player.ts";
-
-export interface Statistic {
-    id: number;
-    gameId: number;
-    playerId: number;
-    mvp: number;
-    score: number;
-    goals: number;
-    shots: number;
-    assists: number;
-    saves: number;
-    ballTouches: number;
-    carTouches: number;
-    demolish: number;
-    demolition: number;
-    aerialGoal: number;
-    backwardsGoal: number;
-    bicycleGoal: number;
-    longGoal: number;
-    turtleGoal: number;
-    poolShot: number;
-    overtimeGoal: number;
-    hatTrick: number;
-    playmaker: number;
-    epicSave: number;
-    savior: number;
-    center: number;
-    clear: number;
-    firstTouch: number;
-    breakoutDamage: number;
-    breakoutDamageLarge: number;
-    lowFive: number;
-    highFive: number;
-    hoopsSwishGoal: number;
-    bicycleHit: number;
-    onGoal: number;
-    koWinner: number;
-    koKnockout: number;
-    koDoubleKO: number;
-    koTripleKO: number;
-    koDeath: number;
-    koLightHit: number;
-    koHeavyHit: number;
-    koAerialLightHit: number;
-    koAerialHeavyHit: number;
-    koHitTaken: number;
-    koBlockTaken: number;
-    koGrabbed: number;
-    koThrown: number;
-    koLightBlock: number;
-    koHeavyBlock: number;
-    koPlayerGrabbed: number;
-    koPlayerThrown: number;
-    createdAt: string;
-}
 
 export const statistic = sqliteTable("statistic", {
     id: integer("id").primaryKey({ autoIncrement: true }),
@@ -112,3 +57,5 @@ export const statistic = sqliteTable("statistic", {
     koPlayerThrown: integer("ko_player_thrown").notNull().default(0),
     createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`)
 });
+
+export type Statistic = InferSelectModel<typeof statistic>;

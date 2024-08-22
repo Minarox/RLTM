@@ -1,17 +1,7 @@
 import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
-import { sql } from "drizzle-orm";
+import { type InferSelectModel, sql } from "drizzle-orm";
 import { season } from "./season.ts";
 import { team } from "./team.ts";
-
-export interface Versus {
-    id: number;
-    seasonId: number;
-    team1Id: number;
-    team2Id: number;
-    length: number;
-    createdAt: string;
-    playedAt: string;
-}
 
 export const versus = sqliteTable("versus", {
     id: integer("id").primaryKey({ autoIncrement: true }),
@@ -22,3 +12,5 @@ export const versus = sqliteTable("versus", {
     createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
     playedAt: text("played_at")
 });
+
+export type Versus = InferSelectModel<typeof versus>;

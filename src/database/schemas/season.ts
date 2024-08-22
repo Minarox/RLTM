@@ -1,20 +1,6 @@
 import { sqliteTable, text, integer, blob } from "drizzle-orm/sqlite-core";
-import { sql } from "drizzle-orm";
+import { type InferSelectModel, sql } from "drizzle-orm";
 import { tournament } from "./tournament.ts";
-
-export interface Season {
-    id: number;
-    tournamentId: number;
-    name: string;
-    description: string;
-    teamLength: number;
-    defaultGameLength: number;
-    startAt: string;
-    endAt: string;
-    logo: Uint8Array;
-    createdAt: string;
-    updatedAt: string;
-}
 
 export const season = sqliteTable("season", {
     id: integer("id").primaryKey({ autoIncrement: true }),
@@ -29,3 +15,5 @@ export const season = sqliteTable("season", {
     createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
     updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`).$onUpdate(() => sql`CURRENT_TIMESTAMP`)
 });
+
+export type Season = InferSelectModel<typeof season>;
