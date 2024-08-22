@@ -39,7 +39,7 @@
     "@elysiajs/stream": "^1.1.0",
     "colors": "^1.4.0",
     "drizzle-orm": "^0.32.2",
-    "elysia": "^1.1.6",
+    "elysia": "^1.1.7",
     "elysia-compression": "^0.0.7",
     "winston": "^3.14.2"
   }
