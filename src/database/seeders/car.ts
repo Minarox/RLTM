@@ -620,4 +620,4 @@ await db.insert(car).values([
     }
 ]);
 
-console.log("Cars seeded successfully.");
+console.log("Car table seeded successfully.");

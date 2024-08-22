@@ -336,4 +336,4 @@ await db.insert(arena).values([
     }
 ]);
 
-console.log("Arenas seeded successfully.")
+console.log("Arena table seeded successfully.")
