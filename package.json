@@ -1,6 +1,6 @@
 {
-  "name": "rltm",
-  "description": "Rocket League Tournament Manager",
+  "name": "rltm-backend",
+  "description": "Backend for Rocket League Tournament Manager",
   "version": "0.0.1",
   "author": {
     "name": "Mathis Serrieres Maniecki",
@@ -8,14 +8,14 @@
     "url": "https://minarox.fr/"
   },
   "bugs": {
-    "url": "https://github.com/Minarox/RLTM/issues",
+    "url": "https://github.com/Minarox/RLTM-Backend/issues",
     "email": "contact@minarox.fr"
   },
-  "homepage": "https://github.com/Minarox/RLTM#readme",
+  "homepage": "https://github.com/Minarox/RLTM-Backend#readme",
   "readme": "./README.md",
   "repository": {
     "type": "git",
-    "url": "https://github.com/Minarox/RLTM.git"
+    "url": "https://github.com/Minarox/RLTM-Backend.git"
   },
   "module": "src/index.js",
   "type": "module",
@@ -29,7 +29,7 @@
   },
   "devDependencies": {
     "@types/bun": "^1.1.6",
-    "drizzle-kit": "^0.23.2"
+    "drizzle-kit": "^0.24.0"
   },
   "peerDependencies": {
     "typescript": "^5.5.4"

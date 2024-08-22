@@ -1,6 +1,6 @@
-import { drizzle } from "drizzle-orm/bun-sqlite";
 import { Database } from "bun:sqlite";
 import type { BunSQLiteDatabase } from "drizzle-orm/bun-sqlite";
+import { drizzle } from "drizzle-orm/bun-sqlite";
 import { migrate } from "drizzle-orm/bun-sqlite/migrator";
 
 import { arena } from "../database/schemas/arena.ts";
@@ -17,7 +17,7 @@ let db: BunSQLiteDatabase<any> | null = null;
 
 function database(): BunSQLiteDatabase<any> {
     if (!db) {
-        const sqlite: Database = new Database("src/database/sqlite.db", { create: true });
+        const sqlite: Database = new Database("database/sqlite.db", { create: true });
         sqlite.exec("PRAGMA journal_mode = WAL;");
 
         db = drizzle(sqlite, { schema: { ...arena, ...car, ...game, ...player, ...season, ...statistic, ...team, ...tournament, ...versus } });
