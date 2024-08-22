@@ -1,6 +1,7 @@
 {
   "name": "rltm",
   "description": "Rocket League Tournament Manager",
+  "version": "0.0.1",
   "author": {
     "name": "Mathis Serrieres Maniecki",
     "email": "contact@minarox.fr",

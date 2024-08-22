@@ -12,7 +12,7 @@ const app = new Elysia({
         event: new EventEmitter()
     })
 
-    .state("version", "1.0.0")
+    .state("version", process.env['npm_package_version'])
 
     .onRequest(({ request, server, log }): void => {
         const origin: string = server?.url?.origin ?? '';
