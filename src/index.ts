@@ -18,8 +18,7 @@ new Elysia({
         }
     }))
     .use(staticPlugin({
-        prefix: "/",
-        noCache: true
+        prefix: "/"
     }))
 
     .use(app)
