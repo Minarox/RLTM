@@ -5,7 +5,7 @@ export default {
     schema: "./src/database/schemas",
     out: "./src/database/migrations",
     dbCredentials: {
-        url: "file:src/database/sqlite.db",
+        url: "file:database/sqlite.db",
     },
     strict: true,
     verbose: true
