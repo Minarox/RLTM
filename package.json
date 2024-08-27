@@ -28,8 +28,8 @@
     "drizzle:seed": "bun src/database/seeders/arena.ts; bun src/database/seeders/car.ts; bun src/database/seeders/tournament.ts; bun src/database/seeders/season.ts"
   },
   "devDependencies": {
-    "@types/bun": "^1.1.6",
-    "drizzle-kit": "^0.24.1"
+    "@types/bun": "^1.1.8",
+    "drizzle-kit": "^0.24.2"
   },
   "peerDependencies": {
     "typescript": "^5.5.4"
@@ -39,7 +39,7 @@
     "@elysiajs/stream": "^1.1.0",
     "colors": "^1.4.0",
     "drizzle-orm": "^0.33.0",
-    "elysia": "^1.1.7",
+    "elysia": "^1.1.8",
     "elysia-compression": "^0.0.7",
     "winston": "^3.14.2"
   }
