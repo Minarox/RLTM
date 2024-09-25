@@ -4,7 +4,7 @@ import { season } from "../schemas/season.ts";
 await db.insert(season).values([
     {
         id: 1,
-        tournamentId: 1,
+        tournamentId: 'DEFAULT',
         name: 'Default season',
         description: 'This is the default season.',
         startAt: '20240101',

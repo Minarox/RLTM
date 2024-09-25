@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "ac172d35-67dc-4550-970a-3052d3216080",
+  "id": "9a037d20-41cb-4f3a-a975-06ac23b74925",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "arena": {
@@ -289,7 +289,7 @@
         },
         "tournament_id": {
           "name": "tournament_id",
-          "type": "integer",
+          "type": "text",
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false
@@ -918,10 +918,10 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "integer",
+          "type": "text",
           "primaryKey": true,
           "notNull": true,
-          "autoincrement": true
+          "autoincrement": false
         },
         "name": {
           "name": "name",
@@ -935,13 +935,6 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false
-        },
-        "token": {
-          "name": "token",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": true,
           "autoincrement": false
         },
         "created_at": {
@@ -962,10 +955,10 @@
         }
       },
       "indexes": {
-        "token": {
-          "name": "token",
+        "id": {
+          "name": "id",
           "columns": [
-            "token"
+            "id"
           ],
           "isUnique": true
         }

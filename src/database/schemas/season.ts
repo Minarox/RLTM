@@ -1,10 +1,10 @@
-import { sqliteTable, text, integer, blob } from "drizzle-orm/sqlite-core";
 import { type InferSelectModel, sql } from "drizzle-orm";
+import { blob, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { tournament } from "./tournament.ts";
 
 export const season = sqliteTable("season", {
     id: integer("id").primaryKey({ autoIncrement: true }),
-    tournamentId: integer("tournament_id").references(() => tournament.id),
+    tournamentId: text("tournament_id").references(() => tournament.id),
     name: text("name").notNull(),
     description: text("description"),
     teamLength: integer("team_length").notNull().default(3),

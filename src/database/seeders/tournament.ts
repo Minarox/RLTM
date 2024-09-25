@@ -3,7 +3,7 @@ import { tournament } from "../schemas/tournament.ts";
 
 await db.insert(tournament).values([
     {
-        id: 1,
+        id: 'DEFAULT',
         name: 'Default tournament',
         description: 'This is the default tournament.'
     }

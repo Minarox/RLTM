@@ -2,7 +2,7 @@ import db from "../../extensions/database.ts";
 import {and, eq, gte, lte} from "drizzle-orm";
 import { type Season, season } from "../schemas/season.ts";
 
-export function getCurrentSeason(tournamentId: number) {
+export function getCurrentSeason(tournamentId: string) {
     const currentDate: string = new Date().toISOString().split('T')[0].split('-').join('');
 
     return db

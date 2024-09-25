@@ -9,10 +9,10 @@ export function getTournaments() {
         .all() as Tournament[];
 }
 
-export function getTournamentByToken(token: string) {
+export function getTournamentById(id: string) {
     return db
         .select()
         .from(tournament)
-        .where(eq(tournament.token, token))
+        .where(eq(tournament.id, id))
         .get() as Tournament;
 }

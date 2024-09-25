@@ -40,7 +40,7 @@ CREATE TABLE `player` (
 --> statement-breakpoint
 CREATE TABLE `season` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	`tournament_id` integer,
+	`tournament_id` text,
 	`name` text NOT NULL,
 	`description` text,
 	`team_length` integer DEFAULT 3 NOT NULL,
@@ -123,10 +123,9 @@ CREATE TABLE `team` (
 );
 --> statement-breakpoint
 CREATE TABLE `tournament` (
-	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`id` text PRIMARY KEY NOT NULL,
 	`name` text NOT NULL,
 	`description` text,
-	`token` text NOT NULL,
 	`created_at` text DEFAULT CURRENT_TIMESTAMP,
 	`updated_at` text DEFAULT CURRENT_TIMESTAMP
 );
@@ -145,4 +144,4 @@ CREATE TABLE `versus` (
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `code` ON `arena` (`code`);--> statement-breakpoint
-CREATE UNIQUE INDEX `token` ON `tournament` (`token`);
+CREATE UNIQUE INDEX `id` ON `tournament` (`id`);

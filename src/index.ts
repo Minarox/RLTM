@@ -29,7 +29,7 @@ new Elysia({
 
         getTournaments()
             .forEach((tournament): void => {
-                app.state(tournament.token, {
+                app.state(tournament.id, {
                     tournament: tournament,
                     season: getCurrentSeason(tournament.id) || null,
                     game: null,
