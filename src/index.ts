@@ -5,6 +5,7 @@ import live from "./controllers/live.ts";
 import { getCurrentSeason } from "./database/queries/season.ts";
 import { getTournaments } from "./database/queries/tournament.ts";
 import app from "./extensions/app.ts";
+import type { Store } from "./types/store.ts";
 
 new Elysia({
     name: "RLTM"
@@ -19,7 +20,6 @@ new Elysia({
     .use(staticPlugin({
         prefix: "/"
     }))
-
     .use(app)
 
     .use(live)
@@ -35,8 +35,8 @@ new Elysia({
                     game: null,
                     match: null,
                     statistics: null,
-                    plugin: false
-                });
+                    plugin: null
+                } as Store);
             });
 
         app.decorator.log.info(`🚀 RLTM is running at ${server?.url}.`);

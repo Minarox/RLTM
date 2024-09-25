@@ -1,15 +1,17 @@
 import { Elysia } from "elysia";
-import logger from "./logger.ts";
 import database from "./database.ts";
-import { EventEmitter } from "events";
+import logger from "./logger.ts";
 
 const app = new Elysia({
-    name: "App"
+    name: "App",
+    websocket: {
+        perMessageDeflate: true,
+        idleTimeout: 10
+    }
 })
     .decorate({
         log: logger,
-        db: database,
-        event: new EventEmitter()
+        db: database
     })
 
     .state("version", process.env['npm_package_version'])
