@@ -126,6 +126,7 @@ CREATE TABLE `tournament` (
 	`id` text PRIMARY KEY NOT NULL,
 	`name` text NOT NULL,
 	`description` text,
+	`token` text NOT NULL,
 	`created_at` text DEFAULT CURRENT_TIMESTAMP,
 	`updated_at` text DEFAULT CURRENT_TIMESTAMP
 );
@@ -144,4 +145,5 @@ CREATE TABLE `versus` (
 );
 --> statement-breakpoint
 CREATE UNIQUE INDEX `code` ON `arena` (`code`);--> statement-breakpoint
-CREATE UNIQUE INDEX `id` ON `tournament` (`id`);
+CREATE UNIQUE INDEX `id` ON `tournament` (`id`);--> statement-breakpoint
+CREATE UNIQUE INDEX `token` ON `tournament` (`token`);

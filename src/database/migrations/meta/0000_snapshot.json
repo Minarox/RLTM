@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "9a037d20-41cb-4f3a-a975-06ac23b74925",
+  "id": "455d0fb5-9b9d-446e-b690-af5c7c2b3e50",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "arena": {
@@ -937,6 +937,13 @@
           "notNull": false,
           "autoincrement": false
         },
+        "token": {
+          "name": "token",
+          "type": "text",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "text",
@@ -959,6 +966,13 @@
           "name": "id",
           "columns": [
             "id"
+          ],
+          "isUnique": true
+        },
+        "token": {
+          "name": "token",
+          "columns": [
+            "token"
           ],
           "isUnique": true
         }
