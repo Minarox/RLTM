@@ -18,11 +18,15 @@ new Elysia({
         }
     }))
     .use(staticPlugin({
-        prefix: "/"
+        prefix: "/",
+        alwaysStatic: true,
+        indexHTML: false
     }))
     .use(app)
 
     .use(live)
+
+    .get('/version', ({ store }) => store.version)
 
     .onStart(({ server }): void => {
         console.clear();
