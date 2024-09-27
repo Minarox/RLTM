@@ -10,10 +10,18 @@ import {
 } from "../types/plugin.ts";
 
 export default new Elysia({
-    name: "Live",
-    prefix: "/:tournamentId"
+    name: "Live"
 })
-    .ws("", {
+    .get("/live/:tournamentId", ({set, params}) => {
+        if (!app.store.hasOwnProperty(params["tournamentId"]) || !getTournamentById(params["tournamentId"])) {
+            set.status = "Not Found";
+            return "Not Found";
+        }
+
+        return Bun.file('pages/live.html');
+    })
+
+    .ws("/:tournamentId", {
         beforeHandle({ set, params }): string | void {
             if (!app.store.hasOwnProperty(params["tournamentId"]) || !getTournamentById(params["tournamentId"])) {
                 set.status = "Not Found";
