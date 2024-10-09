@@ -1,5 +1,5 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 import { type InferSelectModel, sql } from "drizzle-orm";
+import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { car } from "./car.ts";
 import { tournament } from "./tournament.ts";
 
@@ -15,4 +15,7 @@ export const player = sqliteTable("player", {
     updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`).$onUpdate(() => sql`CURRENT_TIMESTAMP`)
 });
 
-export type Player = InferSelectModel<typeof player>;
+export type Player = InferSelectModel<typeof player> & {
+    car: InferSelectModel<typeof car>;
+    tournament: InferSelectModel<typeof tournament>;
+};

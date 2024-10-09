@@ -1,5 +1,5 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 import { type InferSelectModel, sql } from "drizzle-orm";
+import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { season } from "./season.ts";
 import { team } from "./team.ts";
 
@@ -13,4 +13,8 @@ export const versus = sqliteTable("versus", {
     playedAt: text("played_at")
 });
 
-export type Versus = InferSelectModel<typeof versus>;
+export type Versus = InferSelectModel<typeof versus> & {
+    season: InferSelectModel<typeof season>;
+    team1: InferSelectModel<typeof team>;
+    team2: InferSelectModel<typeof team>;
+};

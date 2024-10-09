@@ -1,7 +1,7 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 import { type InferSelectModel, sql } from "drizzle-orm";
-import { versus } from "./versus.ts";
+import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { arena } from "./arena.ts";
+import { versus } from "./versus.ts";
 
 export const game = sqliteTable("game", {
     id: integer("id").primaryKey({ autoIncrement: true }),
@@ -13,4 +13,7 @@ export const game = sqliteTable("game", {
     createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
 });
 
-export type Game = InferSelectModel<typeof game>;
+export type Game = InferSelectModel<typeof game> & {
+    versus: InferSelectModel<typeof versus>;
+    arena: InferSelectModel<typeof arena>;
+};

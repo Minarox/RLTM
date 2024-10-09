@@ -13,4 +13,6 @@ export const team = sqliteTable("team", {
     updatedAt: text("updated_at").default(sql`CURRENT_TIMESTAMP`).$onUpdate(() => sql`CURRENT_TIMESTAMP`)
 });
 
-export type Team = InferSelectModel<typeof team>;
+export type Team = InferSelectModel<typeof team> & {
+    season: InferSelectModel<typeof season>;
+};

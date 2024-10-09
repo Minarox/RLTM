@@ -1,5 +1,5 @@
-import { sqliteTable, text, integer } from "drizzle-orm/sqlite-core";
 import { type InferSelectModel, sql } from "drizzle-orm";
+import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { game } from "./game.ts";
 import { player } from "./player.ts";
 
@@ -58,4 +58,7 @@ export const statistic = sqliteTable("statistic", {
     createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`)
 });
 
-export type Statistic = InferSelectModel<typeof statistic>;
+export type Statistic = InferSelectModel<typeof statistic> & {
+    game: InferSelectModel<typeof game>;
+    player: InferSelectModel<typeof player>;
+};
