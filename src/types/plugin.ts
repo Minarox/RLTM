@@ -2,7 +2,8 @@ export enum GameTopic {
     MATCH = "match",
     STATISTICS = "statistics",
     STATISTIC = "statistic",
-    ENTITIES = "entities"
+    ENTITIES = "entities",
+    PLAYERS = "players"
 }
 
 export interface MatchPayload {
@@ -43,6 +44,15 @@ export interface StatisticPayload {
 export interface EntititesPayload {
     balls: Array<Balls>;
     cars: Array<{ [key: string]: Cars }>;
+}
+
+export interface PlayersPayload {
+    name: string;
+    uid: string;
+    plateform: string;
+    screenID: number;
+    bot: boolean;
+    carId: number;
 }
 
 interface Balls {
