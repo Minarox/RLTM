@@ -2,8 +2,277 @@
 <html>
     <head>
         <title>Live</title>
+        <link rel="stylesheet" href="/style.css">
+        <style>
+            main {
+                display: flex;
+                align-items: center;
+                flex-direction: column;
+            }
+
+            #tournament {
+                font-weight: 400;
+                background-color: #1a1a1c;
+                width: min(100%, 500px);
+                text-align: center;
+                text-transform: uppercase;
+                padding: 0.6rem 1.2rem;
+                border-radius: 0 0 16px 16px;
+                color: white;
+                z-index: 100;
+            }
+
+            #scoreboard {
+                --card-width: 480px;
+                display: grid;
+                grid-template-columns: var(--card-width) max-content var(--card-width);
+                align-items: center;
+                justify-content: center;
+                gap: 2rem;
+
+                #time-and-score {
+                    --score-width: 96px;
+                    display: grid;
+                    grid-template-columns: var(--score-width) 170px var(--score-width);
+                    grid-template-rows: 84px;
+                    text-align: center;
+                    align-items: center;
+
+                    #time {
+                        background-color: white;
+                        font-size: 2.6em;
+                        font-weight: 600;
+                        border-radius: 16px;
+                        box-shadow: 0 0 12px 0 rgba(0, 0, 0, 0.4);
+                        height: 100%;
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                    }
+
+                    #score-team1,
+                    #score-team2 {
+                        display: inline-flex;
+                        align-items: center;
+                        justify-content: center;
+                        font-size: 2.8em;
+                        font-weight: 700;
+                        height: 100%;
+                        color: white;
+                        position: relative;
+                        z-index: -1;
+
+                        &::before {
+                            content: '';
+                            position: absolute;
+                            top: 0;
+                            bottom: 0;
+                            width: 20px;
+                        }
+                    }
+
+                    #score-team1 {
+                        border-radius: 16px 0 0 16px;
+                        background-color: #2294f1;
+
+                        &::before {
+                            left: 100%;
+                            background-color: #2294f1;
+                        }
+                    }
+
+                    #score-team2 {
+                        border-radius: 0 16px 16px 0;
+                        background-color: #f55521;
+
+                        &::before {
+                            right: 100%;
+                            background-color: #f55521;
+                        }
+                    }
+                }
+
+                section:not(#time-and-score) {
+                    --logo-width: 76px;
+                    display: grid;
+                    grid-template-columns: 1fr var(--logo-width);
+                    height: 62px;
+                    background-color: #2b2b2b;
+                    border-radius: 16px;
+                    align-items: center;
+
+                    &:first-of-type {
+                        grid-template-columns: var(--logo-width) 1fr;
+                    }
+
+                    p {
+                        z-index: 1;
+                        display: inline-flex;
+                        text-transform: uppercase;
+                        font-size: 1.6em;
+                        font-weight: 700;
+                        color: white;
+                        align-items: center;
+                        justify-content: center;
+                        height: 100%;
+                        border-radius: 16px;
+                        position: relative;
+                        color: #2294f1;
+
+                        &::before {
+                            z-index: -1;
+                            content: '';
+                            position: absolute;
+                            top: 0;
+                            bottom: 0;
+                            left: 0;
+                            right: 0;
+                            background-image: url("/card.png");
+                            background-blend-mode: soft-light;
+                            border-radius: 16px;
+                            pointer-events: none;
+                            background-color: #1a1a1c;
+                        }
+                    }
+
+                    #name-team2 {
+                        color: #f55521;
+
+                        &::before {
+                            transform: scaleX(-1);
+                        }
+                    }
+
+                    div {
+                        height: 100%;
+                        width: 100%;
+                        padding: 0.5rem;
+
+                        img {
+                            width: inherit;
+                            height: inherit;
+                            object-fit: contain;
+                            display: inline-flex;
+                            align-items: center;
+                            justify-content: center;
+                            opacity: 0;
+                        }
+                    }
+                }
+            }
+
+            #entities {
+                width: 100%;
+                display: flex;
+                justify-content: space-between;
+                gap: 2rem;
+
+                > section {
+                    outline: 2px solid red;
+                }
+            }
+        </style>
     </head>
     <body>
-        <h1>Live</h1>
+        <main>
+            <article id="tournament">
+                &nbsp;
+            </article>
+
+            <article id="scoreboard">
+                <!-- Team 1 -->
+                <section>
+                    <div>
+                        <img id="logo-team1" src="" />
+                    </div>
+                    <p id="name-team1">&nbsp;</p>
+                </section>
+
+                <!-- Time and score -->
+                <section id="time-and-score">
+                    <p id="score-team1">0</p>
+                    <p id="time">0:00</p>
+                    <p id="score-team2">0</p>
+                </section>
+
+                <!-- Team 2 -->
+                <section>
+                    <p id="name-team2">&nbsp;</p>
+                    <div>
+                        <img id="logo-team2" src="" />
+                    </div>
+                </section>
+            </article>
+
+            <article id="entities">
+                <!-- Team 1 -->
+                <section>
+                    Team 1
+                </section>
+
+                <!-- Team 2 -->
+                <section>
+                    Team 2
+                </section>
+            </article>
+        </main>
+
+        <script>
+            const url = window.location.href.split('//')[1].split('/')[0];
+            const tournamentId = window.location.pathname.split('/')[2];
+            const isLocal = url.startsWith('localhost');
+
+            function setData(data) {
+                if (!data) {
+                    data = {}
+                }
+
+                let tournamentInfos = [];
+                if (data?.tournament?.name) tournamentInfos.push(data.tournament.name);
+                if (data?.season?.name) tournamentInfos.push(data.season.name);
+                document.getElementById('tournament').innerHTML = tournamentInfos?.join('&nbsp; - &nbsp;') || '&nbsp;';
+
+                document.getElementById('name-team1').innerHTML = data?.versus?.team1?.name || '&nbsp;';
+                document.getElementById('name-team2').innerHTML = data?.versus?.team2?.name || '&nbsp;';
+
+                const logoTeam1 = document.getElementById('logo-team1');
+                logoTeam1.src = data?.versus?.team1?.logo ? `data:image/png;base64,${data.versus.team1.logo || ''}` : '';
+                logoTeam1.style.opacity = data?.versus?.team1?.logo ? '1' : '0';
+
+                const logoTeam2 = document.getElementById('logo-team2');
+                logoTeam2.src = data?.versus?.team2?.logo ? `data:image/png;base64,${data.versus.team2.logo || ''}` : '';
+                logoTeam2.style.opacity = data?.versus?.team2?.logo ? '1' : '0';
+
+                document.getElementById('time').innerHTML = data?.match ? `${data.match?.isOvertime ? '+' : ''}${Math.floor(data.match?.time / 60)}:${(data.match?.time % 60).toString().padStart(2, "0")}` : '0:00';
+                document.getElementById('score-team1').innerHTML = data?.match?.score[0] || '0';
+                document.getElementById('score-team2').innerHTML = data?.match?.score[1] || '0';
+
+                console.table(JSON.stringify(data, null, 4))
+            }
+
+            function connect() {
+                let ws = new WebSocket(`ws${isLocal ? '' : 's'}://${url}/${tournamentId}`);
+                let data = {};
+
+                ws.onmessage = function (event) {
+                    data = Object.assign(data, JSON.parse(event.data));
+                    setData(data);
+                }
+
+                ws.onerror = function () {
+                    ws.close();
+                }
+
+                ws.onclose = function () {
+                    ws = undefined;
+                    data = undefined;
+
+                    setData(data);
+                    setTimeout(connect);
+                }
+            }
+
+            setTimeout(connect);
+        </script>
     </body>
 </html>

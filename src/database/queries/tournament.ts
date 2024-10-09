@@ -4,7 +4,12 @@ import { type Tournament, tournament } from "../schemas/tournament.ts";
 
 export function getTournaments() {
     return db
-        .select()
+        .select({
+            id: tournament.id,
+            name: tournament.name,
+            description: tournament.description,
+            logo: tournament.logo
+        })
         .from(tournament)
         .all() as Tournament[];
 }
