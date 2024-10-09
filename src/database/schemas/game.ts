@@ -5,7 +5,7 @@ import { arena } from "./arena.ts";
 
 export const game = sqliteTable("game", {
     id: integer("id").primaryKey({ autoIncrement: true }),
-    planningId: integer("planning_id").references(() => versus.id),
+    versusId: integer("versus_id").references(() => versus.id),
     scoreTeam1: integer("score_team_1").notNull().default(0),
     scoreTeam2: integer("score_team_2").notNull().default(0),
     duration: integer("duration"),
