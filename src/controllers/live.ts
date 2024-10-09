@@ -5,7 +5,6 @@ import {
     type EntititesPayload,
     GameTopic,
     type MatchPayload,
-    type PlayersPayload,
     type StatisticPayload,
     type StatisticsPayload
 } from "../types/plugin.ts";
@@ -79,11 +78,6 @@ export default new Elysia({
                 case GameTopic.ENTITIES:
                     const entities: any = message.payload as EntititesPayload;
                     server?.publish('broadcast', JSON.stringify({ entities: entities }));
-                    break;
-
-                case GameTopic.PLAYERS:
-                    const players: any = message.payload as PlayersPayload;
-                    console.log(players);
                     break;
             }
         },

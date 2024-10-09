@@ -2,8 +2,7 @@ export enum GameTopic {
     MATCH = "match",
     STATISTICS = "statistics",
     STATISTIC = "statistic",
-    ENTITIES = "entities",
-    PLAYERS = "players"
+    ENTITIES = "entities"
 }
 
 export interface MatchPayload {
@@ -23,16 +22,56 @@ export interface MatchPayload {
 export interface StatisticsPayload {
     name: string;
     uid: string;
+    bot: boolean;
+    mvp: boolean;
     score: number;
     goals: number;
-    ownGoals: number;
     shots: number;
     assists: number;
     saves: number;
     ballTouches: number;
     carTouches: number;
-    demolishes: number;
-    mvp: boolean;
+
+    Demolish: number;
+    Demolition: number;
+    AerialGoal: number;
+    BackwardsGoal: number;
+    BicycleGoal: number;
+    LongGoal: number;
+    TurtleGoal: number;
+    PoolShot: number;
+    OvertimeGoal: number;
+    HatTrick: number;
+    Playmaker: number;
+    EpicSave: number;
+    Savior: number;
+    Center: number;
+    Clear: number;
+    FirstTouch: number;
+    BreakoutDamage: number;
+    BreakoutDamageLarge: number;
+    LowFive: number;
+    HighFive: number;
+    HoopsSwishGoal: number;
+    BicycleHit: number;
+    OwnGoal: number;
+    KO_Winner: number;
+    KO_Knockout: number;
+    KO_DoubleKO: number;
+    KO_TripleKO: number;
+    KO_Death: number;
+    KO_LightHit: number;
+    KO_HeavyHit: number;
+    KO_AerialLightHit: number;
+    KO_AerialHeavyHit: number;
+    KO_HitTaken: number;
+    KO_BlockTaken: number;
+    KO_Grabbed: number;
+    KO_Thrown: number;
+    KO_LightBlock: number;
+    KO_HeavyBlock: number;
+    KO_PlayerGrabbed: number;
+    KO_PlayerThrown: number;
 }
 
 export interface StatisticPayload {
@@ -44,15 +83,6 @@ export interface StatisticPayload {
 export interface EntititesPayload {
     balls: Array<Balls>;
     cars: Array<{ [key: string]: Cars }>;
-}
-
-export interface PlayersPayload {
-    name: string;
-    uid: string;
-    plateform: string;
-    screenID: number;
-    bot: boolean;
-    carId: number;
 }
 
 interface Balls {
