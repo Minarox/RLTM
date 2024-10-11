@@ -206,14 +206,10 @@
 
             <article id="entities">
                 <!-- Team 1 -->
-                <section>
-                    Team 1
-                </section>
+                <section id="entities-team1"></section>
 
                 <!-- Team 2 -->
-                <section>
-                    Team 2
-                </section>
+                <section id="entities-team2"></section>
             </article>
         </main>
 
@@ -221,42 +217,97 @@
             const url = window.location.href.split('//')[1].split('/')[0];
             const tournamentId = window.location.pathname.split('/')[2];
             const isLocal = url.startsWith('localhost');
+            let data = {};
 
-            function setData(data) {
-                if (!data) {
-                    data = {}
-                }
+            const tournament = document.getElementById('tournament');
+            const nameTeam1 = document.getElementById('name-team1');
+            const nameTeam2 = document.getElementById('name-team2');
+            const logoTeam1 = document.getElementById('logo-team1');
+            const logoTeam2 = document.getElementById('logo-team2');
+            const time = document.getElementById('time');
+            const scoreTeam1 = document.getElementById('score-team1');
+            const scoreTeam2 = document.getElementById('score-team2');
+            const entitiesTeam1 = document.getElementById('entities-team1');
+            const entitiesTeam2 = document.getElementById('entities-team2');
 
+            function setTournamentInfos() {
                 let tournamentInfos = [];
                 if (data?.tournament?.name) tournamentInfos.push(data.tournament.name);
                 if (data?.season?.name) tournamentInfos.push(data.season.name);
-                document.getElementById('tournament').innerHTML = tournamentInfos?.join('&nbsp; - &nbsp;') || '&nbsp;';
+                tournament.innerHTML = tournamentInfos?.join('&nbsp; - &nbsp;') || '&nbsp;';
+            }
 
-                document.getElementById('name-team1').innerHTML = data?.versus?.team1?.name || '&nbsp;';
-                document.getElementById('name-team2').innerHTML = data?.versus?.team2?.name || '&nbsp;';
+            function setTeams() {
+                nameTeam1.innerHTML = data?.versus?.team1?.name || '&nbsp;';
+                nameTeam2.innerHTML = data?.versus?.team2?.name || '&nbsp;';
 
-                const logoTeam1 = document.getElementById('logo-team1');
                 logoTeam1.src = data?.versus?.team1?.logo ? `data:image/png;base64,${data.versus.team1.logo || ''}` : '';
                 logoTeam1.style.opacity = data?.versus?.team1?.logo ? '1' : '0';
 
-                const logoTeam2 = document.getElementById('logo-team2');
                 logoTeam2.src = data?.versus?.team2?.logo ? `data:image/png;base64,${data.versus.team2.logo || ''}` : '';
                 logoTeam2.style.opacity = data?.versus?.team2?.logo ? '1' : '0';
+            }
 
-                document.getElementById('time').innerHTML = data?.match ? `${data.match?.isOvertime ? '+' : ''}${Math.floor(data.match?.time / 60)}:${(data.match?.time % 60).toString().padStart(2, "0")}` : '0:00';
-                document.getElementById('score-team1').innerHTML = data?.match?.score[0] || '0';
-                document.getElementById('score-team2').innerHTML = data?.match?.score[1] || '0';
+            function setScoreboard() {
+                time.innerHTML = data?.match ? `${data.match?.isOvertime ? '+' : ''}${Math.floor(data.match?.time / 60)}:${(data.match?.time % 60).toString().padStart(2, "0")}` : '0:00';
+                scoreTeam1.innerHTML = data?.match?.score[0] || '0';
+                scoreTeam2.innerHTML = data?.match?.score[1] || '0';
+            }
 
-                console.table(JSON.stringify(data, null, 4))
+            function setPlayers() {
+                entitiesTeam1.innerHTML = '';
+                entitiesTeam2.innerHTML = '';
+
+                if (data?.players) {
+                    Object.keys(data.players).forEach((team) => {
+                        if (data?.players[team]) {
+                            Object.keys(data.players[team]).forEach((player) => {
+                                const name = document.createElement('p');
+                                const boost = document.createElement('p');
+                                const bar = document.createElement('i');
+                                const div = document.createElement('div');
+                                const wrapper = document.createElement('div');
+
+                                name.innerHTML = player.split('|').slice(3).join('|');
+                                boost.id = `boost-${player}`;
+                                boost.innerHTML = 0;
+                                div.append(name, boost);
+
+                                wrapper.id = player;
+                                wrapper.append(div, bar);
+
+                                if (team == 0) entitiesTeam1.appendChild(wrapper);
+                                else entitiesTeam2.appendChild(wrapper);
+                            })
+                        }
+                    })
+                }
+            }
+
+            function setEntities() {
+                if (data?.entities?.cars) {
+                    Object.keys(data.entities.cars).forEach((team) => {
+                        if (data?.entities?.cars[team]) {
+                            Object.keys(data.entities.cars[team]).forEach((car) => {
+                                document.getElementById(`boost-${car}`).innerHTML = data.entities.cars[team][car].boost || 0;
+                            })
+                        }
+                    })
+                }
             }
 
             function connect() {
                 let ws = new WebSocket(`ws${isLocal ? '' : 's'}://${url}/${tournamentId}`);
-                let data = {};
 
                 ws.onmessage = function (event) {
-                    data = Object.assign(data, JSON.parse(event.data));
-                    setData(data);
+                    event = JSON.parse(event.data);
+                    data = Object.assign(data, event || {});
+
+                    if (event?.tournament || event?.season) setTournamentInfos();
+                    if (event?.versus) setTeams();
+                    if (event?.match) setScoreboard();
+                    if (event?.players) setPlayers();
+                    if (event?.match || event?.entities) setEntities();
                 }
 
                 ws.onerror = function () {
@@ -265,9 +316,6 @@
 
                 ws.onclose = function () {
                     ws = undefined;
-                    data = undefined;
-
-                    setData(data);
                     setTimeout(connect);
                 }
             }
