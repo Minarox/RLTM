@@ -42,6 +42,7 @@ new Elysia({
                     season: season,
                     versus: versus,
                     match: null,
+                    players: null,
                     statistics: null,
                     plugin: null
                 } as Store);
