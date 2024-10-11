@@ -1,23 +1,16 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "0dda2239-f7d5-4a19-a757-37fe0da8588a",
+  "id": "cdce7e60-8588-4fd9-b047-29cceca2816c",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "arena": {
       "name": "arena",
       "columns": {
-        "id": {
-          "name": "id",
-          "type": "integer",
-          "primaryKey": true,
-          "notNull": true,
-          "autoincrement": true
-        },
         "code": {
           "name": "code",
           "type": "text",
-          "primaryKey": false,
+          "primaryKey": true,
           "notNull": true,
           "autoincrement": false
         },
@@ -27,25 +20,9 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "CURRENT_TIMESTAMP"
         }
       },
-      "indexes": {
-        "code": {
-          "name": "code",
-          "columns": [
-            "code"
-          ],
-          "isUnique": true
-        }
-      },
+      "indexes": {},
       "foreignKeys": {},
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
@@ -73,14 +50,6 @@
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
-        },
-        "created_at": {
-          "name": "created_at",
-          "type": "text",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false,
-          "default": "CURRENT_TIMESTAMP"
         }
       },
       "indexes": {},
@@ -128,20 +97,27 @@
           "notNull": false,
           "autoincrement": false
         },
-        "arena_id": {
-          "name": "arena_id",
-          "type": "integer",
+        "arena_code": {
+          "name": "arena_code",
+          "type": "text",
           "primaryKey": false,
           "notNull": true,
           "autoincrement": false
+        },
+        "finished": {
+          "name": "finished",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
         },
         "created_at": {
           "name": "created_at",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false,
-          "default": "CURRENT_TIMESTAMP"
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -159,15 +135,15 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "game_arena_id_arena_id_fk": {
-          "name": "game_arena_id_arena_id_fk",
+        "game_arena_code_arena_code_fk": {
+          "name": "game_arena_code_arena_code_fk",
           "tableFrom": "game",
           "tableTo": "arena",
           "columnsFrom": [
-            "arena_id"
+            "arena_code"
           ],
           "columnsTo": [
-            "id"
+            "code"
           ],
           "onDelete": "no action",
           "onUpdate": "no action"
@@ -214,12 +190,21 @@
           "notNull": false,
           "autoincrement": false
         },
+        "bot": {
+          "name": "bot",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
         "carId": {
           "name": "carId",
           "type": "integer",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false
+          "autoincrement": false,
+          "default": 23
         },
         "tournamentId": {
           "name": "tournamentId",
@@ -233,16 +218,14 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false,
-          "default": "CURRENT_TIMESTAMP"
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false,
-          "default": "CURRENT_TIMESTAMP"
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -343,16 +326,14 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false,
-          "default": "CURRENT_TIMESTAMP"
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false,
-          "default": "CURRENT_TIMESTAMP"
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -787,8 +768,7 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false,
-          "default": "CURRENT_TIMESTAMP"
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -876,16 +856,14 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false,
-          "default": "CURRENT_TIMESTAMP"
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false,
-          "default": "CURRENT_TIMESTAMP"
+          "autoincrement": false
         }
       },
       "indexes": {},
@@ -944,23 +922,29 @@
           "primaryKey": false,
           "notNull": false,
           "autoincrement": false,
-          "default": "'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'"
+          "default": "'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'"
+        },
+        "enabled": {
+          "name": "enabled",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": true
         },
         "created_at": {
           "name": "created_at",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false,
-          "default": "CURRENT_TIMESTAMP"
+          "autoincrement": false
         },
         "updated_at": {
           "name": "updated_at",
           "type": "text",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false,
-          "default": "CURRENT_TIMESTAMP"
+          "autoincrement": false
         }
       },
       "indexes": {
@@ -1027,8 +1011,7 @@
           "type": "text",
           "primaryKey": false,
           "notNull": false,
-          "autoincrement": false,
-          "default": "CURRENT_TIMESTAMP"
+          "autoincrement": false
         },
         "played_at": {
           "name": "played_at",

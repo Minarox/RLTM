@@ -1,4 +1,4 @@
-import { type InferSelectModel, sql } from "drizzle-orm";
+import { sql, type InferSelectModel } from "drizzle-orm";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { season } from "./season.ts";
 import { team } from "./team.ts";
@@ -9,7 +9,7 @@ export const versus = sqliteTable("versus", {
     team1Id: integer("team_1_id").notNull().references(() => team.id),
     team2Id: integer("team_2_id").notNull().references(() => team.id),
     length: integer("length").notNull().default(5),
-    createdAt: text("created_at").default(sql`CURRENT_TIMESTAMP`),
+    createdAt: text("created_at").$default(() => sql`CURRENT_TIMESTAMP`),
     playedAt: text("played_at")
 });
 
