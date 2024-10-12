@@ -8,7 +8,8 @@ export function getTournaments() {
             id: tournament.id,
             name: tournament.name,
             description: tournament.description,
-            logo: tournament.logo
+            logo: tournament.logo,
+            enabled: tournament.enabled
         })
         .from(tournament)
         .all() as Tournament[];

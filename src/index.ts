@@ -34,6 +34,7 @@ new Elysia({
 
         getTournaments()
             .forEach((tournament): void => {
+                if (!tournament.enabled) return;
                 const season = getCurrentSeason(tournament.id) || null;
                 const versus = season ? getCurrentVersusRecursive(season.id) : null;
 
