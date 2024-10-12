@@ -1,11 +1,12 @@
 import { Elysia } from "elysia";
+import { createOrUpdatePlayer } from "../database/queries/player.ts";
 import { getTournamentById, getTournamentByToken } from "../database/queries/tournament.ts";
 import app from "../extensions/app.ts";
 import {
     type EntititesPayload,
     GameTopic,
     type MatchPayload,
-    type PlayersPayload,
+    type PlayerPayload,
     type StatisticPayload,
     type StatisticsPayload
 } from "../types/plugin.ts";
@@ -66,7 +67,13 @@ export default new Elysia({
                     break;
 
                 case GameTopic.PLAYERS:
-                    const players: PlayersPayload = message.payload as PlayersPayload;
+                    const players: PlayerPayload[] = message.payload as PlayerPayload[];
+                    if (players) {
+                        players
+                            .flatMap(player => player ? Object.values(player) : null)
+                            .forEach((player: PlayerPayload) => player ? createOrUpdatePlayer(player) : null);
+                    }
+
                     app.store[tournamentId].players = players;
                     server?.publish('broadcast', JSON.stringify({ players: players }));
                     break;

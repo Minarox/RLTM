@@ -20,11 +20,11 @@ export interface MatchPayload {
     time: number;
 }
 
-export interface PlayersPayload {
+export interface PlayerPayload {
     name: string;
-    uid: string;
-    bot: boolean;
+    id: string;
     carId: number;
+    bot: boolean;
 }
 
 export interface StatisticsPayload {
