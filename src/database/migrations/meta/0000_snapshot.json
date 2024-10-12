@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "8206ba0a-18ed-4207-8c8a-9e77fbac17db",
+  "id": "b27620b2-8a3e-4500-8d06-9129e3829e02",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "arena": {
@@ -819,9 +819,8 @@
           "name": "color",
           "type": "text",
           "primaryKey": false,
-          "notNull": true,
-          "autoincrement": false,
-          "default": "'#000000'"
+          "notNull": false,
+          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
