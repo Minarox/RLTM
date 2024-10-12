@@ -5,7 +5,7 @@ import { team } from "./team.ts";
 
 export const versus = sqliteTable("versus", {
     id: integer("id").primaryKey({ autoIncrement: true }),
-    seasonId: integer("season_id").references(() => season.id),
+    seasonId: integer("season_id").notNull().references(() => season.id),
     team1Id: integer("team_1_id").notNull().references(() => team.id),
     team2Id: integer("team_2_id").notNull().references(() => team.id),
     length: integer("length").notNull().default(5),

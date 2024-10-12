@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "51da9fe7-7e41-44df-9f67-e64508238a16",
+  "id": "8206ba0a-18ed-4207-8c8a-9e77fbac17db",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "arena": {
@@ -158,8 +158,15 @@
       "columns": {
         "id": {
           "name": "id",
-          "type": "text",
+          "type": "integer",
           "primaryKey": true,
+          "notNull": true,
+          "autoincrement": true
+        },
+        "uid": {
+          "name": "uid",
+          "type": "text",
+          "primaryKey": false,
           "notNull": true,
           "autoincrement": false
         },
@@ -170,6 +177,14 @@
           "notNull": true,
           "autoincrement": false
         },
+        "bot": {
+          "name": "bot",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
         "carId": {
           "name": "carId",
           "type": "integer",
@@ -177,13 +192,6 @@
           "notNull": true,
           "autoincrement": false,
           "default": 23
-        },
-        "tournamentId": {
-          "name": "tournamentId",
-          "type": "integer",
-          "primaryKey": false,
-          "notNull": false,
-          "autoincrement": false
         },
         "created_at": {
           "name": "created_at",
@@ -210,19 +218,6 @@
           "tableTo": "car",
           "columnsFrom": [
             "carId"
-          ],
-          "columnsTo": [
-            "id"
-          ],
-          "onDelete": "no action",
-          "onUpdate": "no action"
-        },
-        "player_tournamentId_tournament_id_fk": {
-          "name": "player_tournamentId_tournament_id_fk",
-          "tableFrom": "player",
-          "tableTo": "tournament",
-          "columnsFrom": [
-            "tournamentId"
           ],
           "columnsTo": [
             "id"
@@ -957,7 +952,7 @@
           "name": "season_id",
           "type": "integer",
           "primaryKey": false,
-          "notNull": false,
+          "notNull": true,
           "autoincrement": false
         },
         "team_1_id": {

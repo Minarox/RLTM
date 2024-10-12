@@ -23,14 +23,14 @@ CREATE TABLE `game` (
 );
 --> statement-breakpoint
 CREATE TABLE `player` (
-	`id` text PRIMARY KEY NOT NULL,
+	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
+	`uid` text NOT NULL,
 	`name` text NOT NULL,
+	`bot` integer DEFAULT false NOT NULL,
 	`carId` integer DEFAULT 23 NOT NULL,
-	`tournamentId` integer,
 	`created_at` text DEFAULT (CURRENT_TIMESTAMP),
 	`updated_at` text DEFAULT (CURRENT_TIMESTAMP),
-	FOREIGN KEY (`carId`) REFERENCES `car`(`id`) ON UPDATE no action ON DELETE no action,
-	FOREIGN KEY (`tournamentId`) REFERENCES `tournament`(`id`) ON UPDATE no action ON DELETE no action
+	FOREIGN KEY (`carId`) REFERENCES `car`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint
 CREATE TABLE `season` (
@@ -129,7 +129,7 @@ CREATE TABLE `tournament` (
 --> statement-breakpoint
 CREATE TABLE `versus` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	`season_id` integer,
+	`season_id` integer NOT NULL,
 	`team_1_id` integer NOT NULL,
 	`team_2_id` integer NOT NULL,
 	`length` integer DEFAULT 5 NOT NULL,
