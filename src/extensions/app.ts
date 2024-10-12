@@ -6,7 +6,7 @@ const app = new Elysia({
     name: "App",
     websocket: {
         perMessageDeflate: true,
-        idleTimeout: 3
+        idleTimeout: 4
     }
 })
     .decorate({
