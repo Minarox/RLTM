@@ -35,14 +35,10 @@ export function getCurrentVersusRecursive(seasonId: number) {
         return {
             ...currentVersus,
             team1: {
-                ...getTeamById(currentVersus.team1Id),
-                createdAt: undefined,
-                updatedAt: undefined
+                ...getTeamById(currentVersus.team1Id)
             },
             team2: {
-                ...getTeamById(currentVersus.team2Id),
-                createdAt: undefined,
-                updatedAt: undefined
+                ...getTeamById(currentVersus.team2Id)
             },
             game_index: games.length
         };

@@ -8,7 +8,7 @@ export interface Store {
     season: Season | null,
     versus: Versus | null,
     match: MatchPayload | null,
-    players: PlayersPayload | null
+    players: PlayersPayload[] | null
     statistics: StatisticsPayload[] | null
     plugin: string | null
 }

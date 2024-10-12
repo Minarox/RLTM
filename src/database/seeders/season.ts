@@ -7,8 +7,8 @@ await db.insert(season).values([
         tournamentId: 'DEFAULT',
         name: 'Default season',
         description: 'This is the default season.',
-        startAt: '20240101',
-        endAt: '20241231',
+        startAt: '2024-01-01',
+        endAt: '2024-12-31',
     }
 ]);
 

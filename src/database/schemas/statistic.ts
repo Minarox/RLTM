@@ -5,8 +5,8 @@ import { player } from "./player.ts";
 
 export const statistic = sqliteTable("statistic", {
     id: integer("id").primaryKey({ autoIncrement: true }),
-    gameId: integer("game_id").references(() => game.id),
-    playerId: integer("player_id").references(() => player.id),
+    gameId: integer("game_id").notNull().references(() => game.id),
+    playerId: integer("player_id").notNull().references(() => player.id),
     mvp: integer("mvp").notNull().default(0),
     score: integer("score").notNull().default(0),
     goals: integer("goals").notNull().default(0),
@@ -55,7 +55,7 @@ export const statistic = sqliteTable("statistic", {
     koHeavyBlock: integer("ko_heavy_block").notNull().default(0),
     koPlayerGrabbed: integer("ko_player_grabbed").notNull().default(0),
     koPlayerThrown: integer("ko_player_thrown").notNull().default(0),
-    createdAt: text("created_at").$default(() => sql`CURRENT_TIMESTAMP`)
+    createdAt: text("created_at").notNull().default(sql`(CURRENT_TIMESTAMP)`)
 });
 
 export type Statistic = InferSelectModel<typeof statistic> & {
