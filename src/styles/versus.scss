@@ -1,0 +1,86 @@
+html {
+    --color-team1: #2294f1;
+    --color-team2: #f55521;
+}
+
+main {
+    position: relative;
+
+    > article {
+        display: grid;
+        height: 100%;
+        grid-template-columns: repeat(2, 1fr);
+        align-items: center;
+        justify-content: center;
+        gap: 10rem;
+
+        > section {
+            width: 100%;
+            display: grid;
+            justify-content: center;
+            grid-template-columns: 70%;
+            grid-template-rows: 240px repeat(2, max-content);
+            gap: 5rem;
+
+            > img {
+                height: 100%;
+                width: 100%;
+                object-fit: contain;
+                transform: scale(0.8);
+            }
+
+            > p {
+                font-size: 3.5em;
+                font-weight: 700;
+                color: white;
+                text-align: center;
+            }
+
+            > div {
+                display: flex;
+                flex-direction: column;
+                gap: 2rem;
+
+                > p {
+                    width: 100%;
+                    border: 2px solid var(--color-team1);
+                    padding: 2rem;
+                    background-color: rgba(0, 0, 0, 0.4);
+                    font-size: 1.8em;
+                    font-weight: 600;
+                    color: white;
+                    text-align: center;
+                    border-radius: 16px;
+                }
+            }
+        }
+
+        > section:nth-of-type(2) {
+            > div {
+                > p {
+                    border: 2px solid var(--color-team2);
+                }
+            }
+        }
+    }
+
+    > img {
+        position: absolute;
+        height: 550px;
+        left: 50%;
+        object-fit: cover;
+        top: 50%;
+        transform: translate(-50%, -50%);
+        width: 550px;
+    }
+
+    #gradient {
+        z-index: -1;
+        position: absolute;
+        top: 0;
+        left: 0;
+        bottom: 0;
+        right: 0;
+        background: linear-gradient(75deg, var(--color-team1) 0%, rgba(0, 0, 0, 0) 50%, var(--color-team2) 100%);
+    }
+}

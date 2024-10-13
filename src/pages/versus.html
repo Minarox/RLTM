@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <title>Versus</title>
+        <meta charset="UTF-8">
+        <meta content="width=device-width, initial-scale=1.0" name="viewport">
+        <link rel="stylesheet" href="/assets/css/main.css">
+        <link rel="stylesheet" href="/assets/css/versus.css">
+    </head>
+    <body>
+        <main>
+            <article>
+                <section id="team1"></section>
+                <section id="team2"></section>
+            </article>
+
+            <img src="/assets/img/vs.png" alt="Versus">
+            <i id="gradient"></i>
+        </main>
+
+        <script>
+            const url = window.location.href.split('//')[1].split('/')[0];
+            const tournamentId = window.location.pathname.split('/')[2];
+            const isLocal = url.startsWith('localhost');
+            let data = {};
+
+            const team1 = document.getElementById('team1');
+            const team2 = document.getElementById('team2');
+            const gradient = document.getElementById('gradient');
+
+            function setVersus() {
+                team1.innerHTML = '';
+                team2.innerHTML = '';
+
+                const buildTeam = (team) => {
+                    const logo = document.createElement('img');
+                    logo.src = team.logo ? `data:image/png;base64,${team.logo || ''}` : '';
+
+                    const name = document.createElement('p');
+                    name.innerHTML = team.name;
+
+                    const wrapper = document.createElement('div');
+                    team.players.forEach(player => {
+                        const name = document.createElement('p');
+                        name.innerHTML = player;
+                        wrapper.appendChild(name);
+                    });
+
+                    if (team == data?.versus?.team1) team1.append(logo, name, wrapper);
+                    else team2.append(logo, name, wrapper);
+                }
+
+                if (data?.versus) {
+                    if (data?.versus?.team1) buildTeam(data.versus.team1);
+                    if (data?.versus?.team2) buildTeam(data.versus.team2);
+                }
+
+                document.documentElement.style.setProperty('--color-team1', data?.versus?.team1?.color || '#2294f1');
+                document.documentElement.style.setProperty('--color-team2', data?.versus?.team2?.color || '#f55521');
+            }
+
+            function connect() {
+                let ws = new WebSocket(`ws${isLocal ? '' : 's'}://${url}/${tournamentId}`);
+
+                ws.onopen = function () {
+                    ws.send(JSON.stringify([ "versus" ]));
+                }
+
+                ws.onmessage = function (event) {
+                    event = JSON.parse(event.data);
+                    data = Object.assign(data, event || null);
+
+                    if (typeof event?.versus !== 'undefined') setVersus();
+                }
+
+                ws.onerror = function () {
+                    ws.close();
+                }
+
+                ws.onclose = function () {
+                    ws = undefined;
+                    setTimeout(connect);
+                }
+            }
+
+            setTimeout(connect);
+        </script>
+    </body>
+</html>
