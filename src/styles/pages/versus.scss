@@ -1,3 +1,6 @@
+@use '../shared/main.scss';
+@use '../shared/scoreboard.scss';
+
 html {
     --color-team1: #2294f1;
     --color-team2: #f55521;
@@ -75,7 +78,7 @@ main {
     }
 
     #gradient {
-        z-index: -1;
+        z-index: -100;
         position: absolute;
         top: 0;
         left: 0;

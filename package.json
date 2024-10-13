@@ -29,8 +29,8 @@
     "elysia:start": "bun build/index.js",
     "db:migrate": "drizzle-kit generate",
     "db:seed": "bun src/database/seeders/arena.ts; bun src/database/seeders/car.ts; bun src/database/seeders/tournament.ts; bun src/database/seeders/season.ts",
-    "sass:watch": "sass --watch src/styles:assets/css",
-    "sass:build": "sass src/styles:assets/css"
+    "sass:watch": "sass --watch src/styles/pages:assets/css",
+    "sass:build": "sass src/styles/pages:assets/css"
   },
   "devDependencies": {
     "@types/bun": "^1.1.11",
