@@ -2,6 +2,7 @@ import { staticPlugin } from "@elysiajs/static";
 import { Elysia } from "elysia";
 import { compression } from "elysia-compression";
 import live from "./controllers/live.ts";
+import versus from "./controllers/versus.ts";
 import { getCurrentSeason } from "./database/queries/season.ts";
 import { getTournaments } from "./database/queries/tournament.ts";
 import { getCurrentVersusRecursive } from "./database/queries/versus.ts";
@@ -22,14 +23,15 @@ new Elysia({
         assets: 'assets',
         alwaysStatic: true,
         noExtension: false,
-        noCache: false,
-        directive: "public",
+        noCache: process.env['NODE_ENV'] === "development",
+        directive: process.env['NODE_ENV'] === "development" ? "no-cache" : "public",
         indexHTML: false,
         prefix: '/assets/',
     }))
     .use(app)
 
     .use(live)
+    .use(versus)
 
     .get('/version', ({ store }) => store.version)
 

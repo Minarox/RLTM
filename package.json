@@ -24,7 +24,7 @@
     "build": "run-s sass:build elysia:build",
     "start": "run-s build elysia:start",
     "test": "bun test",
-    "elysia:dev": "bun --watch src/index.ts",
+    "elysia:dev": "NODE_ENV=development bun --watch src/index.ts",
     "elysia:build": "bun build --minify --entrypoints src/index.ts --outdir build --target bun",
     "elysia:start": "bun build/index.js",
     "db:migrate": "drizzle-kit generate",
