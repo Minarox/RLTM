@@ -19,9 +19,13 @@ new Elysia({
         }
     }))
     .use(staticPlugin({
-        prefix: "/",
+        assets: 'assets',
         alwaysStatic: true,
-        indexHTML: false
+        noExtension: false,
+        noCache: false,
+        directive: "public",
+        indexHTML: false,
+        prefix: '/assets/',
     }))
     .use(app)
 
