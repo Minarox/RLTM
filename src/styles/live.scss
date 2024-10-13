@@ -15,10 +15,11 @@ main {
 #tournament {
     font-weight: 400;
     background-color: #1a1a1c;
-    width: min(100%, 500px);
+    width: max-content;
+    min-width: 450px;
     text-align: center;
     text-transform: uppercase;
-    padding: 0.6rem 1.2rem;
+    padding: 0.6rem 2rem;
     border-radius: 0 0 16px 16px;
     color: white;
     z-index: 100;
@@ -32,6 +33,7 @@ main {
     gap: 2rem;
 
     #time-and-score {
+        position: relative;
         display: grid;
         grid-template-columns: var(--score-width) 170px var(--score-width);
         grid-template-rows: 84px;
@@ -88,6 +90,48 @@ main {
             &::before {
                 right: 100%;
                 background-color: var(--color-team2);
+            }
+        }
+
+        #replay,
+        #overtime {
+            transition: top 0.3s cubic-bezier(0.250, 0.460, 0.450, 0.940);
+            z-index: -1;
+            display: inline-flex;
+            align-items: center;
+            justify-content: center;
+            position: absolute;
+            top: calc(100% - 28px);
+            left: 50%;
+            transform: translateX(-50%);
+            font-weight: 500;
+            text-transform: uppercase;
+            overflow: hidden;
+            color: white;
+            border-radius: 0 0 10px 10px;
+            width: 126px;
+            height: 28px;
+
+            @keyframes rotate-gradient {
+                from {
+                    transform: rotate(0) scale(1.45);
+                }
+                to {
+                    transform: rotate(360deg) scale(1.45);
+                }
+            }
+
+            &::before {
+                animation: rotate-gradient linear 5s infinite;
+                background-image: linear-gradient(45deg, rgb(240, 0, 0) 0%, rgb(155, 0, 0) 100%);
+                bottom: -2rem;
+                content: '';
+                display: block;
+                left: 0;
+                position: absolute;
+                right: 0;
+                top: -2rem;
+                z-index: -1;
             }
         }
     }

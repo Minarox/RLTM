@@ -27,6 +27,8 @@
                     <p id="score-team1">0</p>
                     <p id="time">0:00</p>
                     <p id="score-team2">0</p>
+                    <p id="replay">Replay</p>
+                    <p id="overtime">Overtime</p>
                 </section>
 
                 <!-- Team 2 -->
@@ -61,6 +63,8 @@
             const time = document.getElementById('time');
             const scoreTeam1 = document.getElementById('score-team1');
             const scoreTeam2 = document.getElementById('score-team2');
+            const replay = document.getElementById('replay');
+            const overtime = document.getElementById('overtime');
             const entitiesTeam1 = document.getElementById('entities-team1');
             const entitiesTeam2 = document.getElementById('entities-team2');
 
@@ -89,6 +93,9 @@
                 time.innerHTML = data?.match ? `${data.match?.isOvertime ? '+' : ''}${Math.floor(data.match?.time / 60)}:${(data.match?.time % 60).toString().padStart(2, "0")}` : '0:00';
                 scoreTeam1.innerHTML = data?.match?.score[0] || '0';
                 scoreTeam2.innerHTML = data?.match?.score[1] || '0';
+
+                replay.style.top = data?.match?.isReplay ? '100%' : 'calc(100% - 28px)';
+                overtime.style.top = data?.match?.isOvertime ? '100%' : 'calc(100% - 28px)';
             }
 
             function setPlayers() {
