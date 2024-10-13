@@ -1,10 +1,11 @@
 import { Elysia } from "elysia";
+import { createOrUpdateMatch } from "../database/queries/match.ts";
 import { createOrUpdatePlayer } from "../database/queries/player.ts";
 import { getTournamentById, getTournamentByToken } from "../database/queries/tournament.ts";
 import app from "../extensions/app.ts";
 import {
     type EntititesPayload,
-    GameTopic,
+    LiveTopic,
     type MatchPayload,
     type PlayerPayload,
     type StatisticPayload,
@@ -31,7 +32,7 @@ export default new Elysia({
             }
         },
 
-        open({ data, id, send, subscribe }): void {
+        open({ data, id, send }): void {
             const tournamentId: string = data.params.tournamentId;
 
             if (data.query?.hasOwnProperty('token')) {
@@ -40,18 +41,61 @@ export default new Elysia({
                 if (getTournamentByToken(token)) {
                     app.store[tournamentId].plugin = id;
                     send(JSON.stringify({ valid: true }));
+
+                    // @ts-ignore
+                    const server = app.getServer();
+                    server?.publish(LiveTopic.PLUGIN, JSON.stringify({ plugin: id }));
                     app.decorator.log.info(`Game "${id}" connected to "${app.store[tournamentId].tournament.name}".`);
                     return;
                 }
             }
 
-            subscribe('broadcast');
-            send(JSON.stringify({ ...app.store[tournamentId], plugin: undefined}));
             app.decorator.log.info(`Client "${id}" connected to "${app.store[tournamentId].tournament.name}".`);
         },
 
-        message({ id, data }, message: any): void {
-            if (id !== app.store[data.params.tournamentId].plugin) {
+        message({ id, data, send, subscribe }, message: any): void {
+            if (id !== app.store[data.params.tournamentId].plugin && message) {
+                const payload = JSON.parse(message);
+                if (Array.isArray(payload)) {
+                    payload.forEach((key: string): void => {
+                        key = key.toUpperCase();
+
+                        if (LiveTopic.hasOwnProperty(key)) {
+                            subscribe(LiveTopic[key]);
+                        }
+
+                        switch (LiveTopic[key]) {
+                            case LiveTopic.TOURNAMENT:
+                                send(JSON.stringify({ tournament: app.store[data.params.tournamentId].tournament }));
+                                break;
+
+                            case LiveTopic.SEASON:
+                                send(JSON.stringify({ season: app.store[data.params.tournamentId].season }));
+                                break;
+
+                            case LiveTopic.VERSUS:
+                                send(JSON.stringify({ versus: app.store[data.params.tournamentId].versus }));
+                                break;
+
+                            case LiveTopic.MATCH:
+                                send(JSON.stringify({ match: app.store[data.params.tournamentId].match }));
+                                break;
+
+                            case LiveTopic.PLAYERS:
+                                send(JSON.stringify({ players: app.store[data.params.tournamentId][LiveTopic.PLAYERS] }));
+                                break;
+
+                            case LiveTopic.STATISTICS:
+                                send(JSON.stringify({ statistics: app.store[data.params.tournamentId][LiveTopic.STATISTICS] }));
+                                break;
+
+                            case LiveTopic.PLUGIN:
+                                send(JSON.stringify({ plugin: app.store[data.params.tournamentId].plugin }));
+                                break;
+                        }
+
+                    })
+                }
                 return;
             }
 
@@ -60,13 +104,14 @@ export default new Elysia({
             const tournamentId: string = data.params.tournamentId;
 
             switch (message?.topic) {
-                case GameTopic.MATCH:
+                case LiveTopic.MATCH:
                     const match: MatchPayload = message.payload as MatchPayload;
-                    app.store[tournamentId].match = match;
-                    server?.publish('broadcast', JSON.stringify({ match: match }));
+                    createOrUpdateMatch(match);
+                    app.store[tournamentId][LiveTopic.MATCH] = match;
+                    server?.publish(LiveTopic.MATCH, JSON.stringify({ match: match }));
                     break;
 
-                case GameTopic.PLAYERS:
+                case LiveTopic.PLAYERS:
                     const players: PlayerPayload[] = message.payload as PlayerPayload[];
                     if (players) {
                         players
@@ -74,24 +119,24 @@ export default new Elysia({
                             .forEach((player: PlayerPayload) => player ? createOrUpdatePlayer(player) : null);
                     }
 
-                    app.store[tournamentId].players = players;
-                    server?.publish('broadcast', JSON.stringify({ players: players }));
+                    app.store[tournamentId][LiveTopic.PLAYERS] = players;
+                    server?.publish(LiveTopic.PLAYERS, JSON.stringify({ players: players }));
                     break;
 
-                case GameTopic.STATISTICS:
+                case LiveTopic.STATISTICS:
                     const statistics: StatisticsPayload = message.payload as StatisticsPayload;
-                    app.store[tournamentId].statistics = statistics;
-                    server?.publish('broadcast', JSON.stringify({ statistics: statistics }));
+                    app.store[tournamentId][LiveTopic.STATISTICS] = statistics;
+                    server?.publish(LiveTopic.STATISTICS, JSON.stringify({ statistics: statistics }));
                     break;
 
-                case GameTopic.STATISTIC:
+                case LiveTopic.STATISTIC:
                     const statistic: StatisticPayload = message.payload as StatisticPayload;
-                    server?.publish('broadcast', JSON.stringify({ statistic: statistic }));
+                    server?.publish(LiveTopic.STATISTIC, JSON.stringify({ statistic: statistic }));
                     break;
 
-                case GameTopic.ENTITIES:
+                case LiveTopic.ENTITIES:
                     const entities: any = message.payload as EntititesPayload;
-                    server?.publish('broadcast', JSON.stringify({ entities: entities }));
+                    server?.publish(LiveTopic.ENTITIES, JSON.stringify({ entities: entities }));
                     break;
             }
         },
@@ -99,17 +144,21 @@ export default new Elysia({
         close({ data, id, unsubscribe }): void {
             const tournamentId: string = data.params.tournamentId;
 
-            if (id === app.store[tournamentId].plugin) {
-                app.store[tournamentId].plugin = null;
-                app.store[tournamentId].match = null;
-                app.store[tournamentId].statistics = null;
+            if (id === app.store[tournamentId][LiveTopic.PLUGIN]) {
+                app.store[tournamentId][LiveTopic.PLUGIN] = null;
+                app.store[tournamentId][LiveTopic.MATCH] = null;
+                app.store[tournamentId][LiveTopic.STATISTICS] = null;
 
                 // @ts-ignore
                 const server = app.getServer();
-                server?.publish('broadcast', JSON.stringify({ ...app.store[tournamentId], plugin: undefined }));
+                server?.publish(LiveTopic.MATCH, JSON.stringify({ match: null }));
+                server?.publish(LiveTopic.STATISTICS, JSON.stringify({ statistics: null }));
+                server?.publish(LiveTopic.PLUGIN, JSON.stringify({ plugin: null }));
                 app.decorator.log.info(`Game "${id}" disconnected.`);
             } else {
-                unsubscribe('broadcast');
+                Object.values(LiveTopic).forEach((key: string): void => {
+                    unsubscribe(key);
+                })
                 app.decorator.log.info(`Client "${id}" disconnected.`);
             }
         }

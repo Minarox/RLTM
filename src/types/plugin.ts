@@ -1,9 +1,13 @@
-export enum GameTopic {
+export enum LiveTopic {
+    TOURNAMENT = "tournament",
+    SEASON = "season",
+    VERSUS = "versus",
     MATCH = "match",
+    PLAYERS = "players",
     STATISTICS = "statistics",
     STATISTIC = "statistic",
     ENTITIES = "entities",
-    PLAYERS = "players"
+    PLUGIN = "plugin"
 }
 
 export interface MatchPayload {

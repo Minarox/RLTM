@@ -382,6 +382,10 @@
             function connect() {
                 let ws = new WebSocket(`ws${isLocal ? '' : 's'}://${url}/${tournamentId}`);
 
+                ws.onopen = function () {
+                    ws.send(JSON.stringify([ "tournament", "season", "versus", "match", "entities", "players" ]));
+                }
+
                 ws.onmessage = function (event) {
                     event = JSON.parse(event.data);
                     data = Object.assign(data, event || null);
