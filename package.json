@@ -20,16 +20,23 @@
   "module": "src/index.js",
   "type": "module",
   "scripts": {
-    "dev": "bun --watch src/index.ts",
-    "build": "bun build --minify --entrypoints src/index.ts --outdir build --target bun",
-    "start": "bun build/index.js",
+    "dev": "run-p sass:watch elysia:dev",
+    "build": "run-s sass:build elysia:build",
+    "start": "run-s build elysia:start",
     "test": "bun test",
-    "db:generate": "drizzle-kit generate",
-    "db:seed": "bun src/database/seeders/arena.ts; bun src/database/seeders/car.ts; bun src/database/seeders/tournament.ts; bun src/database/seeders/season.ts"
+    "elysia:dev": "bun --watch src/index.ts",
+    "elysia:build": "bun build --minify --entrypoints src/index.ts --outdir build --target bun",
+    "elysia:start": "bun build/index.js",
+    "db:migrate": "drizzle-kit generate",
+    "db:seed": "bun src/database/seeders/arena.ts; bun src/database/seeders/car.ts; bun src/database/seeders/tournament.ts; bun src/database/seeders/season.ts",
+    "sass:watch": "sass --watch src/styles:assets/css",
+    "sass:build": "sass src/styles:assets/css"
   },
   "devDependencies": {
     "@types/bun": "^1.1.11",
-    "drizzle-kit": "^0.24.2"
+    "drizzle-kit": "^0.24.2",
+    "npm-run-all": "^4.1.5",
+    "sass": "^1.79.5"
   },
   "peerDependencies": {
     "typescript": "^5.5.4"
@@ -38,7 +45,7 @@
     "@elysiajs/static": "^1.1.1",
     "colors": "^1.4.0",
     "drizzle-orm": "^0.33.0",
-    "elysia": "^1.1.20",
+    "elysia": "^1.1.21",
     "elysia-compression": "^0.0.7",
     "winston": "^3.15.0"
   }
