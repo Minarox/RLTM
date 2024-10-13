@@ -21,7 +21,7 @@ export default new Elysia({
             return "Not Found";
         }
 
-        return Bun.file('pages/live.html');
+        return Bun.file('src/pages/live.html');
     })
 
     .ws("/:tournamentId", {
