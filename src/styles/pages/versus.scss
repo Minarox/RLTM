@@ -48,7 +48,7 @@ main {
                     width: 100%;
                     border: 2px solid var(--color-team1);
                     padding: 2rem;
-                    background-color: rgba(0, 0, 0, 0.4);
+                    background-color: rgba(0, 0, 0, 0.7);
                     font-size: 1.8em;
                     font-weight: 600;
                     color: white;
@@ -85,5 +85,6 @@ main {
         bottom: 0;
         right: 0;
         background: linear-gradient(75deg, var(--color-team1) 0%, rgba(0, 0, 0, 0) 50%, var(--color-team2) 100%);
+        opacity: 0.5;
     }
 }
