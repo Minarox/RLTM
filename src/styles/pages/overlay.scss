@@ -21,7 +21,7 @@ main {
     min-width: 450px;
     text-align: center;
     text-transform: uppercase;
-    padding: 0.6rem 2rem;
+    padding: 0.6rem 3rem;
     border-radius: 0 0 16px 16px;
     color: white;
     z-index: 100;
@@ -38,7 +38,7 @@ main {
         position: relative;
         display: grid;
         grid-template-columns: var(--logo-width) 1fr;
-        height: 64px;
+        height: 62px;
         background-color: #2b2b2b;
         border-radius: 16px;
         align-items: center;
@@ -104,9 +104,9 @@ main {
         #score-versus-team1,
         #score-versus-team2 {
             z-index: -1;
-            height: 24px;
+            height: 21px;
             position: absolute;
-            top: calc(100% - 12px);
+            top: calc(100% - 10px);
             left: var(--logo-width);
             right: 0;
             display: flex;
