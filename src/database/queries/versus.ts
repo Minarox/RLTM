@@ -28,31 +28,31 @@ export function getCurrentVersus(tournamentId: string) {
         )
         .get() as Versus;
 
-        if (versusData) {
-            const matchs = getMatchsByVersus(versusData.id);
-            let versusScore = [0, 0];
+    if (!versusData) {
+        return undefined;
+    }
 
-            if (matchs) {
-                matchs.forEach((match: Match) => {
-                    if (match.scoreTeam1 > match.scoreTeam2) {
-                        versusScore[0] += 1;
-                    } else if (match.scoreTeam1 < match.scoreTeam2) {
-                        versusScore[1] += 1;
-                    }
-                });
+    const matchs = getMatchsByVersus(versusData.id);
+    let versusScore = [0, 0];
+
+    if (matchs) {
+        matchs.forEach((match: Match) => {
+            if (match.scoreTeam1 > match.scoreTeam2) {
+                versusScore[0] += 1;
+            } else if (match.scoreTeam1 < match.scoreTeam2) {
+                versusScore[1] += 1;
             }
+        });
+    }
 
-            return {
-                ...versusData,
-                team1: {
-                    ...getTeamById(versusData.team1Id)
-                },
-                team2: {
-                    ...getTeamById(versusData.team2Id)
-                },
-                versusScore: versusScore,
-            } as Versus;
-        } else {
-            return undefined;
-        }
+    return {
+        ...versusData,
+        team1: {
+            ...getTeamById(versusData.team1Id)
+        },
+        team2: {
+            ...getTeamById(versusData.team2Id)
+        },
+        versusScore: versusScore,
+    } as Versus;
 }

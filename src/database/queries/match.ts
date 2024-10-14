@@ -9,6 +9,10 @@ export function createOrUpdateMatch(matchData: MatchPayload, tournamentId: strin
     const matchFound = getCurrentMatch(tournamentId);
     const versus = getCurrentVersus(tournamentId);
 
+    if (!versus) {
+        return undefined;
+    }
+
     let clock;
     if (matchData.isUnlimited) {
         clock = matchData.clock;
@@ -46,6 +50,7 @@ export function createOrUpdateMatch(matchData: MatchPayload, tournamentId: strin
                 overtime: matchData.isOvertime
             });
     }
+
     return query
         .returning({
             id: match.id,
@@ -64,32 +69,31 @@ export function createOrUpdateMatch(matchData: MatchPayload, tournamentId: strin
 export function getCurrentMatch(tournamentId: string) {
     const versus = getCurrentVersus(tournamentId);
 
-    if (versus) {
-        const currentMatch = db
-            .select({
-                id: match.id,
-                versusId: match.versusId,
-                scoreTeam1: match.scoreTeam1,
-                scoreTeam2: match.scoreTeam2,
-                clock: match.clock,
-                duration: match.duration,
-                arenaCode: match.arenaCode,
-                finished: match.finished,
-                overtime: match.overtime
-            })
-            .from(match)
-            .where(eq(match.versusId, versus.id))
-            .orderBy(desc(match.createdAt))
-            .get() as Match;
-
-            if (currentMatch) {
-                return { ...currentMatch, arena: getArenaById(currentMatch.arenaCode) };
-            } else {
-                return undefined;
-            }
-    } else {
+    if (!versus) {
         return undefined;
     }
+
+    const currentMatch = db
+        .select({
+            id: match.id,
+            versusId: match.versusId,
+            scoreTeam1: match.scoreTeam1,
+            scoreTeam2: match.scoreTeam2,
+            clock: match.clock,
+            duration: match.duration,
+            arenaCode: match.arenaCode,
+            finished: match.finished,
+            overtime: match.overtime
+        })
+        .from(match)
+        .where(eq(match.versusId, versus.id))
+        .orderBy(desc(match.createdAt))
+        .get() as Match;
+
+    if (!currentMatch) {
+        return undefined;
+    }
+    return { ...currentMatch, arena: getArenaById(currentMatch.arenaCode) };
 }
 
 export function getMatchsByVersus(versusId: number) {
