@@ -1,4 +1,4 @@
-import { desc, eq } from "drizzle-orm";
+import { and, desc, eq } from "drizzle-orm";
 import db from "../../extensions/database.ts";
 import type { MatchPayload } from "../../types/plugin.ts";
 import { type Match, match } from "../schemas/match.ts";
@@ -110,7 +110,12 @@ export function getMatchsByVersus(versusId: number) {
             overtime: match.overtime
         })
         .from(match)
-        .where(eq(match.versusId, versusId))
+        .where(
+            and(
+                eq(match.versusId, versusId),
+                eq(match.finished, true)
+            )
+        )
         .orderBy(desc(match.createdAt))
         .all() as Match[];
 }
