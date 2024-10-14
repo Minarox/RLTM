@@ -13,8 +13,8 @@ main {
         height: 100%;
         outline: 2px solid red;
         display: grid;
-        grid-template-rows: 250px 1fr;
-        gap: 4rem;
+        grid-template-rows: 240px 1fr;
+        gap: 0.6rem;
 
         > section:nth-of-type(1) {
             display: grid;
@@ -75,6 +75,67 @@ main {
                 }
             }
         }
+
+        > section:nth-of-type(2) {
+            display: grid;
+            grid-template-columns: 1fr max-content 1fr;
+            align-items: flex-end;
+            text-align: center;
+            gap: 2rem;
+            padding: 0 1.5rem 1.5rem;
+            color: white;
+            font-weight: 600;
+            font-size: 1.3em;
+
+            #statistics {
+                height: 100%;
+                padding: 0.4rem 0;
+                display: grid;
+                grid-template-columns: 1fr;
+                align-items: center;
+                justify-content: center;
+                gap: 0.2rem;
+
+                > p:first-of-type {
+                    font-size: 1.2em;
+                    font-weight: 700;
+                }
+            }
+
+            #statistics-team1,
+            #statistics-team2 {
+                height: 100%;
+                display: grid;
+                grid-template-columns: repeat(3, 1fr);
+                align-items: center;
+                justify-content: center;
+                gap: 1rem;
+
+                > div {
+                    height: 100%;
+                    background-color: rgba(0, 0, 0, 0.7);
+                    padding: 0.4rem;
+                    border-radius: 8px;
+                    border: 2px solid var(--color-team1);
+                    display: grid;
+                    grid-template-columns: 1fr;
+                    align-items: center;
+                    justify-content: center;
+                    gap: 0.2rem;
+
+                    > p:first-of-type {
+                        font-size: 1.2em;
+                        font-weight: 700;
+                    }
+                }
+            }
+
+            #statistics-team2 {
+                > div {
+                    border: 2px solid var(--color-team2);
+                }
+            }
+        }
     }
 
     #gradient {
@@ -85,5 +146,6 @@ main {
         bottom: 0;
         right: 0;
         background: linear-gradient(75deg, var(--color-team1) 0%, rgba(0, 0, 0, 0) 50%, var(--color-team2) 100%);
+        opacity: 0.5;
     }
 }

@@ -117,25 +117,68 @@
                         if (data?.players[team]) {
                             Object.keys(data.players[team]).forEach((player) => {
                                 const name = document.createElement('p');
-                                name.innerHTML = player.name;
+                                name.innerHTML = player.split('|').slice(3).join('|');
 
                                 const score = document.createElement('p');
-                                score.id = `score-${player.id}`;
+                                score.id = `score-${player}`;
+                                score.innerHTML = '0';
+
+                                const goals = document.createElement('p');
+                                goals.id = `goals-${player}`;
+                                goals.innerHTML = '0';
 
                                 const assists = document.createElement('p');
-                                assists.id = `passesDecisives-${player.id}`;
+                                assists.id = `assists-${player}`;
+                                assists.innerHTML = '0';
 
-                                const shoots = document.createElement('p');
-                                shoots.id = `tirs-${player.id}`;
+                                const shots = document.createElement('p');
+                                shots.id = `shots-${player}`;
+                                shots.innerHTML = '0';
 
                                 const saves = document.createElement('p');
-                                saves.id = `sauvetages-${player.id}`;
+                                saves.id = `saves-${player}`;
+                                saves.innerHTML = '0';
 
                                 const demos = document.createElement('p');
-                                demos.id = `demolitions-${player.id}`;
+                                demos.id = `demos-${player}`;
+                                demos.innerHTML = '0';
 
                                 const touchs = document.createElement('p');
-                                touch.id = `touch-${player.id}`;
+                                touchs.id = `touchs-${player}`;
+                                touchs.innerHTML = '0';
+
+                                const wrapper = document.createElement('div');
+                                wrapper.id = player;
+                                wrapper.append(name, score, goals,assists, shots, saves, demos, touchs);
+
+                                if (team == 0) statisticsTeam1.appendChild(wrapper);
+                                else statisticsTeam2.appendChild(wrapper);
+                            })
+                        }
+                    })
+                }
+            }
+
+            function setStatistics() {
+                if (data?.statistics) {
+                    Object.keys(data.statistics).forEach((team) => {
+                        if (data?.statistics[team]) {
+                            Object.keys(data.statistics[team]).forEach((player) => {
+                                console.log(data?.statistics[team][player])
+                                const score = document.getElementById(`score-${player}`);
+                                const goals = document.getElementById(`goals-${player}`);
+                                const assists = document.getElementById(`assists-${player}`);
+                                const shots = document.getElementById(`shots-${player}`);
+                                const saves = document.getElementById(`saves-${player}`);
+                                const demos = document.getElementById(`demos-${player}`);
+                                const touchs = document.getElementById(`touchs-${player}`);
+                                if (score) score.innerHTML = data?.statistics[team][player]?.score || '0';
+                                if (goals) goals.innerHTML = data?.statistics[team][player]?.goals || '0';
+                                if (assists) assists.innerHTML = data?.statistics[team][player]?.assists || '0';
+                                if (shots) shots.innerHTML = data?.statistics[team][player]?.shots || '0';
+                                if (saves) saves.innerHTML = data?.statistics[team][player]?.saves || '0';
+                                if (demos) demos.innerHTML = data?.statistics[team][player]?.Demolish || '0';
+                                if (touchs) touchs.innerHTML = data?.statistics[team][player]?.ballTouches || '0';
                             })
                         }
                     })
@@ -146,7 +189,7 @@
                 let ws = new WebSocket(`ws${isLocal ? '' : 's'}://${url}/${tournamentId}`);
 
                 ws.onopen = function () {
-                    ws.send(JSON.stringify([ "tournament", "season", "versus", "match", "players" ]));
+                    ws.send(JSON.stringify([ "tournament", "season", "versus", "match", "players", "statistics" ]));
                 }
 
                 ws.onmessage = function (event) {
@@ -155,8 +198,8 @@
 
                     if (typeof event?.tournament !== 'undefined' || typeof event?.season !== 'undefined' || typeof event?.versus !== 'undefined') setInfos();
                     if (typeof event?.match !== 'undefined' && event?.match !== null) setMatch();
-                    if (typeof event?.players !== 'undefined') setPlayers();
-                    // if (typeof event?.match !== 'undefined') setStatistics();
+                    if (typeof event?.players !== 'undefined' && event?.players !== null) setPlayers();
+                    if (typeof event?.statistics !== 'undefined' && event?.statistics !== null) setStatistics();
                 }
 
                 ws.onerror = function () {
