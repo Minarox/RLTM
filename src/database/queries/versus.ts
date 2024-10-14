@@ -10,7 +10,7 @@ export function getCurrentVersus(tournamentId: string) {
     const season = getCurrentSeason(tournamentId);
     const currentDate: string = new Date().toISOString().split('T')[0];
 
-    return db
+    const versusData = db
         .select({
             id: versus.id,
             seasonId: versus.seasonId,
@@ -27,35 +27,32 @@ export function getCurrentVersus(tournamentId: string) {
             )
         )
         .get() as Versus;
-}
 
-export function getCurrentVersusRecursive(tournamentId: string) {
-    const currentVersus = getCurrentVersus(tournamentId);
+        if (versusData) {
+            const matchs = getMatchsByVersus(versusData.id);
+            let versusScore = [0, 0];
 
-    if (currentVersus) {
-        const matchs = getMatchsByVersus(currentVersus.id);
-        let versusScore = [0, 0];
-        if (matchs) {
-            matchs.forEach((match: Match) => {
-                if (match.scoreTeam1 > match.scoreTeam2) {
-                    versusScore[0] += 1;
-                } else if (match.scoreTeam1 < match.scoreTeam2) {
-                    versusScore[1] += 1;
-                }
-            });
+            if (matchs) {
+                matchs.forEach((match: Match) => {
+                    if (match.scoreTeam1 > match.scoreTeam2) {
+                        versusScore[0] += 1;
+                    } else if (match.scoreTeam1 < match.scoreTeam2) {
+                        versusScore[1] += 1;
+                    }
+                });
+            }
+
+            return {
+                ...versusData,
+                team1: {
+                    ...getTeamById(versusData.team1Id)
+                },
+                team2: {
+                    ...getTeamById(versusData.team2Id)
+                },
+                versusScore: versusScore,
+            } as Versus;
+        } else {
+            return undefined;
         }
-
-        return {
-            ...currentVersus,
-            team1: {
-                ...getTeamById(currentVersus.team1Id)
-            },
-            team2: {
-                ...getTeamById(currentVersus.team2Id)
-            },
-            versusScore: versusScore,
-        } as Versus;
-    }
-
-    return currentVersus;
 }

@@ -1,10 +1,10 @@
 <!DOCTYPE html>
 <html lang="fr">
     <head>
-        <title>Live</title>
+        <title>Overlay</title>
         <meta charset="UTF-8">
         <meta content="width=device-width, initial-scale=1.0" name="viewport">
-        <link rel="stylesheet" href="/assets/css/live.css">
+        <link rel="stylesheet" href="/assets/css/overlay.css">
     </head>
     <body>
         <main>
@@ -15,10 +15,11 @@
             <article id="scoreboard">
                 <!-- Team 1 -->
                 <section>
-                    <div>
+                    <div class="img-wrapper">
                         <img id="logo-team1" src="" alt="Logo team 1" />
                     </div>
                     <p id="name-team1">&nbsp;</p>
+                    <div id="score-versus-team1"></div>
                 </section>
 
                 <!-- Clock and score -->
@@ -33,9 +34,10 @@
                 <!-- Team 2 -->
                 <section>
                     <p id="name-team2">&nbsp;</p>
-                    <div>
+                    <div class="img-wrapper">
                         <img id="logo-team2" src="" alt="Logo team 2" />
                     </div>
+                    <div id="score-versus-team2"></div>
                 </section>
             </article>
 
@@ -59,6 +61,8 @@
             const nameTeam2 = document.getElementById('name-team2');
             const logoTeam1 = document.getElementById('logo-team1');
             const logoTeam2 = document.getElementById('logo-team2');
+            const scoreVersusTeam1 = document.getElementById('score-versus-team1');
+            const scoreVersusTeam2 = document.getElementById('score-versus-team2');
             const clock = document.getElementById('clock');
             const scoreTeam1 = document.getElementById('score-team1');
             const scoreTeam2 = document.getElementById('score-team2');
@@ -84,6 +88,26 @@
                 logoTeam2.src = data?.versus?.team2?.logo ? `data:image/png;base64,${data.versus.team2.logo || ''}` : '';
                 logoTeam2.style.opacity = data?.versus?.team2?.logo ? '1' : '0';
 
+                scoreVersusTeam1.innerHTML = '';
+                scoreVersusTeam2.innerHTML = '';
+
+                if (data?.versus?.length && data?.versus?.versusScore) {
+                    let versusLength = data.versus.length > 1 ? data.versus.length - 1 : data.versus.length;
+                    const highestScore = Math.max(data.versus.versusScore[0], data.versus.versusScore[1]);
+                    if (highestScore > versusLength) versusLength = highestScore + 1;
+
+                    for (const team in data.versus.versusScore) {
+                        const score = data.versus.versusScore[team];
+                        for (let i = 0; i < versusLength; i++) {
+                            const round = document.createElement('i');
+                            if (i < score) round.classList.add("fill");
+
+                            if (team == 0) scoreVersusTeam1.appendChild(round);
+                            else scoreVersusTeam2.appendChild(round);
+                        }
+                    }
+                }
+
                 document.documentElement.style.setProperty('--color-team1', data?.versus?.team1?.color || '#2294f1');
                 document.documentElement.style.setProperty('--color-team2', data?.versus?.team2?.color || '#f55521');
             }
@@ -103,8 +127,8 @@
                 scoreTeam1.innerHTML = data?.match?.scoreTeam1 || '0';
                 scoreTeam2.innerHTML = data?.match?.scoreTeam2 || '0';
 
-                replay.style.top = data?.match?.replay ? '100%' : 'calc(100% - 28px)';
-                overtime.style.top = data?.match?.overtime ? '100%' : 'calc(100% - 28px)';
+                replay.style.top = data?.match?.replay ? '100%' : 'calc(100% - 30px)';
+                overtime.style.top = data?.match?.overtime ? '100%' : 'calc(100% - 30px)';
             }
 
             function setPlayers() {
