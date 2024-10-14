@@ -14,7 +14,8 @@ export const versus = sqliteTable("versus", {
 });
 
 export type Versus = InferSelectModel<typeof versus> & {
-    season: InferSelectModel<typeof season>;
-    team1: InferSelectModel<typeof team>;
-    team2: InferSelectModel<typeof team>;
+    season?: InferSelectModel<typeof season>;
+    team1?: InferSelectModel<typeof team>;
+    team2?: InferSelectModel<typeof team>;
+    versusScore?: Array<number>;
 };

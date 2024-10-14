@@ -1,7 +1,10 @@
 import { Elysia } from "elysia";
-import { createOrUpdateMatch } from "../database/queries/match.ts";
+import { getArenaById } from "../database/queries/arena.ts";
+import { createOrUpdateMatch, getCurrentMatch, getMatchsByVersus } from "../database/queries/match.ts";
 import { createOrUpdatePlayer } from "../database/queries/player.ts";
+import { createOrUpdateStatistic } from "../database/queries/statistic.ts";
 import { getTournamentById, getTournamentByToken } from "../database/queries/tournament.ts";
+import type { Match } from "../database/schemas/match.ts";
 import app from "../extensions/app.ts";
 import {
     type EntititesPayload,
@@ -106,14 +109,40 @@ export default new Elysia({
             switch (message?.topic) {
                 case LiveTopic.MATCH:
                     const match: MatchPayload = message.payload as MatchPayload;
-                    createOrUpdateMatch(match);
-                    app.store[tournamentId][LiveTopic.MATCH] = match;
-                    server?.publish(LiveTopic.MATCH, JSON.stringify({ match: match }));
+                    if (match) {
+                        if (match?.isStarted) {
+                            createOrUpdateMatch(match, tournamentId);
+
+                            if (app.store[tournamentId].versus) {
+                                const matchs = getMatchsByVersus(app.store[tournamentId].versus.id)
+                                let versusScore = [0, 0];
+                                if (matchs) {
+                                    matchs.forEach((match: Match) => {
+                                        if (match.scoreTeam1 > match.scoreTeam2) {
+                                            versusScore[0] += 1;
+                                        } else if (match.scoreTeam1 < match.scoreTeam2) {
+                                            versusScore[1] += 1;
+                                        }
+                                    });
+                                }
+                                app.store[tournamentId].versus.versusScore = versusScore;
+                                server?.publish(LiveTopic.VERSUS, JSON.stringify({ versus: app.store[tournamentId].versus }));
+                            }
+                        }
+
+                        if (match?.arenaCode) {
+                            match.map = getArenaById(match.arenaCode) || null;
+                        }
+                    }
+
+                    const currentMatch = getCurrentMatch(tournamentId) || null;
+                    app.store[tournamentId][LiveTopic.MATCH] = currentMatch;
+                    server?.publish(LiveTopic.MATCH, JSON.stringify({ match: { ...currentMatch, replay: match?.isReplay || false } }));
                     break;
 
                 case LiveTopic.PLAYERS:
                     const players: PlayerPayload[] = message.payload as PlayerPayload[];
-                    if (players) {
+                    if (players && players?.length) {
                         players
                             .flatMap(player => player ? Object.values(player) : null)
                             .forEach((player: PlayerPayload) => player ? createOrUpdatePlayer(player) : null);
@@ -124,7 +153,12 @@ export default new Elysia({
                     break;
 
                 case LiveTopic.STATISTICS:
-                    const statistics: StatisticsPayload = message.payload as StatisticsPayload;
+                    const statistics: StatisticsPayload[] = message.payload as StatisticsPayload[];
+                    if (statistics && statistics?.length) {
+                        statistics
+                            .flatMap(statistic => statistic ? Object.values(statistic) : null)
+                            .forEach((statistic: StatisticsPayload) => statistic ? createOrUpdateStatistic(statistic, tournamentId) : null);
+                    }
                     app.store[tournamentId][LiveTopic.STATISTICS] = statistics;
                     server?.publish(LiveTopic.STATISTICS, JSON.stringify({ statistics: statistics }));
                     break;

@@ -1,3 +1,5 @@
+import type { Arena } from "../database/schemas/arena";
+
 export enum LiveTopic {
     TOURNAMENT = "tournament",
     SEASON = "season",
@@ -12,26 +14,29 @@ export enum LiveTopic {
 
 export interface MatchPayload {
     duration: number;
-    id: string;
     isEnded: boolean;
     isOvertime: boolean;
     isPaused: boolean;
     isReplay: boolean;
     isStarted: boolean;
     isUnlimited: boolean;
-    map: string;
+    arenaCode: string;
+    map?: Arena;
     score: Array<number>;
-    time: number;
+    clock: number;
 }
 
 export interface PlayerPayload {
     name: string;
-    id: string;
+    uid: string;
     carId: number;
     bot: boolean;
 }
 
 export interface StatisticsPayload {
+    name: string;
+    uid: string;
+    bot: boolean;
     mvp: boolean;
     score: number;
     goals: number;

@@ -2,7 +2,7 @@ html {
     --score-width: 96px;
 }
 
-#time-and-score {
+#clock-and-score {
     position: relative;
     display: grid;
     grid-template-columns: var(--score-width) 170px var(--score-width);
@@ -10,7 +10,7 @@ html {
     text-align: center;
     align-items: center;
 
-    #time {
+    #clock {
         background-color: white;
         font-size: 2.6em;
         font-weight: 600;

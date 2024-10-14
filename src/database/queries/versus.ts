@@ -1,12 +1,14 @@
 import { and, eq, sql } from "drizzle-orm";
 import db from "../../extensions/database.ts";
+import type { Match } from "../schemas/match.ts";
 import { versus, type Versus } from "../schemas/versus.ts";
-import { getGamesByVersusId, getLatestGame } from "./game.ts";
+import { getMatchsByVersus } from "./match.ts";
+import { getCurrentSeason } from "./season.ts";
 import { getTeamById } from "./team.ts";
 
-export function getCurrentVersus(seasonId: number) {
+export function getCurrentVersus(tournamentId: string) {
+    const season = getCurrentSeason(tournamentId);
     const currentDate: string = new Date().toISOString().split('T')[0];
-    const game = getLatestGame();
 
     return db
         .select({
@@ -20,17 +22,28 @@ export function getCurrentVersus(seasonId: number) {
         .from(versus)
         .where(
             and(
-                eq(versus.seasonId, game?.versusId || seasonId),
+                eq(versus.seasonId, season?.id),
                 eq(sql`DATE(${versus.playedAt})`, currentDate)
             )
         )
         .get() as Versus;
 }
 
-export function getCurrentVersusRecursive(seasonId: number) {
-    const currentVersus = getCurrentVersus(seasonId);
+export function getCurrentVersusRecursive(tournamentId: string) {
+    const currentVersus = getCurrentVersus(tournamentId);
+
     if (currentVersus) {
-        const games = getGamesByVersusId(currentVersus.id);
+        const matchs = getMatchsByVersus(currentVersus.id);
+        let versusScore = [0, 0];
+        if (matchs) {
+            matchs.forEach((match: Match) => {
+                if (match.scoreTeam1 > match.scoreTeam2) {
+                    versusScore[0] += 1;
+                } else if (match.scoreTeam1 < match.scoreTeam2) {
+                    versusScore[1] += 1;
+                }
+            });
+        }
 
         return {
             ...currentVersus,
@@ -40,8 +53,8 @@ export function getCurrentVersusRecursive(seasonId: number) {
             team2: {
                 ...getTeamById(currentVersus.team2Id)
             },
-            game_index: games.length
-        };
+            versusScore: versusScore,
+        } as Versus;
     }
 
     return currentVersus;

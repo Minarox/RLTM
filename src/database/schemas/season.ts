@@ -8,7 +8,7 @@ export const season = sqliteTable("season", {
     name: text("name").notNull(),
     description: text("description"),
     teamLength: integer("team_length").notNull().default(3),
-    defaultGameLength: integer("default_game_length").notNull().default(5),
+    defaultMatchLength: integer("default_match_length").notNull().default(5),
     startAt: text("start_at").notNull(),
     endAt: text("end_at").notNull(),
     createdAt: text("created_at").notNull().default(sql`(CURRENT_TIMESTAMP)`),
@@ -16,5 +16,5 @@ export const season = sqliteTable("season", {
 });
 
 export type Season = InferSelectModel<typeof season> & {
-    tournament: InferSelectModel<typeof tournament>;
+    tournament?: InferSelectModel<typeof tournament>;
 };

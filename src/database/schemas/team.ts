@@ -14,5 +14,5 @@ export const team = sqliteTable("team", {
 });
 
 export type Team = InferSelectModel<typeof team> & {
-    season: InferSelectModel<typeof season>;
+    season?: InferSelectModel<typeof season>;
 };

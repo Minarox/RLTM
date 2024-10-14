@@ -5,7 +5,7 @@ import { migrate } from "drizzle-orm/bun-sqlite/migrator";
 
 import { arena } from "../database/schemas/arena.ts";
 import { car } from "../database/schemas/car.ts";
-import { game } from "../database/schemas/game.ts";
+import { match } from "../database/schemas/match.ts";
 import { player } from "../database/schemas/player.ts";
 import { season } from "../database/schemas/season.ts";
 import { statistic } from "../database/schemas/statistic.ts";
@@ -20,7 +20,7 @@ function database(): BunSQLiteDatabase<any> {
         const sqlite: Database = new Database("database/sqlite.db", { create: true });
         sqlite.exec("PRAGMA journal_mode = WAL;");
 
-        db = drizzle(sqlite, { schema: { ...arena, ...car, ...game, ...player, ...season, ...statistic, ...team, ...tournament, ...versus } });
+        db = drizzle(sqlite, { schema: { ...arena, ...car, ...match, ...player, ...season, ...statistic, ...team, ...tournament, ...versus } });
         migrate(db, { migrationsFolder: "src/database/migrations" });
     }
 

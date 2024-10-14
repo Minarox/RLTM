@@ -5,7 +5,7 @@ import { player, type Player } from "../schemas/player.ts";
 import { getCarById } from "./car.ts";
 
 export function createOrUpdatePlayer(playerData: PlayerPayload) {
-    const playerFound = getPlayerId(playerData);
+    const playerFound = getPlayer(playerData);
     const carExist = !!getCarById(playerData.carId);
 
     let query;
@@ -21,7 +21,7 @@ export function createOrUpdatePlayer(playerData: PlayerPayload) {
         query = db
             .insert(player)
             .values({
-                uid: playerData.id,
+                uid: playerData.uid,
                 name: playerData.name,
                 bot: playerData.bot,
                 carId: carExist ? playerData.carId : 23
@@ -47,21 +47,25 @@ export function getPlayerById(playerId: number) {
         .get() as Player;
 }
 
-export function getPlayerId(playerData: PlayerPayload) {
+export function getPlayer(playerData: PlayerPayload) {
     const condition = () => {
         if (playerData.bot) {
             return and(
-                eq(player.uid, playerData.id),
+                eq(player.uid, playerData.uid),
                 eq(player.name, playerData.name)
             );
         } else {
-            return eq(player.uid, playerData.id);
+            return eq(player.uid, playerData.uid);
         }
     }
 
     return db
         .select({
-            id: player.id
+            id: player.id,
+            uid: player.uid,
+            name: player.name,
+            bot: player.bot,
+            carId: player.carId
         })
         .from(player)
         .where(condition)

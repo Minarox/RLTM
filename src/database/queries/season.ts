@@ -12,7 +12,7 @@ export function getCurrentSeason(tournamentId: string) {
             name: season.name,
             description: season.description,
             teamLength: season.teamLength,
-            defaultGameLength: season.defaultGameLength,
+            defaultMatchLength: season.defaultMatchLength,
             startAt: season.startAt,
             endAt: season.endAt
         })

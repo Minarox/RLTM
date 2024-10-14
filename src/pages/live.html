@@ -21,10 +21,10 @@
                     <p id="name-team1">&nbsp;</p>
                 </section>
 
-                <!-- Time and score -->
-                <section id="time-and-score">
+                <!-- Clock and score -->
+                <section id="clock-and-score">
                     <p id="score-team1">0</p>
-                    <p id="time">0:00</p>
+                    <p id="clock">0:00</p>
                     <p id="score-team2">0</p>
                     <p id="replay">Replay</p>
                     <p id="overtime">Overtime</p>
@@ -59,7 +59,7 @@
             const nameTeam2 = document.getElementById('name-team2');
             const logoTeam1 = document.getElementById('logo-team1');
             const logoTeam2 = document.getElementById('logo-team2');
-            const time = document.getElementById('time');
+            const clock = document.getElementById('clock');
             const scoreTeam1 = document.getElementById('score-team1');
             const scoreTeam2 = document.getElementById('score-team2');
             const replay = document.getElementById('replay');
@@ -89,12 +89,22 @@
             }
 
             function setScoreboard() {
-                time.innerHTML = data?.match ? `${data.match?.isOvertime ? '+' : ''}${Math.floor(data.match?.time / 60)}:${(data.match?.time % 60).toString().padStart(2, "0")}` : '0:00';
-                scoreTeam1.innerHTML = data?.match?.score[0] || '0';
-                scoreTeam2.innerHTML = data?.match?.score[1] || '0';
+                if (data?.match) {
+                    if (data.match?.duration === -1) {
+                        clock.innerHTML = `${data.match?.overtime ? '+' : ''}${Math.floor(data.match?.clock / 60)}:${(data.match?.clock % 60).toString().padStart(2, "0")}`;
+                    } else {
+                        let time = data?.match?.duration - data?.match?.clock;
+                        clock.innerHTML = `${data.match?.overtime ? '+' : ''}${Math.floor(time / 60)}:${(time % 60).toString().padStart(2, "0")}`;
+                    }
+                } else {
+                    clock.innerHTML = '0:00';
+                }
 
-                replay.style.top = data?.match?.isReplay ? '100%' : 'calc(100% - 28px)';
-                overtime.style.top = data?.match?.isOvertime ? '100%' : 'calc(100% - 28px)';
+                scoreTeam1.innerHTML = data?.match?.scoreTeam1 || '0';
+                scoreTeam2.innerHTML = data?.match?.scoreTeam2 || '0';
+
+                replay.style.top = data?.match?.replay ? '100%' : 'calc(100% - 28px)';
+                overtime.style.top = data?.match?.overtime ? '100%' : 'calc(100% - 28px)';
             }
 
             function setPlayers() {

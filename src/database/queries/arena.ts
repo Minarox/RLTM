@@ -1,6 +1,6 @@
-import db from "../../extensions/database.ts";
-import {type Arena, arena} from "../schemas/arena.ts";
 import { eq } from "drizzle-orm";
+import db from "../../extensions/database.ts";
+import { type Arena, arena } from "../schemas/arena.ts";
 
 export function getArenas() {
     return db
@@ -9,15 +9,7 @@ export function getArenas() {
         .all() as Arena[];
 }
 
-export function getArenaById(id: number) {
-    return db
-        .select()
-        .from(arena)
-        .where(eq(arena.id, id))
-        .get() as Arena;
-}
-
-export function getArenaByCode(code: string) {
+export function getArenaById(code: string) {
     return db
         .select()
         .from(arena)

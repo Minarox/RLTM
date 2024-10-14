@@ -1,7 +1,7 @@
 {
   "version": "6",
   "dialect": "sqlite",
-  "id": "b27620b2-8a3e-4500-8d06-9129e3829e02",
+  "id": "e2e4f3a8-10d9-4f73-b67d-ba4217bee46b",
   "prevId": "00000000-0000-0000-0000-000000000000",
   "tables": {
     "arena": {
@@ -57,8 +57,8 @@
       "compositePrimaryKeys": {},
       "uniqueConstraints": {}
     },
-    "game": {
-      "name": "game",
+    "match": {
+      "name": "match",
       "columns": {
         "id": {
           "name": "id",
@@ -90,6 +90,13 @@
           "autoincrement": false,
           "default": 0
         },
+        "clock": {
+          "name": "clock",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "duration": {
           "name": "duration",
           "type": "integer",
@@ -112,6 +119,14 @@
           "autoincrement": false,
           "default": false
         },
+        "overtime": {
+          "name": "overtime",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": true,
+          "autoincrement": false,
+          "default": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "text",
@@ -123,9 +138,9 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "game_versus_id_versus_id_fk": {
-          "name": "game_versus_id_versus_id_fk",
-          "tableFrom": "game",
+        "match_versus_id_versus_id_fk": {
+          "name": "match_versus_id_versus_id_fk",
+          "tableFrom": "match",
           "tableTo": "versus",
           "columnsFrom": [
             "versus_id"
@@ -136,9 +151,9 @@
           "onDelete": "no action",
           "onUpdate": "no action"
         },
-        "game_arena_code_arena_code_fk": {
-          "name": "game_arena_code_arena_code_fk",
-          "tableFrom": "game",
+        "match_arena_code_arena_code_fk": {
+          "name": "match_arena_code_arena_code_fk",
+          "tableFrom": "match",
           "tableTo": "arena",
           "columnsFrom": [
             "arena_code"
@@ -268,8 +283,8 @@
           "autoincrement": false,
           "default": 3
         },
-        "default_game_length": {
-          "name": "default_game_length",
+        "default_match_length": {
+          "name": "default_match_length",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -336,8 +351,8 @@
           "notNull": true,
           "autoincrement": true
         },
-        "game_id": {
-          "name": "game_id",
+        "match_id": {
+          "name": "match_id",
           "type": "integer",
           "primaryKey": false,
           "notNull": true,
@@ -745,12 +760,12 @@
       },
       "indexes": {},
       "foreignKeys": {
-        "statistic_game_id_game_id_fk": {
-          "name": "statistic_game_id_game_id_fk",
+        "statistic_match_id_match_id_fk": {
+          "name": "statistic_match_id_match_id_fk",
           "tableFrom": "statistic",
-          "tableTo": "game",
+          "tableTo": "match",
           "columnsFrom": [
-            "game_id"
+            "match_id"
           ],
           "columnsTo": [
             "id"

@@ -2,7 +2,9 @@ import { staticPlugin } from "@elysiajs/static";
 import { Elysia } from "elysia";
 import { compression } from "elysia-compression";
 import live from "./controllers/live.ts";
+import statistics from "./controllers/statistics.ts";
 import versus from "./controllers/versus.ts";
+import { getCurrentMatch } from "./database/queries/match.ts";
 import { getCurrentSeason } from "./database/queries/season.ts";
 import { getTournaments } from "./database/queries/tournament.ts";
 import { getCurrentVersusRecursive } from "./database/queries/versus.ts";
@@ -32,6 +34,7 @@ new Elysia({
 
     .use(live)
     .use(versus)
+    .use(statistics)
 
     .get('/version', ({ store }) => store.version)
 
@@ -41,14 +44,15 @@ new Elysia({
         getTournaments()
             .forEach((tournament): void => {
                 if (!tournament.enabled) return;
-                const season = getCurrentSeason(tournament.id) || null;
-                const versus = season ? getCurrentVersusRecursive(season.id) : null;
+                const season = getCurrentSeason(tournament.id);
+                const versus = getCurrentVersusRecursive(tournament.id);
+                const match = getCurrentMatch(tournament.id);
 
                 app.state(tournament.id, {
                     tournament: tournament,
-                    season: season,
-                    versus: versus,
-                    match: null,
+                    season: season || null,
+                    versus: versus || null,
+                    match: match || null,
                     players: null,
                     statistics: null,
                     plugin: null

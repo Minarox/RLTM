@@ -1,0 +1,175 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <title>Statistiques</title>
+        <meta charset="UTF-8">
+        <meta content="width=device-width, initial-scale=1.0" name="viewport">
+        <link rel="stylesheet" href="/assets/css/statistics.css">
+    </head>
+    <body>
+        <main>
+            <article>
+                <section>
+                    <div>
+                        <img id="logo-team1" src="" alt="Logo team 1">
+                        <p id="name-team1"></p>
+                    </div>
+
+                    <div>
+                        <div id="clock-and-score">
+                            <p id="score-team1">0</p>
+                            <p id="clock">0:00</p>
+                            <p id="score-team2">0</p>
+                        </div>
+
+                        <div id="infos">
+                            <p id="tournament">&nbsp;</p>
+                            <p id="season">&nbsp;</p>
+                            <p id="match">&nbsp;</p>
+                        </div>
+                    </div>
+
+                    <div>
+                        <p id="name-team2"></p>
+                        <img id="logo-team2" src="" alt="Logo team 2">
+                    </div>
+                </section>
+
+                <section>
+                    <div id="statistics-team1"></div>
+                    <div id="statistics">
+                        <p>&nbsp;</p>
+                        <p>Score</p>
+                        <p>Buts</p>
+                        <p>Passes décisives</p>
+                        <p>Tirs</p>
+                        <p>Sauvetages</p>
+                        <p>Démolitions</p>
+                        <p>Ballons touchés</p>
+                    </div>
+                    <div id="statistics-team2"></div>
+                </section>
+            </article>
+
+            <i id="gradient"></i>
+        </main>
+
+        <script>
+            const url = window.location.href.split('//')[1].split('/')[0];
+            const tournamentId = window.location.pathname.split('/')[2];
+            const isLocal = url.startsWith('localhost');
+            let data = {};
+
+            const logoTeam1 = document.getElementById('logo-team1');
+            const nameTeam1 = document.getElementById('name-team1');
+            const logoTeam2 = document.getElementById('logo-team2');
+            const nameTeam2 = document.getElementById('name-team2');
+            const scoreTeam1 = document.getElementById('score-team1');
+            const scoreTeam2 = document.getElementById('score-team2');
+            const clock = document.getElementById('clock');
+            const tournament = document.getElementById('tournament');
+            const season = document.getElementById('season');
+            const match = document.getElementById('match');
+            const statisticsTeam1 = document.getElementById('statistics-team1');
+            const statisticsTeam2 = document.getElementById('statistics-team2');
+            const gradient = document.getElementById('gradient');
+
+            function setMatchInfos() {
+                let matchInfos = [];
+                if (data?.versus?.versusScore) {
+                    const index = data.versus.versusScore[0] + data.versus.versusScore[1] + (data?.match?.finished ? 0: 1);
+                    matchInfos.push(`Match ${index}`);
+                }
+                if (data?.match?.arena) matchInfos.push(data.match.arena.name);
+                match.innerHTML = matchInfos?.join('&nbsp; - &nbsp;') || '&nbsp;';
+            }
+
+            function setInfos() {
+                tournament.innerHTML = data?.tournament?.name || '&nbsp;';
+                season.innerHTML = data?.season?.name || '&nbsp;';
+
+                setMatchInfos();
+
+                logoTeam1.src = data?.versus?.team1?.logo ? `data:image/png;base64,${data.versus.team1.logo}` : '';
+                nameTeam1.innerHTML = data?.versus?.team1?.name || '&nbsp;';
+                logoTeam2.src = data?.versus?.team2?.logo ? `data:image/png;base64,${data.versus.team2.logo}` : '';
+                nameTeam2.innerHTML = data?.versus?.team2?.name || '&nbsp;';
+
+                document.documentElement.style.setProperty('--color-team1', data?.versus?.team1?.color || '#2294f1');
+                document.documentElement.style.setProperty('--color-team2', data?.versus?.team2?.color || '#f55521');
+            }
+
+            function setMatch() {
+                scoreTeam1.innerHTML = data?.match?.scoreTeam1 || '0';
+                scoreTeam2.innerHTML = data?.match?.scoreTeam2 || '0';
+
+                setMatchInfos();
+
+                clock.innerHTML = data?.match ? `${Math.floor(data.match?.clock / 60)}:${(data.match?.clock % 60).toString().padStart(2, "0")}` : '0:00';
+            }
+
+            function setPlayers() {
+                statisticsTeam1.innerHTML = '';
+                statisticsTeam2.innerHTML = '';
+
+                if (data?.players) {
+                    Object.keys(data.players).forEach((team) => {
+                        if (data?.players[team]) {
+                            Object.keys(data.players[team]).forEach((player) => {
+                                const name = document.createElement('p');
+                                name.innerHTML = player.name;
+
+                                const score = document.createElement('p');
+                                score.id = `score-${player.id}`;
+
+                                const assists = document.createElement('p');
+                                assists.id = `passesDecisives-${player.id}`;
+
+                                const shoots = document.createElement('p');
+                                shoots.id = `tirs-${player.id}`;
+
+                                const saves = document.createElement('p');
+                                saves.id = `sauvetages-${player.id}`;
+
+                                const demos = document.createElement('p');
+                                demos.id = `demolitions-${player.id}`;
+
+                                const touchs = document.createElement('p');
+                                touch.id = `touch-${player.id}`;
+                            })
+                        }
+                    })
+                }
+            }
+
+            function connect() {
+                let ws = new WebSocket(`ws${isLocal ? '' : 's'}://${url}/${tournamentId}`);
+
+                ws.onopen = function () {
+                    ws.send(JSON.stringify([ "tournament", "season", "versus", "match", "players" ]));
+                }
+
+                ws.onmessage = function (event) {
+                    event = JSON.parse(event.data);
+                    data = Object.assign(data, event || null);
+
+                    if (typeof event?.tournament !== 'undefined' || typeof event?.season !== 'undefined' || typeof event?.versus !== 'undefined') setInfos();
+                    if (typeof event?.match !== 'undefined' && event?.match !== null) setMatch();
+                    if (typeof event?.players !== 'undefined') setPlayers();
+                    // if (typeof event?.match !== 'undefined') setStatistics();
+                }
+
+                ws.onerror = function () {
+                    ws.close();
+                }
+
+                ws.onclose = function () {
+                    ws = undefined;
+                    setTimeout(connect);
+                }
+            }
+
+            setTimeout(connect);
+        </script>
+    </body>
+</html>

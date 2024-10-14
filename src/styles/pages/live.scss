@@ -34,7 +34,7 @@ main {
     justify-content: center;
     gap: 2rem;
 
-    section:not(#time-and-score) {
+    section:not(#clock-and-score) {
         display: grid;
         grid-template-columns: 1fr var(--logo-width);
         height: 62px;
@@ -68,7 +68,7 @@ main {
                 bottom: 0;
                 left: 0;
                 right: 0;
-                background-image: url("/card.png");
+                background-image: url("/assets/img/card.png");
                 background-blend-mode: soft-light;
                 border-radius: 16px;
                 pointer-events: none;

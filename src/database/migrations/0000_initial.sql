@@ -9,14 +9,16 @@ CREATE TABLE `car` (
 	`picture` blob NOT NULL
 );
 --> statement-breakpoint
-CREATE TABLE `game` (
+CREATE TABLE `match` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
 	`versus_id` integer NOT NULL,
 	`score_team_1` integer DEFAULT 0 NOT NULL,
 	`score_team_2` integer DEFAULT 0 NOT NULL,
+	`clock` integer,
 	`duration` integer,
 	`arena_code` text NOT NULL,
 	`finished` integer DEFAULT false NOT NULL,
+	`overtime` integer DEFAULT false NOT NULL,
 	`created_at` text DEFAULT (CURRENT_TIMESTAMP) NOT NULL,
 	FOREIGN KEY (`versus_id`) REFERENCES `versus`(`id`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`arena_code`) REFERENCES `arena`(`code`) ON UPDATE no action ON DELETE no action
@@ -39,7 +41,7 @@ CREATE TABLE `season` (
 	`name` text NOT NULL,
 	`description` text,
 	`team_length` integer DEFAULT 3 NOT NULL,
-	`default_game_length` integer DEFAULT 5 NOT NULL,
+	`default_match_length` integer DEFAULT 5 NOT NULL,
 	`start_at` text NOT NULL,
 	`end_at` text NOT NULL,
 	`created_at` text DEFAULT (CURRENT_TIMESTAMP) NOT NULL,
@@ -49,7 +51,7 @@ CREATE TABLE `season` (
 --> statement-breakpoint
 CREATE TABLE `statistic` (
 	`id` integer PRIMARY KEY AUTOINCREMENT NOT NULL,
-	`game_id` integer NOT NULL,
+	`match_id` integer NOT NULL,
 	`player_id` integer NOT NULL,
 	`mvp` integer DEFAULT 0 NOT NULL,
 	`score` integer DEFAULT 0 NOT NULL,
@@ -100,7 +102,7 @@ CREATE TABLE `statistic` (
 	`ko_player_grabbed` integer DEFAULT 0 NOT NULL,
 	`ko_player_thrown` integer DEFAULT 0 NOT NULL,
 	`created_at` text DEFAULT (CURRENT_TIMESTAMP) NOT NULL,
-	FOREIGN KEY (`game_id`) REFERENCES `game`(`id`) ON UPDATE no action ON DELETE no action,
+	FOREIGN KEY (`match_id`) REFERENCES `match`(`id`) ON UPDATE no action ON DELETE no action,
 	FOREIGN KEY (`player_id`) REFERENCES `player`(`id`) ON UPDATE no action ON DELETE no action
 );
 --> statement-breakpoint

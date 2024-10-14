@@ -1,13 +1,13 @@
 import { sql, type InferSelectModel } from "drizzle-orm";
 import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
-import { game } from "./game.ts";
+import { match } from "./match.ts";
 import { player } from "./player.ts";
 
 export const statistic = sqliteTable("statistic", {
     id: integer("id").primaryKey({ autoIncrement: true }),
-    gameId: integer("game_id").notNull().references(() => game.id),
+    matchId: integer("match_id").notNull().references(() => match.id),
     playerId: integer("player_id").notNull().references(() => player.id),
-    mvp: integer("mvp").notNull().default(0),
+    mvp: integer("mvp", { mode: "boolean" }).notNull().default(false),
     score: integer("score").notNull().default(0),
     goals: integer("goals").notNull().default(0),
     shots: integer("shots").notNull().default(0),
@@ -59,6 +59,6 @@ export const statistic = sqliteTable("statistic", {
 });
 
 export type Statistic = InferSelectModel<typeof statistic> & {
-    game: InferSelectModel<typeof game>;
-    player: InferSelectModel<typeof player>;
+    match?: InferSelectModel<typeof match>;
+    player?: InferSelectModel<typeof player>;
 };
