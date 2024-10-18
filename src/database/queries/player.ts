@@ -4,6 +4,14 @@ import type { PlayerPayload } from "../../types/plugin.ts";
 import { player, type Player } from "../schemas/player.ts";
 import { getCarById } from "./car.ts";
 
+const select = {
+    id: player.id,
+    uid: player.uid,
+    name: player.name,
+    bot: player.bot,
+    carId: player.carId
+}
+
 export function createOrUpdatePlayer(playerData: PlayerPayload) {
     const playerFound = getPlayer(playerData);
     const carExist = !!getCarById(playerData.carId);
@@ -29,19 +37,13 @@ export function createOrUpdatePlayer(playerData: PlayerPayload) {
     }
 
     return query
-        .returning({
-            id: player.id,
-            uid: player.uid,
-            name: player.name,
-            bot: player.bot,
-            carId: player.carId
-        })
+        .returning(select)
         .get() as Player;
 }
 
 export function getPlayerById(playerId: number) {
     return db
-        .select()
+        .select(select)
         .from(player)
         .where(eq(player.id, playerId))
         .get() as Player;
@@ -60,13 +62,7 @@ export function getPlayer(playerData: PlayerPayload) {
     }
 
     return db
-        .select({
-            id: player.id,
-            uid: player.uid,
-            name: player.name,
-            bot: player.bot,
-            carId: player.carId
-        })
+        .select(select)
         .from(player)
         .where(condition)
         .get() as Player;

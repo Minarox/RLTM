@@ -5,6 +5,18 @@ import { type Match, match } from "../schemas/match.ts";
 import { getArenaById } from "./arena.ts";
 import { getCurrentVersus } from "./versus.ts";
 
+const select = {
+    id: match.id,
+    versusId: match.versusId,
+    scoreTeam1: match.scoreTeam1,
+    scoreTeam2: match.scoreTeam2,
+    clock: match.clock,
+    duration: match.duration,
+    arenaCode: match.arenaCode,
+    finished: match.finished,
+    overtime: match.overtime
+}
+
 export function createOrUpdateMatch(matchData: MatchPayload, tournamentId: string) {
     const matchFound = getCurrentMatch(tournamentId);
     const versus = getCurrentVersus(tournamentId);
@@ -52,17 +64,7 @@ export function createOrUpdateMatch(matchData: MatchPayload, tournamentId: strin
     }
 
     return query
-        .returning({
-            id: match.id,
-                versusId: match.versusId,
-                scoreTeam1: match.scoreTeam1,
-                scoreTeam2: match.scoreTeam2,
-                clock: match.clock,
-                duration: match.duration,
-                arenaCode: match.arenaCode,
-                finished: match.finished,
-                overtime: match.overtime
-        })
+        .returning(select)
         .get() as Match;
 }
 
@@ -74,17 +76,7 @@ export function getCurrentMatch(tournamentId: string) {
     }
 
     const currentMatch = db
-        .select({
-            id: match.id,
-            versusId: match.versusId,
-            scoreTeam1: match.scoreTeam1,
-            scoreTeam2: match.scoreTeam2,
-            clock: match.clock,
-            duration: match.duration,
-            arenaCode: match.arenaCode,
-            finished: match.finished,
-            overtime: match.overtime
-        })
+        .select(select)
         .from(match)
         .where(eq(match.versusId, versus.id))
         .orderBy(desc(match.createdAt))
@@ -98,17 +90,7 @@ export function getCurrentMatch(tournamentId: string) {
 
 export function getMatchsByVersus(versusId: number) {
     return db
-        .select({
-            id: match.id,
-            versusId: match.versusId,
-            scoreTeam1: match.scoreTeam1,
-            scoreTeam2: match.scoreTeam2,
-            clock: match.clock,
-            duration: match.duration,
-            arenaCode: match.arenaCode,
-            finished: match.finished,
-            overtime: match.overtime
-        })
+        .select(select)
         .from(match)
         .where(
             and(

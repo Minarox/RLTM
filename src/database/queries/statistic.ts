@@ -4,6 +4,61 @@ import type { PlayerPayload, StatisticsPayload } from "../../types/plugin.ts";
 import { statistic, type Statistic } from "../schemas/statistic.ts";
 import { getCurrentMatch } from "./match.ts";
 import { getPlayer } from "./player.ts";
+import { getCurrentVersus } from "./versus.ts";
+
+const select = {
+    id: statistic.id,
+    matchId: statistic.matchId,
+    playerId: statistic.playerId,
+    mvp: statistic.mvp,
+    score: statistic.score,
+    goals: statistic.goals,
+    shots: statistic.shots,
+    assists: statistic.assists,
+    saves: statistic.saves,
+    ballTouches: statistic.ballTouches,
+    carTouches: statistic.carTouches,
+    demolish: statistic.demolish,
+    demolition: statistic.demolition,
+    aerialGoal: statistic.aerialGoal,
+    backwardsGoal: statistic.backwardsGoal,
+    bicycleGoal: statistic.bicycleGoal,
+    longGoal: statistic.longGoal,
+    turtleGoal: statistic.turtleGoal,
+    poolShot: statistic.poolShot,
+    overtimeGoal: statistic.overtimeGoal,
+    hatTrick: statistic.hatTrick,
+    playmaker: statistic.playmaker,
+    epicSave: statistic.epicSave,
+    savior: statistic.savior,
+    center: statistic.center,
+    clear: statistic.clear,
+    firstTouch: statistic.firstTouch,
+    breakoutDamage: statistic.breakoutDamage,
+    breakoutDamageLarge: statistic.breakoutDamageLarge,
+    lowFive: statistic.lowFive,
+    highFive: statistic.highFive,
+    hoopsSwishGoal: statistic.hoopsSwishGoal,
+    bicycleHit: statistic.bicycleHit,
+    ownGoal: statistic.ownGoal,
+    koWinner: statistic.koWinner,
+    koKnockout: statistic.koKnockout,
+    koDoubleKO: statistic.koDoubleKO,
+    koTripleKO: statistic.koTripleKO,
+    koDeath: statistic.koDeath,
+    koLightHit: statistic.koLightHit,
+    koHeavyHit: statistic.koHeavyHit,
+    koAerialLightHit: statistic.koAerialLightHit,
+    koAerialHeavyHit: statistic.koAerialHeavyHit,
+    koHitTaken: statistic.koHitTaken,
+    koBlockTaken: statistic.koBlockTaken,
+    koGrabbed: statistic.koGrabbed,
+    koThrown: statistic.koThrown,
+    koLightBlock: statistic.koLightBlock,
+    koHeavyBlock: statistic.koHeavyBlock,
+    koPlayerGrabbed: statistic.koPlayerGrabbed,
+    koPlayerThrown: statistic.koPlayerThrown
+}
 
 export function createOrUpdateStatistic(statisticData: StatisticsPayload, tournamentId: string) {
     const playerData: PlayerPayload = {
@@ -139,117 +194,13 @@ export function createOrUpdateStatistic(statisticData: StatisticsPayload, tourna
     }
 
     return query
-        .returning({
-            id: statistic.id,
-            matchId: statistic.matchId,
-            playerId: statistic.playerId,
-            mvp: statistic.mvp,
-            score: statistic.score,
-            goals: statistic.goals,
-            shots: statistic.shots,
-            assists: statistic.assists,
-            saves: statistic.saves,
-            ballTouches: statistic.ballTouches,
-            carTouches: statistic.carTouches,
-            demolish: statistic.demolish,
-            demolition: statistic.demolition,
-            aerialGoal: statistic.aerialGoal,
-            backwardsGoal: statistic.backwardsGoal,
-            bicycleGoal: statistic.bicycleGoal,
-            longGoal: statistic.longGoal,
-            turtleGoal: statistic.turtleGoal,
-            poolShot: statistic.poolShot,
-            overtimeGoal: statistic.overtimeGoal,
-            hatTrick: statistic.hatTrick,
-            playmaker: statistic.playmaker,
-            epicSave: statistic.epicSave,
-            savior: statistic.savior,
-            center: statistic.center,
-            clear: statistic.clear,
-            firstTouch: statistic.firstTouch,
-            breakoutDamage: statistic.breakoutDamage,
-            breakoutDamageLarge: statistic.breakoutDamageLarge,
-            lowFive: statistic.lowFive,
-            highFive: statistic.highFive,
-            hoopsSwishGoal: statistic.hoopsSwishGoal,
-            bicycleHit: statistic.bicycleHit,
-            ownGoal: statistic.ownGoal,
-            koWinner: statistic.koWinner,
-            koKnockout: statistic.koKnockout,
-            koDoubleKO: statistic.koDoubleKO,
-            koTripleKO: statistic.koTripleKO,
-            koDeath: statistic.koDeath,
-            koLightHit: statistic.koLightHit,
-            koHeavyHit: statistic.koHeavyHit,
-            koAerialLightHit: statistic.koAerialLightHit,
-            koAerialHeavyHit: statistic.koAerialHeavyHit,
-            koHitTaken: statistic.koHitTaken,
-            koBlockTaken: statistic.koBlockTaken,
-            koGrabbed: statistic.koGrabbed,
-            koThrown: statistic.koThrown,
-            koLightBlock: statistic.koLightBlock,
-            koHeavyBlock: statistic.koHeavyBlock,
-            koPlayerGrabbed: statistic.koPlayerGrabbed,
-            koPlayerThrown: statistic.koPlayerThrown
-        })
+        .returning(select)
         .get() as Statistic;
 }
 
 export function getStatistic(matchId: number, playerId: number) {
     return db
-        .select({
-            id: statistic.id,
-            matchId: statistic.matchId,
-            playerId: statistic.playerId,
-            mvp: statistic.mvp,
-            score: statistic.score,
-            goals: statistic.goals,
-            shots: statistic.shots,
-            assists: statistic.assists,
-            saves: statistic.saves,
-            ballTouches: statistic.ballTouches,
-            carTouches: statistic.carTouches,
-            demolish: statistic.demolish,
-            demolition: statistic.demolition,
-            aerialGoal: statistic.aerialGoal,
-            backwardsGoal: statistic.backwardsGoal,
-            bicycleGoal: statistic.bicycleGoal,
-            longGoal: statistic.longGoal,
-            turtleGoal: statistic.turtleGoal,
-            poolShot: statistic.poolShot,
-            overtimeGoal: statistic.overtimeGoal,
-            hatTrick: statistic.hatTrick,
-            playmaker: statistic.playmaker,
-            epicSave: statistic.epicSave,
-            savior: statistic.savior,
-            center: statistic.center,
-            clear: statistic.clear,
-            firstTouch: statistic.firstTouch,
-            breakoutDamage: statistic.breakoutDamage,
-            breakoutDamageLarge: statistic.breakoutDamageLarge,
-            lowFive: statistic.lowFive,
-            highFive: statistic.highFive,
-            hoopsSwishGoal: statistic.hoopsSwishGoal,
-            bicycleHit: statistic.bicycleHit,
-            ownGoal: statistic.ownGoal,
-            koWinner: statistic.koWinner,
-            koKnockout: statistic.koKnockout,
-            koDoubleKO: statistic.koDoubleKO,
-            koTripleKO: statistic.koTripleKO,
-            koDeath: statistic.koDeath,
-            koLightHit: statistic.koLightHit,
-            koHeavyHit: statistic.koHeavyHit,
-            koAerialLightHit: statistic.koAerialLightHit,
-            koAerialHeavyHit: statistic.koAerialHeavyHit,
-            koHitTaken: statistic.koHitTaken,
-            koBlockTaken: statistic.koBlockTaken,
-            koGrabbed: statistic.koGrabbed,
-            koThrown: statistic.koThrown,
-            koLightBlock: statistic.koLightBlock,
-            koHeavyBlock: statistic.koHeavyBlock,
-            koPlayerGrabbed: statistic.koPlayerGrabbed,
-            koPlayerThrown: statistic.koPlayerThrown
-        })
+        .select(select)
         .from(statistic)
         .where(
             and(
@@ -262,65 +213,15 @@ export function getStatistic(matchId: number, playerId: number) {
 
 export function getCurrentStatistics(tournamentId: string) {
     const match = getCurrentMatch(tournamentId);
+    const versus = getCurrentVersus(tournamentId);
+    console.log(versus)
 
     if (!match) {
         return undefined;
     }
 
     return db
-        .select({
-            id: statistic.id,
-            matchId: statistic.matchId,
-            playerId: statistic.playerId,
-            mvp: statistic.mvp,
-            score: statistic.score,
-            goals: statistic.goals,
-            shots: statistic.shots,
-            assists: statistic.assists,
-            saves: statistic.saves,
-            ballTouches: statistic.ballTouches,
-            carTouches: statistic.carTouches,
-            demolish: statistic.demolish,
-            demolition: statistic.demolition,
-            aerialGoal: statistic.aerialGoal,
-            backwardsGoal: statistic.backwardsGoal,
-            bicycleGoal: statistic.bicycleGoal,
-            longGoal: statistic.longGoal,
-            turtleGoal: statistic.turtleGoal,
-            poolShot: statistic.poolShot,
-            overtimeGoal: statistic.overtimeGoal,
-            hatTrick: statistic.hatTrick,
-            playmaker: statistic.playmaker,
-            epicSave: statistic.epicSave,
-            savior: statistic.savior,
-            center: statistic.center,
-            clear: statistic.clear,
-            firstTouch: statistic.firstTouch,
-            breakoutDamage: statistic.breakoutDamage,
-            breakoutDamageLarge: statistic.breakoutDamageLarge,
-            lowFive: statistic.lowFive,
-            highFive: statistic.highFive,
-            hoopsSwishGoal: statistic.hoopsSwishGoal,
-            bicycleHit: statistic.bicycleHit,
-            ownGoal: statistic.ownGoal,
-            koWinner: statistic.koWinner,
-            koKnockout: statistic.koKnockout,
-            koDoubleKO: statistic.koDoubleKO,
-            koTripleKO: statistic.koTripleKO,
-            koDeath: statistic.koDeath,
-            koLightHit: statistic.koLightHit,
-            koHeavyHit: statistic.koHeavyHit,
-            koAerialLightHit: statistic.koAerialLightHit,
-            koAerialHeavyHit: statistic.koAerialHeavyHit,
-            koHitTaken: statistic.koHitTaken,
-            koBlockTaken: statistic.koBlockTaken,
-            koGrabbed: statistic.koGrabbed,
-            koThrown: statistic.koThrown,
-            koLightBlock: statistic.koLightBlock,
-            koHeavyBlock: statistic.koHeavyBlock,
-            koPlayerGrabbed: statistic.koPlayerGrabbed,
-            koPlayerThrown: statistic.koPlayerThrown
-        })
+        .select(select)
         .from(statistic)
         .where(eq(statistic.matchId, match.id))
         .all() as Statistic[];

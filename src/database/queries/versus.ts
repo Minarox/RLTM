@@ -6,19 +6,21 @@ import { getMatchsByVersus } from "./match.ts";
 import { getCurrentSeason } from "./season.ts";
 import { getTeamById } from "./team.ts";
 
+const select = {
+    id: versus.id,
+    seasonId: versus.seasonId,
+    team1Id: versus.team1Id,
+    team2Id: versus.team2Id,
+    length: versus.length,
+    playedAt: versus.playedAt
+}
+
 export function getCurrentVersus(tournamentId: string) {
     const season = getCurrentSeason(tournamentId);
     const currentDate: string = new Date().toISOString().split('T')[0];
 
     const versusData = db
-        .select({
-            id: versus.id,
-            seasonId: versus.seasonId,
-            team1Id: versus.team1Id,
-            team2Id: versus.team2Id,
-            length: versus.length,
-            playedAt: versus.playedAt
-        })
+        .select(select)
         .from(versus)
         .where(
             and(
