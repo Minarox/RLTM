@@ -7,6 +7,7 @@ export const statistic = sqliteTable("statistic", {
     id: integer("id").primaryKey({ autoIncrement: true }),
     matchId: integer("match_id").notNull().references(() => match.id),
     playerId: integer("player_id").notNull().references(() => player.id),
+    teamIndex: integer("team_index").notNull().default(0),
     mvp: integer("mvp", { mode: "boolean" }).notNull().default(false),
     score: integer("score").notNull().default(0),
     goals: integer("goals").notNull().default(0),

@@ -41,7 +41,7 @@
                     const wrapper = document.createElement('div');
                     team.players.forEach(player => {
                         const name = document.createElement('p');
-                        name.innerHTML = player;
+                        name.innerHTML = typeof player === 'object' ? player.name : player;
                         wrapper.appendChild(name);
                     });
 

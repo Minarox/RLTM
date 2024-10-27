@@ -1,15 +1,16 @@
 import { and, eq } from "drizzle-orm";
 import db from "../../extensions/database.ts";
-import type { PlayerPayload, StatisticsPayload } from "../../types/plugin.ts";
+import type { StatisticsPayload } from "../../types/plugin.ts";
+import { player } from "../schemas/player.ts";
 import { statistic, type Statistic } from "../schemas/statistic.ts";
 import { getCurrentMatch } from "./match.ts";
-import { getPlayer } from "./player.ts";
 import { getCurrentVersus } from "./versus.ts";
 
 const select = {
     id: statistic.id,
     matchId: statistic.matchId,
     playerId: statistic.playerId,
+    teamIndex: statistic.teamIndex,
     mvp: statistic.mvp,
     score: statistic.score,
     goals: statistic.goals,
@@ -60,26 +61,18 @@ const select = {
     koPlayerThrown: statistic.koPlayerThrown
 }
 
-export function createOrUpdateStatistic(statisticData: StatisticsPayload, tournamentId: string) {
-    const playerData: PlayerPayload = {
-        uid: statisticData.uid,
-        name: statisticData.name,
-        bot: statisticData.bot,
-        carId: 23
-    };
-    const player = getPlayer(playerData);
-    const match = getCurrentMatch(tournamentId);
-
-    if (!player || !match) {
+export function createOrUpdateStatistic(statisticData: StatisticsPayload, matchId?: number, playerId?: number) {
+    if (!playerId || !matchId) {
         return undefined;
     }
 
-    const statisticFound = getStatistic(match.id, player.id);
+    const statisticFound = getStatistic(matchId, playerId);
     let query;
     if (statisticFound) {
         query = db
             .update(statistic)
             .set({
+                teamIndex: statisticData.teamIndex,
                 mvp: statisticData.mvp,
                 score: statisticData.score,
                 goals: statisticData.goals,
@@ -132,16 +125,17 @@ export function createOrUpdateStatistic(statisticData: StatisticsPayload, tourna
             .where(
                 and(
                     eq(statistic.id, statisticFound.id),
-                    eq(statistic.matchId, match.id),
-                    eq(statistic.playerId, player.id)
+                    eq(statistic.matchId, matchId),
+                    eq(statistic.playerId, playerId)
                 )
             );
     } else {
         query = db
             .insert(statistic)
             .values({
-                matchId: match.id,
-                playerId: player.id,
+                matchId: matchId,
+                playerId: playerId,
+                teamIndex: statisticData.teamIndex,
                 mvp: statisticData.mvp,
                 score: statisticData.score,
                 goals: statisticData.goals,
@@ -214,15 +208,22 @@ export function getStatistic(matchId: number, playerId: number) {
 export function getCurrentStatistics(tournamentId: string) {
     const match = getCurrentMatch(tournamentId);
     const versus = getCurrentVersus(tournamentId);
-    console.log(versus)
 
     if (!match) {
         return undefined;
     }
 
     return db
-        .select(select)
+        .select({
+            ...select,
+            player: {
+                uid: player.uid,
+                name: player.name
+            }
+        }
+        )
         .from(statistic)
+        .leftJoin(player, eq(statistic.playerId, player.id))
         .where(eq(statistic.matchId, match.id))
         .all() as Statistic[];
 }

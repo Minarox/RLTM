@@ -7,6 +7,7 @@ import statistics from "./controllers/statistics.ts";
 import versus from "./controllers/versus.ts";
 import { getCurrentMatch } from "./database/queries/match.ts";
 import { getCurrentSeason } from "./database/queries/season.ts";
+import { getCurrentStatistics } from "./database/queries/statistic.ts";
 import { getTournaments } from "./database/queries/tournament.ts";
 import { getCurrentVersus } from "./database/queries/versus.ts";
 import app from "./extensions/app.ts";
@@ -49,16 +50,19 @@ new Elysia({
                 const season = getCurrentSeason(tournament.id);
                 const versus = getCurrentVersus(tournament.id);
                 const match = getCurrentMatch(tournament.id);
+                const statistics = getCurrentStatistics(tournament.id);
 
                 app.state(tournament.id, {
                     tournament: tournament,
                     season: season || null,
                     versus: versus || null,
                     match: match || null,
+                    statistics: statistics || null,
                     players: null,
-                    statistics: null,
                     plugin: null
                 } as Store);
+
+                // console.log(app.store[tournament.id].statistics);
             });
 
         app.decorator.log.info(`🚀 RLTM is running at ${server?.url}.`);

@@ -105,13 +105,13 @@ main {
             #statistics-team1,
             #statistics-team2 {
                 height: 100%;
-                display: grid;
-                grid-template-columns: repeat(3, 1fr);
+                display: flex;
                 align-items: center;
                 justify-content: center;
                 gap: 1rem;
 
                 > div {
+                    flex: 1;
                     height: 100%;
                     background-color: rgba(0, 0, 0, 0.7);
                     padding: 0.4rem;

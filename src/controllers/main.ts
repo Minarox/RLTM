@@ -2,17 +2,16 @@ import { Elysia } from "elysia";
 import { getArenaById } from "../database/queries/arena.ts";
 import { createOrUpdateMatch, getCurrentMatch, getMatchsByVersus } from "../database/queries/match.ts";
 import { createOrUpdatePlayer } from "../database/queries/player.ts";
-import { createOrUpdateStatistic } from "../database/queries/statistic.ts";
+import { createOrUpdateStatistic, getCurrentStatistics } from "../database/queries/statistic.ts";
 import { getTournamentById, getTournamentByToken } from "../database/queries/tournament.ts";
 import type { Match } from "../database/schemas/match.ts";
 import app from "../extensions/app.ts";
 import {
-    type EntititesPayload,
     LiveTopic,
+    type EntititesPayload,
     type MatchPayload,
-    type PlayerPayload,
-    type StatisticPayload,
-    type StatisticsPayload
+    type PlayersPayload,
+    type StatisticPayload
 } from "../types/plugin.ts";
 
 export default new Elysia({
@@ -106,7 +105,19 @@ export default new Elysia({
                     const match: MatchPayload = message.payload as MatchPayload;
                     if (match) {
                         if (match?.isStarted) {
-                            createOrUpdateMatch(match, tournamentId);
+                            const matchData = createOrUpdateMatch(match, tournamentId);
+
+                            if (match.statistics) {
+                                Object.keys(match.statistics).forEach((statistic) => {
+                                    const playerData = createOrUpdatePlayer(match.statistics[statistic]);
+                                    if (matchData && playerData) {
+                                        createOrUpdateStatistic(match.statistics[statistic], matchData.id, playerData.id);
+                                    }
+                                });
+                                const currentStatistics = getCurrentStatistics(tournamentId) || null;
+                                app.store[tournamentId][LiveTopic.STATISTICS] = currentStatistics;
+                                server?.publish(LiveTopic.STATISTICS, JSON.stringify({ statistics: currentStatistics }));
+                            }
 
                             if (app.store[tournamentId].versus) {
                                 const matchs = getMatchsByVersus(app.store[tournamentId].versus.id)
@@ -136,26 +147,17 @@ export default new Elysia({
                     break;
 
                 case LiveTopic.PLAYERS:
-                    const players: PlayerPayload[] = message.payload as PlayerPayload[];
+                    const players: PlayersPayload[] = message.payload as PlayersPayload[];
                     if (players && players?.length) {
-                        players
-                            .flatMap(player => player ? Object.values(player) : null)
-                            .forEach((player: PlayerPayload) => player ? createOrUpdatePlayer(player) : null);
+                        players.forEach((player: PlayersPayload) => {
+                            if (player) {
+                                createOrUpdatePlayer(player);
+                            }
+                        })
                     }
 
                     app.store[tournamentId][LiveTopic.PLAYERS] = players;
                     server?.publish(LiveTopic.PLAYERS, JSON.stringify({ players: players }));
-                    break;
-
-                case LiveTopic.STATISTICS:
-                    const statistics: StatisticsPayload[] = message.payload as StatisticsPayload[];
-                    if (statistics && statistics?.length) {
-                        statistics
-                            .flatMap(statistic => statistic ? Object.values(statistic) : null)
-                            .forEach((statistic: StatisticsPayload) => statistic ? createOrUpdateStatistic(statistic, tournamentId) : null);
-                    }
-                    app.store[tournamentId][LiveTopic.STATISTICS] = statistics;
-                    server?.publish(LiveTopic.STATISTICS, JSON.stringify({ statistics: statistics }));
                     break;
 
                 case LiveTopic.STATISTIC:
@@ -175,8 +177,9 @@ export default new Elysia({
 
             if (id === app.store[tournamentId][LiveTopic.PLUGIN]) {
                 app.store[tournamentId][LiveTopic.PLUGIN] = null;
-                app.store[tournamentId][LiveTopic.MATCH] = null;
-                app.store[tournamentId][LiveTopic.STATISTICS] = null;
+                app.store[tournamentId][LiveTopic.MATCH] = getCurrentMatch(tournamentId) || null;
+                app.store[tournamentId][LiveTopic.STATISTICS] = getCurrentStatistics(tournamentId) || null;
+                app.store[tournamentId][LiveTopic.PLAYERS] = null;
 
                 // @ts-ignore
                 const server = app.getServer();

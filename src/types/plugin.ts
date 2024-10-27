@@ -13,30 +13,33 @@ export enum LiveTopic {
 }
 
 export interface MatchPayload {
-    duration: number;
-    isEnded: boolean;
-    isOvertime: boolean;
-    isPaused: boolean;
-    isReplay: boolean;
-    isStarted: boolean;
-    isUnlimited: boolean;
     arenaCode: string;
-    map?: Arena;
     score: Array<number>;
+    duration: number;
+    isUnlimited: boolean;
+    isStarted: boolean;
+    isPaused: boolean;
+    isOvertime: boolean;
+    isEnded: boolean;
+    isReplay: boolean;
+    statistics: StatisticsPayload[];
     clock: number;
+    map?: Arena;
 }
 
-export interface PlayerPayload {
-    name: string;
+export interface PlayersPayload {
     uid: string;
-    carId: number;
+    name: string;
     bot: boolean;
+    teamIndex: number;
+    carId: number;
 }
 
 export interface StatisticsPayload {
-    name: string;
     uid: string;
+    name: string;
     bot: boolean;
+    teamIndex: number;
     mvp: boolean;
     score: number;
     goals: number;
@@ -89,8 +92,9 @@ export interface StatisticsPayload {
 }
 
 export interface StatisticPayload {
-    name: string;
     uid: string;
+    name: string;
+    bot: boolean;
     eventName: string;
 }
 
@@ -100,17 +104,22 @@ export interface EntititesPayload {
 }
 
 interface Balls {
+    radius: number;
     location: Array<number>;
 }
 
 interface Cars {
+    uid: string;
+    name: string;
+    bot: boolean;
+    teamIndex: number;
+    speed: number;
+    location: Array<number>;
+    isSuperSonic: boolean;
+    isOnWall: boolean;
+    isOnGround: boolean;
+    isInGoal: boolean;
+    isDodging: boolean;
     asFlip: boolean;
     boost: number;
-    isDodging: boolean;
-    isInGoal: boolean;
-    isOnGround: boolean;
-    isOnWall: boolean;
-    isSuperSonic: boolean;
-    location: Array<number>;
-    speed: number;
 }

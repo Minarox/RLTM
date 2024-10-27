@@ -57,6 +57,7 @@
         <script>
             const url = window.location.href.split('//')[1].split('/')[0];
             const tournamentId = window.location.pathname.split('/')[2];
+            const isForOBS = new URLSearchParams(window.location.search).has('obs');
             const isLocal = url.startsWith('localhost');
             let data = {};
 
@@ -73,6 +74,10 @@
             const statisticsTeam1 = document.getElementById('statistics-team1');
             const statisticsTeam2 = document.getElementById('statistics-team2');
             const gradient = document.getElementById('gradient');
+
+            if (!isForOBS) {
+                document.body.style.setProperty('background', 'black');
+            }
 
             function setMatchInfos() {
                 let matchInfos = [];
@@ -108,78 +113,68 @@
                 clock.innerHTML = data?.match ? `${Math.floor(data.match?.clock / 60)}:${(data.match?.clock % 60).toString().padStart(2, "0")}` : '0:00';
             }
 
-            function setPlayers() {
+            function setStatistics() {
                 statisticsTeam1.innerHTML = '';
                 statisticsTeam2.innerHTML = '';
 
-                if (data?.players) {
-                    Object.keys(data.players).forEach((team) => {
-                        if (data?.players[team]) {
-                            Object.keys(data.players[team]).forEach((player) => {
-                                const name = document.createElement('p');
-                                name.innerHTML = player.split('|').slice(3).join('|');
-
-                                const score = document.createElement('p');
-                                score.id = `score-${player}`;
-                                score.innerHTML = '0';
-
-                                const goals = document.createElement('p');
-                                goals.id = `goals-${player}`;
-                                goals.innerHTML = '0';
-
-                                const assists = document.createElement('p');
-                                assists.id = `assists-${player}`;
-                                assists.innerHTML = '0';
-
-                                const shots = document.createElement('p');
-                                shots.id = `shots-${player}`;
-                                shots.innerHTML = '0';
-
-                                const saves = document.createElement('p');
-                                saves.id = `saves-${player}`;
-                                saves.innerHTML = '0';
-
-                                const demos = document.createElement('p');
-                                demos.id = `demos-${player}`;
-                                demos.innerHTML = '0';
-
-                                const touchs = document.createElement('p');
-                                touchs.id = `touchs-${player}`;
-                                touchs.innerHTML = '0';
-
-                                const wrapper = document.createElement('div');
-                                wrapper.id = player;
-                                wrapper.append(name, score, goals,assists, shots, saves, demos, touchs);
-
-                                if (team == 0) statisticsTeam1.appendChild(wrapper);
-                                else statisticsTeam2.appendChild(wrapper);
-                            })
-                        }
-                    })
-                }
-            }
-
-            function setStatistics() {
                 if (data?.statistics) {
-                    Object.keys(data.statistics).forEach((team) => {
-                        if (data?.statistics[team]) {
-                            Object.keys(data.statistics[team]).forEach((player) => {
-                                console.log(data?.statistics[team][player])
-                                const score = document.getElementById(`score-${player}`);
-                                const goals = document.getElementById(`goals-${player}`);
-                                const assists = document.getElementById(`assists-${player}`);
-                                const shots = document.getElementById(`shots-${player}`);
-                                const saves = document.getElementById(`saves-${player}`);
-                                const demos = document.getElementById(`demos-${player}`);
-                                const touchs = document.getElementById(`touchs-${player}`);
-                                if (score) score.innerHTML = data?.statistics[team][player]?.score || '0';
-                                if (goals) goals.innerHTML = data?.statistics[team][player]?.goals || '0';
-                                if (assists) assists.innerHTML = data?.statistics[team][player]?.assists || '0';
-                                if (shots) shots.innerHTML = data?.statistics[team][player]?.shots || '0';
-                                if (saves) saves.innerHTML = data?.statistics[team][player]?.saves || '0';
-                                if (demos) demos.innerHTML = data?.statistics[team][player]?.Demolish || '0';
-                                if (touchs) touchs.innerHTML = data?.statistics[team][player]?.ballTouches || '0';
-                            })
+                    Object.keys(data.statistics).forEach((player) => {
+                        const statisticData = data?.statistics[player];
+                        const playerUid = `${statisticData.player.uid}|${statisticData.player.name}`;
+
+                        if (document.getElementById(`${playerUid}`)) {
+                            const score = document.getElementById(`score-${playerUid}`);
+                            if (score) score.innerHTML = statisticData?.score || '0';
+                            const goals = document.getElementById(`goals-${playerUid}`);
+                            if (goals) goals.innerHTML = statisticData?.goals || '0';
+                            const assists = document.getElementById(`assists-${playerUid}`);
+                            if (assists) assists.innerHTML = statisticData?.assists || '0';
+                            const shots = document.getElementById(`shots-${playerUid}`);
+                            if (shots) shots.innerHTML = statisticData?.shots || '0';
+                            const saves = document.getElementById(`saves-${playerUid}`);
+                            if (saves) saves.innerHTML = statisticData?.saves || '0';
+                            const demos = document.getElementById(`demos-${playerUid}`);
+                            if (demos) demos.innerHTML = statisticData?.Demolish || '0';
+                            const touchs = document.getElementById(`touchs-${playerUid}`);
+                            if (touchs) touchs.innerHTML = statisticData?.touchs || '0';
+                        } else {
+                            const name = document.createElement('p');
+                            name.innerHTML = statisticData.player.name;
+
+                            const score = document.createElement('p');
+                            score.id = `score-${playerUid}`;
+                            score.innerHTML = statisticData?.score || '0';
+
+                            const goals = document.createElement('p');
+                            goals.id = `goals-${playerUid}`;
+                            goals.innerHTML = statisticData?.goals || '0';
+
+                            const assists = document.createElement('p');
+                            assists.id = `assists-${playerUid}`;
+                            assists.innerHTML = statisticData?.assists || '0';
+
+                            const shots = document.createElement('p');
+                            shots.id = `shots-${playerUid}`;
+                            shots.innerHTML = statisticData?.shots || '0';
+
+                            const saves = document.createElement('p');
+                            saves.id = `saves-${playerUid}`;
+                            saves.innerHTML = statisticData?.saves || '0';
+
+                            const demos = document.createElement('p');
+                            demos.id = `demos-${playerUid}`;
+                            demos.innerHTML = statisticData?.Demolish || '0';
+
+                            const touchs = document.createElement('p');
+                            touchs.id = `touchs-${playerUid}`;
+                            touchs.innerHTML = statisticData?.touchs || '0';
+
+                            const wrapper = document.createElement('div');
+                            wrapper.id = playerUid;
+                            wrapper.append(name, score, goals,assists, shots, saves, demos, touchs);
+
+                            if (statisticData.teamIndex === 0) statisticsTeam1.appendChild(wrapper);
+                            else statisticsTeam2.appendChild(wrapper);
                         }
                     })
                 }
@@ -198,7 +193,6 @@
 
                     if (typeof event?.tournament !== 'undefined' || typeof event?.season !== 'undefined' || typeof event?.versus !== 'undefined') setInfos();
                     if (typeof event?.match !== 'undefined' && event?.match !== null) setMatch();
-                    if (typeof event?.players !== 'undefined' && event?.players !== null) setPlayers();
                     if (typeof event?.statistics !== 'undefined' && event?.statistics !== null) setStatistics();
                 }
 

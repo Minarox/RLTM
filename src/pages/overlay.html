@@ -53,6 +53,7 @@
         <script>
             const url = window.location.href.split('//')[1].split('/')[0];
             const tournamentId = window.location.pathname.split('/')[2];
+            const isForOBS = new URLSearchParams(window.location.search).has('obs');
             const isLocal = url.startsWith('localhost');
             let data = {};
 
@@ -71,10 +72,15 @@
             const entitiesTeam1 = document.getElementById('entities-team1');
             const entitiesTeam2 = document.getElementById('entities-team2');
 
+            if (!isForOBS) {
+                document.body.style.setProperty('background', 'black');
+            }
+
             function setTournamentInfos() {
                 let tournamentInfos = [];
                 if (data?.tournament?.name) tournamentInfos.push(data.tournament.name);
                 if (data?.season?.name) tournamentInfos.push(data.season.name);
+                if (data?.versus?.versusScore?.length) tournamentInfos.push(`Match ${data.versus.versusScore[0] + data.versus.versusScore[1] + 1}`);
                 tournament.innerHTML = tournamentInfos?.join('&nbsp; - &nbsp;') || '&nbsp;';
             }
 
@@ -92,9 +98,9 @@
                 scoreVersusTeam2.innerHTML = '';
 
                 if (data?.versus?.length && data?.versus?.versusScore) {
-                    let versusLength = data.versus.length > 1 ? data.versus.length - 1 : data.versus.length;
                     const highestScore = Math.max(data.versus.versusScore[0], data.versus.versusScore[1]);
-                    if (highestScore > versusLength) versusLength = highestScore + 1;
+                    let versusLength = data.versus.length - 2;
+                    versusLength = highestScore >= versusLength ? highestScore + 1 : versusLength;
 
                     for (const team in data.versus.versusScore) {
                         const score = data.versus.versusScore[team];
@@ -117,7 +123,7 @@
                     if (data.match?.duration === -1) {
                         clock.innerHTML = `${data.match?.overtime ? '+' : ''}${Math.floor(data.match?.clock / 60)}:${(data.match?.clock % 60).toString().padStart(2, "0")}`;
                     } else {
-                        let time = data?.match?.duration - data?.match?.clock;
+                        let time = data.match?.overtime ? data.match?.clock - data.match?.duration : data.match?.duration - data.match?.clock;
                         clock.innerHTML = `${data.match?.overtime ? '+' : ''}${Math.floor(time / 60)}:${(time % 60).toString().padStart(2, "0")}`;
                     }
                 } else {
@@ -135,51 +141,54 @@
                 entitiesTeam1.innerHTML = '';
                 entitiesTeam2.innerHTML = '';
 
-                if (data?.players) {
-                    Object.keys(data.players).forEach((team) => {
-                        if (data?.players[team]) {
-                            Object.keys(data.players[team]).forEach((player) => {
-                                const name = document.createElement('p');
-                                name.innerHTML = player.split('|').slice(3).join('|');
-                                const boost = document.createElement('p');
-                                boost.id = `boost-${player}`;
+                if (Array.isArray(data?.players)) {
+                    data.players
+                        .filter((player) => [0, 1].includes(player.teamIndex))
+                        .forEach((player) => {
+                            const playerUid = `${player.uid}|${player.name}`;
+                            const playerEntitie = data?.entities?.cars?.find((entitie) => entitie.name === player.name && entitie.uid === player.uid);
 
-                                const boostValue = data.entities?.cars && data.entities?.cars[team] && data.entities?.cars[team][player]?.boost || 0
-                                boost.innerHTML = boostValue;
-                                const text = document.createElement('div');
-                                text.append(name, boost);
+                            const name = document.createElement('p');
+                            name.innerHTML = player.name;
+                            const boost = document.createElement('p');
+                            boost.id = `boost-${playerUid}`;
 
-                                const barValue = document.createElement('i');
-                                barValue.id = `bar-${player}`;
-                                barValue.style.width = `${boostValue}%`;
-                                const bar = document.createElement('div');
-                                bar.appendChild(barValue);
+                            const boostValue = playerEntitie?.boost || 0
+                            boost.innerHTML = boostValue;
+                            const text = document.createElement('div');
+                            text.append(name, boost);
 
-                                const wrapper = document.createElement('div');
-                                wrapper.id = player;
-                                wrapper.append(text, bar);
+                            const barValue = document.createElement('i');
+                            barValue.id = `bar-${playerUid}`;
+                            barValue.style.width = `${boostValue}%`;
+                            const bar = document.createElement('div');
+                            bar.appendChild(barValue);
 
-                                if (team == 0) entitiesTeam1.appendChild(wrapper);
-                                else entitiesTeam2.appendChild(wrapper);
-                            })
-                        }
-                    })
+                            const wrapper = document.createElement('div');
+                            wrapper.id = playerUid;
+                            wrapper.append(text, bar);
+
+                            if (player.teamIndex == 0) entitiesTeam1.appendChild(wrapper);
+                            else entitiesTeam2.appendChild(wrapper);
+                        })
                 }
             }
 
             function setEntities() {
                 if (data?.entities?.cars) {
-                    Object.keys(data.entities.cars).forEach((team) => {
-                        if (data?.entities?.cars[team]) {
-                            Object.keys(data.entities.cars[team]).forEach((player) => {
-                                const boostValue = data.entities?.cars && data.entities?.cars[team] && data.entities?.cars[team][player]?.boost || 0
-                                const boost = document.getElementById(`boost-${player}`);
+                    data.entities.cars
+                        .filter((player) => [0, 1].includes(player.teamIndex))
+                        .forEach((player) => {
+                            const playerUid = `${player.uid}|${player.name}`;
+
+                            if (document.getElementById(`${playerUid}`)) {
+                                const boostValue = player.boost || 0
+                                const boost = document.getElementById(`boost-${playerUid}`);
                                 if (boost) boost.innerHTML = boostValue;
-                                const bar = document.getElementById(`bar-${player}`);
+                                const bar = document.getElementById(`bar-${playerUid}`);
                                 if (bar) bar.style.width = `${boostValue}%`;
-                            })
-                        }
-                    })
+                            }
+                        })
                 }
             }
 
@@ -194,11 +203,11 @@
                     event = JSON.parse(event.data);
                     data = Object.assign(data, event || null);
 
-                    if (typeof event?.tournament !== 'undefined' || typeof event?.season !== 'undefined') setTournamentInfos();
+                    if (typeof event?.tournament !== 'undefined' || typeof event?.season !== 'undefined' || typeof event?.versus !== 'undefined') setTournamentInfos();
                     if (typeof event?.versus !== 'undefined') setTeams();
                     if (typeof event?.match !== 'undefined') setScoreboard();
                     if (typeof event?.players !== 'undefined') setPlayers();
-                    if (typeof event?.match !== 'undefined' || typeof event?.entities !== 'undefined') setEntities();
+                    if (typeof event?.entities !== 'undefined') setEntities();
                 }
 
                 ws.onerror = function () {
