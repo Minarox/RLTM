@@ -16,7 +16,11 @@ import {
 } from "../types/plugin.ts";
 
 export default new Elysia({
-    name: "Main"
+    name: "Main",
+    websocket: {
+        perMessageDeflate: true,
+        idleTimeout: 2
+    }
 })
     .ws("/:tournamentId", {
         beforeHandle({ set, params }): string | void {
