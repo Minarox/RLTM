@@ -3,7 +3,11 @@ import database from "./database.ts";
 import logger from "./logger.ts";
 
 const app = new Elysia({
-    name: "App"
+    name: "App",
+    websocket: {
+        perMessageDeflate: true,
+        idleTimeout: 2
+    }
 })
     .decorate({
         log: logger,
