@@ -1,17 +1,5 @@
 import type { Arena } from "../database/schemas/arena";
 
-export enum Topic {
-    TOURNAMENT = "tournament",
-    SEASON = "season",
-    VERSUS = "versus",
-    MATCH = "match",
-    PLAYERS = "players",
-    STATISTICS = "statistics",
-    STATISTIC = "statistic",
-    ENTITIES = "entities",
-    PLUGIN = "plugin"
-}
-
 export interface MatchPayload {
     arenaCode: string;
     score: Array<number>;

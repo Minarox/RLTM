@@ -7,12 +7,12 @@ import { getTournamentById, getTournamentByToken } from "../database/queries/tou
 import type { Match } from "../database/schemas/match.ts";
 import app from "../extensions/app.ts";
 import {
-    Topic,
     type EntititesPayload,
     type MatchPayload,
     type PlayersPayload,
     type StatisticPayload
 } from "../types/plugin.ts";
+import { Topic } from "../types/app.ts";
 
 export default new Elysia({
     name: "Main"

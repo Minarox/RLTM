@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
 import { getTournamentById } from "../database/queries/tournament.ts";
 import app from "../extensions/app.ts";
-import { Topic } from "../types/plugin.ts";
+import { Topic } from "../types/app.ts";
 
 const topics = [Topic.TOURNAMENT, Topic.SEASON, Topic.VERSUS, Topic.MATCH, Topic.STATISTICS];
 

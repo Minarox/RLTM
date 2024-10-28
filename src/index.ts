@@ -11,7 +11,7 @@ import { getCurrentStatistics } from "./database/queries/statistic.ts";
 import { getTournaments } from "./database/queries/tournament.ts";
 import { getCurrentVersus } from "./database/queries/versus.ts";
 import app from "./extensions/app.ts";
-import type { Store } from "./types/store.ts";
+import type { Store } from "./types/app.ts";
 
 new Elysia({
     name: "RLTM"

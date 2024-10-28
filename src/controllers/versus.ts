@@ -1,7 +1,7 @@
 import { Elysia } from "elysia";
 import { getTournamentById } from "../database/queries/tournament.ts";
 import app from "../extensions/app.ts";
-import { Topic } from "../types/plugin.ts";
+import { Topic } from "../types/app.ts";
 
 export default new Elysia({
     name: "Versus"
