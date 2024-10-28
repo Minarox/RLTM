@@ -21,7 +21,7 @@ export default new Elysia({
         beforeHandle({ set, params }): string | void {
             if (!app.store.hasOwnProperty(params["tournamentId"]) || !getTournamentById(params["tournamentId"])) {
                 set.status = "Not Found";
-                return "Not Found";
+                return "NOT_FOUND";
             }
         },
 

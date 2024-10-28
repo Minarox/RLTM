@@ -1,8 +1,8 @@
 import { staticPlugin } from "@elysiajs/static";
 import { Elysia } from "elysia";
 import { compression } from "elysia-compression";
-import main from "./controllers/main.ts";
 import overlay from "./controllers/overlay.ts";
+import plugin from "./controllers/plugin.ts";
 import statistics from "./controllers/statistics.ts";
 import versus from "./controllers/versus.ts";
 import { getCurrentMatch } from "./database/queries/match.ts";
@@ -34,7 +34,7 @@ new Elysia({
     }))
     .use(app)
 
-    .use(main)
+    .use(plugin)
     .use(overlay)
     .use(statistics)
     .use(versus)
