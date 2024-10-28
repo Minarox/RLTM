@@ -56,8 +56,6 @@
         </main>
 
         <script>
-            const url = window.location.href.split('//')[1].split('/')[0];
-            const isLocal = url.startsWith('localhost');
             const isForOBS = new URLSearchParams(window.location.search).has('obs');
             let data = {};
 
@@ -124,66 +122,49 @@
                         const statisticData = data?.statistics[player];
                         const playerUid = `${statisticData.player.uid}|${statisticData.player.name}`;
 
-                        if (document.getElementById(`${playerUid}`)) {
-                            const score = document.getElementById(`score-${playerUid}`);
-                            if (score) score.innerHTML = statisticData?.score || '0';
-                            const goals = document.getElementById(`goals-${playerUid}`);
-                            if (goals) goals.innerHTML = statisticData?.goals || '0';
-                            const assists = document.getElementById(`assists-${playerUid}`);
-                            if (assists) assists.innerHTML = statisticData?.assists || '0';
-                            const shots = document.getElementById(`shots-${playerUid}`);
-                            if (shots) shots.innerHTML = statisticData?.shots || '0';
-                            const saves = document.getElementById(`saves-${playerUid}`);
-                            if (saves) saves.innerHTML = statisticData?.saves || '0';
-                            const demos = document.getElementById(`demos-${playerUid}`);
-                            if (demos) demos.innerHTML = statisticData?.Demolish || '0';
-                            const touchs = document.getElementById(`touchs-${playerUid}`);
-                            if (touchs) touchs.innerHTML = statisticData?.touchs || '0';
-                        } else {
-                            const name = document.createElement('p');
-                            name.innerHTML = statisticData.player.name;
+                        const name = document.createElement('p');
+                        name.innerHTML = statisticData.player.name;
 
-                            const score = document.createElement('p');
-                            score.id = `score-${playerUid}`;
-                            score.innerHTML = statisticData?.score || '0';
+                        const score = document.createElement('p');
+                        score.id = `score-${playerUid}`;
+                        score.innerHTML = statisticData?.score || '0';
 
-                            const goals = document.createElement('p');
-                            goals.id = `goals-${playerUid}`;
-                            goals.innerHTML = statisticData?.goals || '0';
+                        const goals = document.createElement('p');
+                        goals.id = `goals-${playerUid}`;
+                        goals.innerHTML = statisticData?.goals || '0';
 
-                            const assists = document.createElement('p');
-                            assists.id = `assists-${playerUid}`;
-                            assists.innerHTML = statisticData?.assists || '0';
+                        const assists = document.createElement('p');
+                        assists.id = `assists-${playerUid}`;
+                        assists.innerHTML = statisticData?.assists || '0';
 
-                            const shots = document.createElement('p');
-                            shots.id = `shots-${playerUid}`;
-                            shots.innerHTML = statisticData?.shots || '0';
+                        const shots = document.createElement('p');
+                        shots.id = `shots-${playerUid}`;
+                        shots.innerHTML = statisticData?.shots || '0';
 
-                            const saves = document.createElement('p');
-                            saves.id = `saves-${playerUid}`;
-                            saves.innerHTML = statisticData?.saves || '0';
+                        const saves = document.createElement('p');
+                        saves.id = `saves-${playerUid}`;
+                        saves.innerHTML = statisticData?.saves || '0';
 
-                            const demos = document.createElement('p');
-                            demos.id = `demos-${playerUid}`;
-                            demos.innerHTML = statisticData?.Demolish || '0';
+                        const demos = document.createElement('p');
+                        demos.id = `demos-${playerUid}`;
+                        demos.innerHTML = statisticData?.Demolish || '0';
 
-                            const touchs = document.createElement('p');
-                            touchs.id = `touchs-${playerUid}`;
-                            touchs.innerHTML = statisticData?.touchs || '0';
+                        const touchs = document.createElement('p');
+                        touchs.id = `touchs-${playerUid}`;
+                        touchs.innerHTML = statisticData?.touchs || '0';
 
-                            const wrapper = document.createElement('div');
-                            wrapper.id = playerUid;
-                            wrapper.append(name, score, goals,assists, shots, saves, demos, touchs);
+                        const wrapper = document.createElement('div');
+                        wrapper.id = playerUid;
+                        wrapper.append(name, score, goals,assists, shots, saves, demos, touchs);
 
-                            if (statisticData.teamIndex === 0) statisticsTeam1.appendChild(wrapper);
-                            else statisticsTeam2.appendChild(wrapper);
-                        }
+                        if (statisticData.teamIndex === 0) statisticsTeam1.appendChild(wrapper);
+                        else statisticsTeam2.appendChild(wrapper);
                     })
                 }
             }
 
             function connect() {
-                let ws = new WebSocket(`ws${isLocal ? '' : 's'}://${url}${window.location.pathname}`);
+                let ws = new WebSocket(window.location.href);
 
                 ws.onmessage = function (event) {
                     event = JSON.parse(event.data);
