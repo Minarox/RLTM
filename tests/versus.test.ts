@@ -5,7 +5,7 @@ import versus from '../src/controllers/versus.ts'
 import app from '../src/extensions/app.ts'
 
 describe('Versus', () => {
-    it('GET /live/:tournamentId (without tournamentId)', async (): Promise<void> => {
+    it('GET /versus/:tournamentId (without tournamentId)', async (): Promise<void> => {
         const RLTM = new Elysia().use(app).use(versus)
 
         const response: Response = await RLTM
@@ -13,6 +13,6 @@ describe('Versus', () => {
             .then((res: Response) => res)
 
             expect(response.status).toBe(404)
-            expect(await response.text()).toBe('Not Found')
+            expect(await response.text()).toBe('NOT_FOUND')
     })
 })

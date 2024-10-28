@@ -13,6 +13,6 @@ describe('Overlay', () => {
             .then((res: Response) => res)
 
             expect(response.status).toBe(404)
-            expect(await response.text()).toBe('Not Found')
+            expect(await response.text()).toBe('NOT_FOUND')
     })
 })

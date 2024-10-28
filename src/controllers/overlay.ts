@@ -11,7 +11,7 @@ export default new Elysia({
     .get("/overlay/:tournamentId", ({set, params}) => {
         if (!app.store.hasOwnProperty(params["tournamentId"]) || !getTournamentById(params["tournamentId"])) {
             set.status = "Not Found";
-            return "Not Found";
+            return "NOT_FOUND";
         }
 
         return Bun.file('src/pages/overlay.html');
@@ -21,7 +21,7 @@ export default new Elysia({
         beforeHandle({ set, params }): string | void {
             if (!app.store.hasOwnProperty(params["tournamentId"]) || !getTournamentById(params["tournamentId"])) {
                 set.status = "Not Found";
-                return "Not Found";
+                return "NOT_FOUND";
             }
         },
 
