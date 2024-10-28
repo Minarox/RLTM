@@ -1,6 +1,6 @@
 import type { Arena } from "../database/schemas/arena";
 
-export enum LiveTopic {
+export enum Topic {
     TOURNAMENT = "tournament",
     SEASON = "season",
     VERSUS = "versus",

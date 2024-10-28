@@ -7,7 +7,7 @@ import { getTournamentById, getTournamentByToken } from "../database/queries/tou
 import type { Match } from "../database/schemas/match.ts";
 import app from "../extensions/app.ts";
 import {
-    LiveTopic,
+    Topic,
     type EntititesPayload,
     type MatchPayload,
     type PlayersPayload,
@@ -41,7 +41,7 @@ export default new Elysia({
 
                     // @ts-ignore
                     const server = app.getServer();
-                    server?.publish(`${tournamentId}_${LiveTopic.PLUGIN}`, JSON.stringify({ plugin: id }));
+                    server?.publish(`${tournamentId}_${Topic.PLUGIN}`, JSON.stringify({ plugin: id }));
                     app.decorator.log.info(`Game "${id}" connected to "${app.store[tournamentId].tournament.name}".`);
                     return;
                 }
@@ -59,36 +59,36 @@ export default new Elysia({
                     payload.forEach((key: string): void => {
                         key = key.toUpperCase();
 
-                        if (LiveTopic.hasOwnProperty(key)) {
-                            subscribe(`${tournamentId}_${LiveTopic[key]}`);
+                        if (Topic.hasOwnProperty(key)) {
+                            subscribe(`${tournamentId}_${Topic[key]}`);
                         }
 
-                        switch (LiveTopic[key]) {
-                            case LiveTopic.TOURNAMENT:
+                        switch (Topic[key]) {
+                            case Topic.TOURNAMENT:
                                 send(JSON.stringify({ tournament: app.store[tournamentId].tournament }));
                                 break;
 
-                            case LiveTopic.SEASON:
+                            case Topic.SEASON:
                                 send(JSON.stringify({ season: app.store[tournamentId].season }));
                                 break;
 
-                            case LiveTopic.VERSUS:
+                            case Topic.VERSUS:
                                 send(JSON.stringify({ versus: app.store[tournamentId].versus }));
                                 break;
 
-                            case LiveTopic.MATCH:
+                            case Topic.MATCH:
                                 send(JSON.stringify({ match: app.store[tournamentId].match }));
                                 break;
 
-                            case LiveTopic.PLAYERS:
-                                send(JSON.stringify({ players: app.store[tournamentId][LiveTopic.PLAYERS] }));
+                            case Topic.PLAYERS:
+                                send(JSON.stringify({ players: app.store[tournamentId][Topic.PLAYERS] }));
                                 break;
 
-                            case LiveTopic.STATISTICS:
-                                send(JSON.stringify({ statistics: app.store[tournamentId][LiveTopic.STATISTICS] }));
+                            case Topic.STATISTICS:
+                                send(JSON.stringify({ statistics: app.store[tournamentId][Topic.STATISTICS] }));
                                 break;
 
-                            case LiveTopic.PLUGIN:
+                            case Topic.PLUGIN:
                                 send(JSON.stringify({ plugin: app.store[data.params.tournamentId].plugin }));
                                 break;
                         }
@@ -102,7 +102,7 @@ export default new Elysia({
             const server = app.getServer();
 
             switch (message?.topic) {
-                case LiveTopic.MATCH:
+                case Topic.MATCH:
                     const match: MatchPayload = message.payload as MatchPayload;
                     if (match) {
                         if (match?.isStarted) {
@@ -116,8 +116,8 @@ export default new Elysia({
                                     }
                                 });
                                 const currentStatistics = getCurrentStatistics(tournamentId) || null;
-                                app.store[tournamentId][LiveTopic.STATISTICS] = currentStatistics;
-                                server?.publish(`${tournamentId}_${LiveTopic.STATISTICS}`, JSON.stringify({ statistics: currentStatistics }));
+                                app.store[tournamentId][Topic.STATISTICS] = currentStatistics;
+                                server?.publish(`${tournamentId}_${Topic.STATISTICS}`, JSON.stringify({ statistics: currentStatistics }));
                             }
 
                             if (app.store[tournamentId].versus) {
@@ -133,7 +133,7 @@ export default new Elysia({
                                     });
                                 }
                                 app.store[tournamentId].versus.versusScore = versusScore;
-                                server?.publish(`${tournamentId}_${LiveTopic.VERSUS}`, JSON.stringify({ versus: app.store[tournamentId].versus }));
+                                server?.publish(`${tournamentId}_${Topic.VERSUS}`, JSON.stringify({ versus: app.store[tournamentId].versus }));
                             }
                         }
 
@@ -143,11 +143,11 @@ export default new Elysia({
                     }
 
                     const currentMatch = getCurrentMatch(tournamentId) || null;
-                    app.store[tournamentId][LiveTopic.MATCH] = currentMatch;
-                    server?.publish(`${tournamentId}_${LiveTopic.MATCH}`, JSON.stringify({ match: { ...currentMatch, replay: match?.isReplay || false } }));
+                    app.store[tournamentId][Topic.MATCH] = currentMatch;
+                    server?.publish(`${tournamentId}_${Topic.MATCH}`, JSON.stringify({ match: { ...currentMatch, replay: match?.isReplay || false } }));
                     break;
 
-                case LiveTopic.PLAYERS:
+                case Topic.PLAYERS:
                     const players: PlayersPayload[] = message.payload as PlayersPayload[];
                     if (players && players?.length) {
                         players.forEach((player: PlayersPayload) => {
@@ -157,18 +157,18 @@ export default new Elysia({
                         })
                     }
 
-                    app.store[tournamentId][LiveTopic.PLAYERS] = players;
-                    server?.publish(`${tournamentId}_${LiveTopic.PLAYERS}`, JSON.stringify({ players: players }));
+                    app.store[tournamentId][Topic.PLAYERS] = players;
+                    server?.publish(`${tournamentId}_${Topic.PLAYERS}`, JSON.stringify({ players: players }));
                     break;
 
-                case LiveTopic.STATISTIC:
+                case Topic.STATISTIC:
                     const statistic: StatisticPayload = message.payload as StatisticPayload;
-                    server?.publish(`${tournamentId}_${LiveTopic.STATISTIC}`, JSON.stringify({ statistic: statistic }));
+                    server?.publish(`${tournamentId}_${Topic.STATISTIC}`, JSON.stringify({ statistic: statistic }));
                     break;
 
-                case LiveTopic.ENTITIES:
+                case Topic.ENTITIES:
                     const entities: any = message.payload as EntititesPayload;
-                    server?.publish(`${tournamentId}_${LiveTopic.ENTITIES}`, JSON.stringify({ entities: entities }));
+                    server?.publish(`${tournamentId}_${Topic.ENTITIES}`, JSON.stringify({ entities: entities }));
                     break;
             }
         },
@@ -176,21 +176,21 @@ export default new Elysia({
         close({ data, id, unsubscribe }): void {
             const tournamentId: string = data.params.tournamentId;
 
-            if (id === app.store[tournamentId][LiveTopic.PLUGIN]) {
-                app.store[tournamentId][LiveTopic.PLUGIN] = null;
-                app.store[tournamentId][LiveTopic.MATCH] = getCurrentMatch(tournamentId) || null;
-                app.store[tournamentId][LiveTopic.STATISTICS] = getCurrentStatistics(tournamentId) || null;
-                app.store[tournamentId][LiveTopic.PLAYERS] = null;
+            if (id === app.store[tournamentId][Topic.PLUGIN]) {
+                app.store[tournamentId][Topic.PLUGIN] = null;
+                app.store[tournamentId][Topic.MATCH] = getCurrentMatch(tournamentId) || null;
+                app.store[tournamentId][Topic.STATISTICS] = getCurrentStatistics(tournamentId) || null;
+                app.store[tournamentId][Topic.PLAYERS] = null;
 
                 // @ts-ignore
                 const server = app.getServer();
-                server?.publish(`${tournamentId}_${LiveTopic.MATCH}`, JSON.stringify({ match: null }));
-                server?.publish(`${tournamentId}_${LiveTopic.STATISTICS}`, JSON.stringify({ statistics: null }));
-                server?.publish(`${tournamentId}_${LiveTopic.PLUGIN}`, JSON.stringify({ plugin: null }));
+                server?.publish(`${tournamentId}_${Topic.MATCH}`, JSON.stringify({ match: null }));
+                server?.publish(`${tournamentId}_${Topic.STATISTICS}`, JSON.stringify({ statistics: null }));
+                server?.publish(`${tournamentId}_${Topic.PLUGIN}`, JSON.stringify({ plugin: null }));
                 app.decorator.log.info(`Game "${id}" disconnected.`);
             } else {
-                Object.values(LiveTopic).forEach((key: string): void => {
-                    unsubscribe(key);
+                Object.values(Topic).forEach((key: string): void => {
+                    unsubscribe(`${tournamentId}_${key}`);
                 })
                 app.decorator.log.info(`Client "${id}" disconnected.`);
             }
