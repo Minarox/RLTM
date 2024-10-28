@@ -20,6 +20,7 @@
                             <p id="score-team1">0</p>
                             <p id="clock">0:00</p>
                             <p id="score-team2">0</p>
+                            <p id="replay">Replay</p>
                         </div>
 
                         <div id="infos">
@@ -56,9 +57,8 @@
 
         <script>
             const url = window.location.href.split('//')[1].split('/')[0];
-            const tournamentId = window.location.pathname.split('/')[2];
-            const isForOBS = new URLSearchParams(window.location.search).has('obs');
             const isLocal = url.startsWith('localhost');
+            const isForOBS = new URLSearchParams(window.location.search).has('obs');
             let data = {};
 
             const logoTeam1 = document.getElementById('logo-team1');
@@ -68,6 +68,7 @@
             const scoreTeam1 = document.getElementById('score-team1');
             const scoreTeam2 = document.getElementById('score-team2');
             const clock = document.getElementById('clock');
+            const replay = document.getElementById('replay');
             const tournament = document.getElementById('tournament');
             const season = document.getElementById('season');
             const match = document.getElementById('match');
@@ -111,6 +112,7 @@
                 setMatchInfos();
 
                 clock.innerHTML = data?.match ? `${Math.floor(data.match?.clock / 60)}:${(data.match?.clock % 60).toString().padStart(2, "0")}` : '0:00';
+                replay.style.bottom = data?.match?.replay ? '100%' : 'calc(100% - 30px)';
             }
 
             function setStatistics() {
@@ -181,11 +183,7 @@
             }
 
             function connect() {
-                let ws = new WebSocket(`ws${isLocal ? '' : 's'}://${url}/${tournamentId}`);
-
-                ws.onopen = function () {
-                    ws.send(JSON.stringify([ "tournament", "season", "versus", "match", "players", "statistics" ]));
-                }
+                let ws = new WebSocket(`ws${isLocal ? '' : 's'}://${url}${window.location.pathname}`);
 
                 ws.onmessage = function (event) {
                     event = JSON.parse(event.data);
