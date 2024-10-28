@@ -5,11 +5,11 @@ import overlay from '../src/controllers/overlay.ts'
 import app from '../src/extensions/app.ts'
 
 describe('Overlay', () => {
-    it('GET /overlay/:tournamentId (without tournamentId)', async (): Promise<void> => {
+    it('GET /:tournamentId/overlay (without tournamentId)', async (): Promise<void> => {
         const RLTM = new Elysia().use(app).use(overlay)
 
         const response: Response = await RLTM
-            .handle(new Request('http://localhost/overlay/_not_a_tournament_id_'))
+            .handle(new Request('http://localhost/_not_a_tournament_id_/overlay', { method: 'GET' }))
             .then((res: Response) => res)
 
             expect(response.status).toBe(404)

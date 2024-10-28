@@ -5,11 +5,11 @@ import versus from '../src/controllers/versus.ts'
 import app from '../src/extensions/app.ts'
 
 describe('Versus', () => {
-    it('GET /versus/:tournamentId (without tournamentId)', async (): Promise<void> => {
+    it('GET /:tournamentId/versus (without tournamentId)', async (): Promise<void> => {
         const RLTM = new Elysia().use(app).use(versus)
 
         const response: Response = await RLTM
-            .handle(new Request('http://localhost/versus/_not_a_tournament_id_'))
+            .handle(new Request('http://localhost/_not_a_tournament_id_/versus', { method: 'GET' }))
             .then((res: Response) => res)
 
             expect(response.status).toBe(404)

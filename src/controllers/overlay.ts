@@ -8,7 +8,7 @@ const topics = [Topic.TOURNAMENT, Topic.SEASON, Topic.VERSUS, Topic.MATCH, Topic
 export default new Elysia({
     name: "Overlay"
 })
-    .get("/overlay/:tournamentId", ({set, params}) => {
+    .get("/:tournamentId/overlay", ({set, params}) => {
         if (!app.store.hasOwnProperty(params["tournamentId"]) || !getTournamentById(params["tournamentId"])) {
             set.status = "Not Found";
             return "NOT_FOUND";
@@ -17,7 +17,7 @@ export default new Elysia({
         return Bun.file('src/pages/overlay.html');
     })
 
-    .ws("/overlay/:tournamentId", {
+    .ws("/:tournamentId/overlay", {
         beforeHandle({ set, params }): string | void {
             if (!app.store.hasOwnProperty(params["tournamentId"]) || !getTournamentById(params["tournamentId"])) {
                 set.status = "Not Found";

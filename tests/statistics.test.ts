@@ -5,11 +5,11 @@ import app from '../src/extensions/app.ts'
 import statistics from '../src/controllers/statistics.ts'
 
 describe('Statistics', () => {
-    it('GET /statistics/:tournamentId (without tournamentId)', async (): Promise<void> => {
+    it('GET /:tournamentId/statistics (without tournamentId)', async (): Promise<void> => {
         const RLTM = new Elysia().use(app).use(statistics)
 
         const response: Response = await RLTM
-            .handle(new Request('http://localhost/statistics/_not_a_tournament_id_'))
+            .handle(new Request('http://localhost/_not_a_tournament_id_/statistics', { method: 'GET' }))
             .then((res: Response) => res)
 
             expect(response.status).toBe(404)

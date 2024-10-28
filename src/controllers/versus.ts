@@ -6,7 +6,7 @@ import { Topic } from "../types/plugin.ts";
 export default new Elysia({
     name: "Versus"
 })
-    .get("/versus/:tournamentId", ({set, params}) => {
+    .get("/:tournamentId/versus", ({set, params}) => {
         if (!app.store.hasOwnProperty(params["tournamentId"]) || !getTournamentById(params["tournamentId"])) {
             set.status = "Not Found";
             return "NOT_FOUND";
@@ -15,7 +15,7 @@ export default new Elysia({
         return Bun.file('src/pages/versus.html');
     })
 
-    .ws("/versus/:tournamentId", {
+    .ws("/:tournamentId/versus", {
         beforeHandle({ set, params }): string | void {
             if (!app.store.hasOwnProperty(params["tournamentId"]) || !getTournamentById(params["tournamentId"])) {
                 set.status = "Not Found";
