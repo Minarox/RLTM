@@ -51,10 +51,7 @@
         </main>
 
         <script>
-            const url = window.location.href.split('//')[1].split('/')[0];
-            const tournamentId = window.location.pathname.split('/')[2];
             const isForOBS = new URLSearchParams(window.location.search).has('obs');
-            const isLocal = url.startsWith('localhost');
             let data = {};
 
             const tournament = document.getElementById('tournament');
@@ -193,11 +190,7 @@
             }
 
             function connect() {
-                let ws = new WebSocket(`ws${isLocal ? '' : 's'}://${url}/${tournamentId}`);
-
-                ws.onopen = function () {
-                    ws.send(JSON.stringify([ "tournament", "season", "versus", "match", "entities", "players" ]));
-                }
+                let ws = new WebSocket(window.location.href);
 
                 ws.onmessage = function (event) {
                     event = JSON.parse(event.data);
