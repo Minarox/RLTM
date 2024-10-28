@@ -27,7 +27,7 @@ export default new Elysia({
             const tournamentId: string = data.params.tournamentId;
 
             subscribe(`${tournamentId}_${Topic.VERSUS}`);
-            send(JSON.stringify({ versus: app.store[tournamentId][Topic.VERSUS] }));
+            send(JSON.stringify({ [Topic.VERSUS]: app.store[tournamentId][Topic.VERSUS] }));
         },
 
         close({ data, unsubscribe }): void {

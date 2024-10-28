@@ -32,70 +32,24 @@ export default new Elysia({
                 const token = data.query['token'] as string;
 
                 if (getTournamentByToken(token)) {
-                    app.store[tournamentId].plugin = id;
+                    app.store[tournamentId][Topic.PLUGIN] = id;
                     send(JSON.stringify({ valid: true }));
 
                     // @ts-ignore
                     const server = app.getServer();
-                    server?.publish(`${tournamentId}_${Topic.PLUGIN}`, JSON.stringify({ plugin: id }));
-                    app.decorator.log.info(`Game "${id}" connected to "${app.store[tournamentId].tournament.name}".`);
+                    server?.publish(`${tournamentId}_${Topic.PLUGIN}`, JSON.stringify({ [Topic.PLUGIN]: id }));
+                    app.decorator.log.info(`Game "${id}" connected to "${app.store[tournamentId][Topic.TOURNAMENT].name}".`);
                     return;
                 }
             }
 
-            app.decorator.log.info(`Client "${id}" connected to "${app.store[tournamentId].tournament.name}".`);
+            app.decorator.log.info(`Client "${id}" connected to "${app.store[tournamentId][Topic.TOURNAMENT].name}".`);
         },
 
-        message({ id, data, send, subscribe }, message: any): void {
-            const tournamentId: string = data.params.tournamentId;
-
-            if (id !== app.store[tournamentId].plugin && message) {
-                const payload = JSON.parse(message);
-                if (Array.isArray(payload)) {
-                    payload.forEach((key: string): void => {
-                        key = key.toUpperCase();
-
-                        if (Topic.hasOwnProperty(key)) {
-                            subscribe(`${tournamentId}_${Topic[key]}`);
-                        }
-
-                        switch (Topic[key]) {
-                            case Topic.TOURNAMENT:
-                                send(JSON.stringify({ tournament: app.store[tournamentId].tournament }));
-                                break;
-
-                            case Topic.SEASON:
-                                send(JSON.stringify({ season: app.store[tournamentId].season }));
-                                break;
-
-                            case Topic.VERSUS:
-                                send(JSON.stringify({ versus: app.store[tournamentId].versus }));
-                                break;
-
-                            case Topic.MATCH:
-                                send(JSON.stringify({ match: app.store[tournamentId].match }));
-                                break;
-
-                            case Topic.PLAYERS:
-                                send(JSON.stringify({ players: app.store[tournamentId][Topic.PLAYERS] }));
-                                break;
-
-                            case Topic.STATISTICS:
-                                send(JSON.stringify({ statistics: app.store[tournamentId][Topic.STATISTICS] }));
-                                break;
-
-                            case Topic.PLUGIN:
-                                send(JSON.stringify({ plugin: app.store[data.params.tournamentId].plugin }));
-                                break;
-                        }
-
-                    })
-                }
-                return;
-            }
-
+        message({ data }, message: any): void {
             // @ts-ignore
             const server = app.getServer();
+            const tournamentId: string = data.params.tournamentId;
 
             switch (message?.topic) {
                 case Topic.MATCH:
@@ -113,11 +67,11 @@ export default new Elysia({
                                 });
                                 const currentStatistics = getCurrentStatistics(tournamentId) || null;
                                 app.store[tournamentId][Topic.STATISTICS] = currentStatistics;
-                                server?.publish(`${tournamentId}_${Topic.STATISTICS}`, JSON.stringify({ statistics: currentStatistics }));
+                                server?.publish(`${tournamentId}_${Topic.STATISTICS}`, JSON.stringify({ [Topic.STATISTICS]: currentStatistics }));
                             }
 
                             if (app.store[tournamentId].versus) {
-                                const matchs = getMatchsByVersus(app.store[tournamentId].versus.id)
+                                const matchs = getMatchsByVersus(app.store[tournamentId][Topic.VERSUS].id)
                                 let versusScore = [0, 0];
                                 if (matchs) {
                                     matchs.forEach((match: Match) => {
@@ -128,8 +82,11 @@ export default new Elysia({
                                         }
                                     });
                                 }
-                                app.store[tournamentId].versus.versusScore = versusScore;
-                                server?.publish(`${tournamentId}_${Topic.VERSUS}`, JSON.stringify({ versus: app.store[tournamentId].versus }));
+
+                                if (app.store[tournamentId][Topic.VERSUS].versusScore !== versusScore) {
+                                    app.store[tournamentId][Topic.VERSUS].versusScore = versusScore;
+                                    server?.publish(`${tournamentId}_${Topic.VERSUS}`, JSON.stringify({ versus: app.store[tournamentId][Topic.VERSUS] }));
+                                }
                             }
                         }
 
@@ -140,7 +97,7 @@ export default new Elysia({
 
                     const currentMatch = getCurrentMatch(tournamentId) || null;
                     app.store[tournamentId][Topic.MATCH] = currentMatch;
-                    server?.publish(`${tournamentId}_${Topic.MATCH}`, JSON.stringify({ match: { ...currentMatch, replay: match?.isReplay || false } }));
+                    server?.publish(`${tournamentId}_${Topic.MATCH}`, JSON.stringify({ [Topic.MATCH]: { ...currentMatch, replay: match?.isReplay || false } }));
                     break;
 
                 case Topic.PLAYERS:
@@ -154,17 +111,17 @@ export default new Elysia({
                     }
 
                     app.store[tournamentId][Topic.PLAYERS] = players;
-                    server?.publish(`${tournamentId}_${Topic.PLAYERS}`, JSON.stringify({ players: players }));
+                    server?.publish(`${tournamentId}_${Topic.PLAYERS}`, JSON.stringify({ [Topic.PLAYERS]: players }));
                     break;
 
                 case Topic.STATISTIC:
                     const statistic: StatisticPayload = message.payload as StatisticPayload;
-                    server?.publish(`${tournamentId}_${Topic.STATISTIC}`, JSON.stringify({ statistic: statistic }));
+                    server?.publish(`${tournamentId}_${Topic.STATISTIC}`, JSON.stringify({ [Topic.STATISTIC]: statistic }));
                     break;
 
                 case Topic.ENTITIES:
                     const entities: any = message.payload as EntititesPayload;
-                    server?.publish(`${tournamentId}_${Topic.ENTITIES}`, JSON.stringify({ entities: entities }));
+                    server?.publish(`${tournamentId}_${Topic.ENTITIES}`, JSON.stringify({ [Topic.ENTITIES]: entities }));
                     break;
             }
         },
@@ -180,9 +137,9 @@ export default new Elysia({
 
                 // @ts-ignore
                 const server = app.getServer();
-                server?.publish(`${tournamentId}_${Topic.MATCH}`, JSON.stringify({ match: null }));
-                server?.publish(`${tournamentId}_${Topic.STATISTICS}`, JSON.stringify({ statistics: null }));
-                server?.publish(`${tournamentId}_${Topic.PLUGIN}`, JSON.stringify({ plugin: null }));
+                server?.publish(`${tournamentId}_${Topic.MATCH}`, JSON.stringify({ [Topic.MATCH]: null }));
+                server?.publish(`${tournamentId}_${Topic.STATISTICS}`, JSON.stringify({ [Topic.STATISTICS]: null }));
+                server?.publish(`${tournamentId}_${Topic.PLUGIN}`, JSON.stringify({ [Topic.PLUGIN]: null }));
                 app.decorator.log.info(`Game "${id}" disconnected.`);
             } else {
                 Object.values(Topic).forEach((key: string): void => {
