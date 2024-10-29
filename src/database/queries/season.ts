@@ -13,7 +13,7 @@ const select = {
     endAt: season.endAt
 }
 
-export function getCurrentSeason(tournamentId: string) {
+export function getCurrentSeason(tournamentId: string): Season {
     const currentDate: string = new Date().toISOString().split('T')[0];
 
     return db

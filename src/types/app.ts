@@ -12,6 +12,7 @@ export enum Topic {
     STATISTICS = "statistics",
     STATISTIC = "statistic",
     ENTITIES = "entities",
+    SCOREBOARD = "scoreboard",
     PLUGIN = "plugin"
 }
 
@@ -22,5 +23,6 @@ export interface Store {
     match: MatchPayload | null,
     players: PlayersPayload[] | null
     statistics: StatisticsPayload[] | null
+    scoreboard: null
     plugin: string | null
 }

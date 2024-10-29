@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <title>Scoreboard</title>
+        <meta charset="UTF-8">
+        <meta content="width=device-width, initial-scale=1.0" name="viewport">
+        <link rel="stylesheet" href="/assets/css/scoreboard.css">
+    </head>
+    <body>
+        <main>
+            <div>
+                <p>Classement général</p>
+                <p id="tournament"></p>
+            </div>
+
+            <article id="scoreboard"></article>
+        </main>
+
+        <script>
+            const isForOBS = new URLSearchParams(window.location.search).has('obs');
+            let data = {};
+
+            const scoreboard = document.getElementById('scoreboard');
+            const tournament = document.getElementById('tournament');
+
+            if (!isForOBS) {
+                document.body.style.setProperty('background', 'black');
+            }
+
+            function setTournament() {
+                let tournamentInfos = [];
+                if (data?.tournament?.name) tournamentInfos.push(data.tournament.name);
+                if (data?.season?.name) tournamentInfos.push(data.season.name);
+                tournament.innerHTML = tournamentInfos?.join('&nbsp; - &nbsp;') || '&nbsp;';
+            }
+
+            function setScoreboard() {
+                scoreboard.innerHTML = '';
+
+                for (let i = 0; i < data?.scoreboard?.length; i++) {
+                    const team = data.scoreboard[i];
+
+                    const wrapper = document.createElement('div');
+                    wrapper.id = team.id;
+                    wrapper.style.border = `1px solid ${team.color || '#FFFFFF'}`;
+
+                    const position = document.createElement('p');
+                    position.innerHTML = i + 1;
+
+                    const logo = document.createElement('img');
+                    logo.src = team.logo ? `data:image/png;base64,${team.logo || ''}` : '';
+                    logo.alt = 'Logo ' + team.name;
+                    logo.title = team.name;
+
+                    const name = document.createElement('p');
+                    name.innerHTML = team.name;
+
+                    const div = document.createElement('div');
+                    div.append(logo, name);
+
+                    const score = document.createElement('p');
+                    score.innerHTML = team.score;
+
+                    const separator = document.createElement('hr');
+                    wrapper.append(position, separator, div, score);
+                    scoreboard.appendChild(wrapper);
+                }
+            }
+
+            function connect() {
+                let ws = new WebSocket(window.location.href);
+
+                ws.onmessage = function (event) {
+                    event = JSON.parse(event.data);
+                    data = Object.assign(data, event || null);
+
+                    if (typeof event?.tournament !== 'undefined' || typeof event?.season !== 'undefined') setTournament();
+                    if (typeof event?.scoreboard !== 'undefined') setScoreboard();
+                }
+
+                ws.onerror = function () {
+                    ws.close();
+                }
+
+                ws.onclose = function () {
+                    ws = undefined;
+                    setTimeout(connect);
+                }
+            }
+
+            setTimeout(connect);
+        </script>
+    </body>
+</html>

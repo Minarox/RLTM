@@ -39,3 +39,11 @@ export function getTeamById(teamId: number) {
 
     return teamData;
 }
+
+export function getTeamsBySeasonId(seasonId: number) {
+    return db
+        .select(select)
+        .from(team)
+        .where(eq(team.seasonId, seasonId))
+        .all() as Team[];
+}

@@ -59,3 +59,12 @@ export function getCurrentVersus(tournamentId: string) {
         versusScore: versusScore,
     } as Versus;
 }
+
+export function getVersusBySeasonId(seasonId: number): Versus[] {
+    return db
+        .select(select)
+        .from(versus)
+        .where(eq(versus.seasonId, seasonId))
+        .orderBy(versus.playedAt)
+        .all() as Versus[];
+}
