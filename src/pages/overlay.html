@@ -97,7 +97,7 @@
                 if (data?.versus?.length && data?.versus?.versusScore) {
                     const highestScore = Math.max(data.versus.versusScore[0], data.versus.versusScore[1]);
                     let versusLength = data.versus.length - 2;
-                    versusLength = highestScore >= versusLength ? highestScore + 1 : versusLength;
+                    versusLength = highestScore >= versusLength ? highestScore : versusLength;
 
                     for (const team in data.versus.versusScore) {
                         const score = data.versus.versusScore[team];
