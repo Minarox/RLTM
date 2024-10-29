@@ -2,7 +2,7 @@ import { and, desc, eq } from "drizzle-orm";
 import db from "../../extensions/database.ts";
 import type { MatchPayload } from "../../types/plugin.ts";
 import { type Match, match } from "../schemas/match.ts";
-import { getArenaById } from "./arena.ts";
+import { getArenaByCode } from "./arena.ts";
 import { getCurrentVersus } from "./versus.ts";
 
 const select = {
@@ -85,7 +85,7 @@ export function getCurrentMatch(tournamentId: string) {
     if (!currentMatch) {
         return undefined;
     }
-    return { ...currentMatch, arena: getArenaById(currentMatch.arenaCode) };
+    return { ...currentMatch, arena: getArenaByCode(currentMatch.arenaCode) };
 }
 
 export function getMatchsByVersus(versusId: number) {

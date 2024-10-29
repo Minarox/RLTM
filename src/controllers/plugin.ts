@@ -1,18 +1,18 @@
 import { Elysia } from "elysia";
-import { getArenaById } from "../database/queries/arena.ts";
+import { getArenaByCode } from "../database/queries/arena.ts";
 import { createOrUpdateMatch, getCurrentMatch, getMatchsByVersus } from "../database/queries/match.ts";
 import { createOrUpdatePlayer } from "../database/queries/player.ts";
 import { createOrUpdateStatistic, getCurrentStatistics } from "../database/queries/statistic.ts";
 import { getTournamentById, getTournamentByToken } from "../database/queries/tournament.ts";
 import type { Match } from "../database/schemas/match.ts";
 import app from "../extensions/app.ts";
+import { Topic } from "../types/app.ts";
 import {
     type EntititesPayload,
     type MatchPayload,
     type PlayersPayload,
     type StatisticPayload
 } from "../types/plugin.ts";
-import { Topic } from "../types/app.ts";
 
 export default new Elysia({
     name: "Main"
@@ -91,7 +91,7 @@ export default new Elysia({
                         }
 
                         if (match?.arenaCode) {
-                            match.map = getArenaById(match.arenaCode) || null;
+                            match.map = getArenaByCode(match.arenaCode) || null;
                         }
                     }
 

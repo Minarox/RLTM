@@ -4,7 +4,6 @@ import type { StatisticsPayload } from "../../types/plugin.ts";
 import { player } from "../schemas/player.ts";
 import { statistic, type Statistic } from "../schemas/statistic.ts";
 import { getCurrentMatch } from "./match.ts";
-import { getCurrentVersus } from "./versus.ts";
 
 const select = {
     id: statistic.id,
@@ -207,7 +206,6 @@ export function getStatistic(matchId: number, playerId: number) {
 
 export function getCurrentStatistics(tournamentId: string) {
     const match = getCurrentMatch(tournamentId);
-    const versus = getCurrentVersus(tournamentId);
 
     if (!match) {
         return undefined;
