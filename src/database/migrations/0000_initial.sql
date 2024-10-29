@@ -135,6 +135,7 @@ CREATE TABLE `versus` (
 	`team_1_id` integer NOT NULL,
 	`team_2_id` integer NOT NULL,
 	`length` integer DEFAULT 5 NOT NULL,
+	`team_forfeit` integer,
 	`created_at` text DEFAULT (CURRENT_TIMESTAMP) NOT NULL,
 	`played_at` text,
 	FOREIGN KEY (`season_id`) REFERENCES `season`(`id`) ON UPDATE no action ON DELETE no action,

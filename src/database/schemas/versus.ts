@@ -9,6 +9,7 @@ export const versus = sqliteTable("versus", {
     team1Id: integer("team_1_id").notNull().references(() => team.id),
     team2Id: integer("team_2_id").notNull().references(() => team.id),
     length: integer("length").notNull().default(5),
+    teamForfeit: integer("team_forfeit"),
     createdAt: text("created_at").notNull().default(sql`(CURRENT_TIMESTAMP)`),
     playedAt: text("played_at")
 });

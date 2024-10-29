@@ -12,6 +12,7 @@ const select = {
     team1Id: versus.team1Id,
     team2Id: versus.team2Id,
     length: versus.length,
+    teamForfeit: versus.teamForfeit,
     playedAt: versus.playedAt
 }
 

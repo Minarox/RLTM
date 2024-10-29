@@ -991,6 +991,13 @@
           "autoincrement": false,
           "default": 5
         },
+        "team_forfeit": {
+          "name": "team_forfeit",
+          "type": "integer",
+          "primaryKey": false,
+          "notNull": false,
+          "autoincrement": false
+        },
         "created_at": {
           "name": "created_at",
           "type": "text",
