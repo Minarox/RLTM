@@ -3,7 +3,7 @@ import { getTournamentById } from "../database/queries/tournament.ts";
 import app from "../extensions/app.ts";
 import { Topic } from "../types/app.ts";
 
-const topics = [Topic.TOURNAMENT, Topic.SEASON, Topic.VERSUS, Topic.MATCH, Topic.STATISTICS];
+const topics = [Topic.TOURNAMENT, Topic.SEASON, Topic.VERSUS, Topic.MATCH, Topic.PLAYERS, Topic.STATISTICS];
 
 export default new Elysia({
     name: "Overlay"
