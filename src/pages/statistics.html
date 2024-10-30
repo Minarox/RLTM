@@ -149,11 +149,11 @@
 
                         const demos = document.createElement('p');
                         demos.id = `demos-${playerUid}`;
-                        demos.innerHTML = statisticData?.Demolish || '0';
+                        demos.innerHTML = statisticData?.demolish || '0';
 
                         const touchs = document.createElement('p');
                         touchs.id = `touchs-${playerUid}`;
-                        touchs.innerHTML = statisticData?.touchs || '0';
+                        touchs.innerHTML = statisticData?.ballTouches || '0';
 
                         const wrapper = document.createElement('div');
                         wrapper.id = playerUid;
