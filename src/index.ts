@@ -3,6 +3,7 @@ import { Elysia } from "elysia";
 import { compression } from "elysia-compression";
 import overlay from "./controllers/overlay.ts";
 import plugin from "./controllers/plugin.ts";
+import scoreboard, { getCurrentScoreboard } from "./controllers/scoreboard.ts";
 import statistics from "./controllers/statistics.ts";
 import versus from "./controllers/versus.ts";
 import { getCurrentMatch } from "./database/queries/match.ts";
@@ -10,8 +11,9 @@ import { getCurrentSeason } from "./database/queries/season.ts";
 import { getCurrentStatistics } from "./database/queries/statistic.ts";
 import { getTournaments } from "./database/queries/tournament.ts";
 import { getCurrentVersus } from "./database/queries/versus.ts";
+import { type Tournament } from "./database/schemas/tournament.ts";
 import app from "./extensions/app.ts";
-import type { Store } from "./types/app.ts";
+import { Topic, type Store } from "./types/app.ts";
 
 new Elysia({
     name: "RLTM"
@@ -38,6 +40,7 @@ new Elysia({
     .use(overlay)
     .use(statistics)
     .use(versus)
+    .use(scoreboard)
 
     .get('/version', ({ store }) => store.version)
 
@@ -45,24 +48,25 @@ new Elysia({
         console.clear();
 
         getTournaments()
-            .forEach((tournament): void => {
+            .forEach((tournament: Tournament): void => {
                 if (!tournament.enabled) return;
-                const season = getCurrentSeason(tournament.id);
-                const versus = getCurrentVersus(tournament.id);
-                const match = getCurrentMatch(tournament.id);
-                const statistics = getCurrentStatistics(tournament.id);
+
+                const season = getCurrentSeason(tournament.id) || null;
+                const versus = season && getCurrentVersus(season.id) || null;
+                const match = versus && getCurrentMatch(versus.id) || null;
+                const statistics = match && getCurrentStatistics(match.id) || null;
+                const scoreboard = season && getCurrentScoreboard(season.id) || null;
 
                 app.state(tournament.id, {
-                    tournament: tournament,
-                    season: season || null,
-                    versus: versus || null,
-                    match: match || null,
-                    statistics: statistics || null,
-                    players: null,
-                    plugin: null
+                    [Topic.TOURNAMENT]: tournament,
+                    [Topic.SEASON]: season,
+                    [Topic.VERSUS]: versus,
+                    [Topic.MATCH]: match,
+                    [Topic.STATISTICS]: statistics,
+                    [Topic.PLAYERS]: null,
+                    [Topic.SCOREBOARD]: scoreboard,
+                    [Topic.PLUGIN]: null
                 } as Store);
-
-                // console.log(app.store[tournament.id].statistics);
             });
 
         app.decorator.log.info(`🚀 RLTM is running at ${server?.url}.`);

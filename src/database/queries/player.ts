@@ -1,6 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import db from "../../extensions/database.ts";
 import type { PlayersPayload } from "../../types/plugin.ts";
+import { car } from "../schemas/car.ts";
 import { player, type Player } from "../schemas/player.ts";
 import { getCarById } from "./car.ts";
 
@@ -23,11 +24,7 @@ export function createOrUpdatePlayer(playerData: PlayersPayload) {
         }
 
         if ([0, 1].includes(playerData.teamIndex)) {
-            if (carExist) {
-                values.carId = playerData.carId
-            } else {
-                values.carId = 23
-            }
+            values.carId = carExist ? playerData.carId : 23;
         }
 
         query = db
@@ -52,8 +49,12 @@ export function createOrUpdatePlayer(playerData: PlayersPayload) {
 
 export function getPlayerById(playerId: number) {
     return db
-        .select(select)
+        .select({
+            ...select,
+            car: car
+        })
         .from(player)
+        .leftJoin(car, eq(player.carId, car.id))
         .where(eq(player.id, playerId))
         .get() as Player;
 }

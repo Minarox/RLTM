@@ -3,7 +3,6 @@ import db from "../../extensions/database.ts";
 import type { StatisticsPayload } from "../../types/plugin.ts";
 import { player } from "../schemas/player.ts";
 import { statistic, type Statistic } from "../schemas/statistic.ts";
-import { getCurrentMatch } from "./match.ts";
 
 const select = {
     id: statistic.id,
@@ -204,13 +203,7 @@ export function getStatistic(matchId: number, playerId: number) {
         .get() as Statistic;
 }
 
-export function getCurrentStatistics(tournamentId: string) {
-    const match = getCurrentMatch(tournamentId);
-
-    if (!match) {
-        return undefined;
-    }
-
+export function getCurrentStatistics(matchId: number) {
     return db
         .select({
             ...select,
@@ -222,6 +215,6 @@ export function getCurrentStatistics(tournamentId: string) {
         )
         .from(statistic)
         .leftJoin(player, eq(statistic.playerId, player.id))
-        .where(eq(statistic.matchId, match.id))
+        .where(eq(statistic.matchId, matchId))
         .all() as Statistic[];
 }

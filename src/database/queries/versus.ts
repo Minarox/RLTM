@@ -1,10 +1,11 @@
 import { and, eq, sql } from "drizzle-orm";
+import { alias } from "drizzle-orm/sqlite-core/alias";
 import db from "../../extensions/database.ts";
 import type { Match } from "../schemas/match.ts";
+import { team } from "../schemas/team.ts";
 import { versus, type Versus } from "../schemas/versus.ts";
 import { getMatchsByVersus } from "./match.ts";
-import { getCurrentSeason } from "./season.ts";
-import { getTeamById } from "./team.ts";
+import { getPlayerById } from "./player.ts";
 
 const select = {
     id: versus.id,
@@ -16,16 +17,23 @@ const select = {
     playedAt: versus.playedAt
 }
 
-export function getCurrentVersus(tournamentId: string) {
-    const season = getCurrentSeason(tournamentId);
+export function getCurrentVersus(seasonId: number): Versus | undefined {
     const currentDate: string = new Date().toISOString().split('T')[0];
+    let team1 = alias(team, 't1');
+    let team2 = alias(team, 't2');
 
     const versusData = db
-        .select(select)
+        .select({
+            ...select,
+            team1: team1,
+            team2: team2
+        })
         .from(versus)
+        .leftJoin(team1, eq(versus.team1Id, team1.id))
+        .leftJoin(team2, eq(versus.team2Id, team2.id))
         .where(
             and(
-                eq(versus.seasonId, season?.id),
+                eq(versus.seasonId, seasonId),
                 eq(sql`DATE(${versus.playedAt})`, currentDate)
             )
         )
@@ -34,6 +42,15 @@ export function getCurrentVersus(tournamentId: string) {
     if (!versusData) {
         return undefined;
     }
+
+    ["team1", "team2"].forEach(key => {
+        for (let i = 0; i < versusData[key]?.players.length; i++) {
+            const player = versusData[key].players[i];
+            if (typeof player === "number") {
+                versusData[key].players[i] = getPlayerById(player)
+            }
+        }
+    })
 
     const matchs = getMatchsByVersus(versusData.id);
     let versusScore = [0, 0];
@@ -50,12 +67,6 @@ export function getCurrentVersus(tournamentId: string) {
 
     return {
         ...versusData,
-        team1: {
-            ...getTeamById(versusData.team1Id)
-        },
-        team2: {
-            ...getTeamById(versusData.team2Id)
-        },
         versusScore: versusScore,
     } as Versus;
 }

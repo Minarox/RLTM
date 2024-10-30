@@ -1,9 +1,8 @@
 import { and, desc, eq } from "drizzle-orm";
 import db from "../../extensions/database.ts";
 import type { MatchPayload } from "../../types/plugin.ts";
+import { arena } from "../schemas/arena.ts";
 import { type Match, match } from "../schemas/match.ts";
-import { getArenaByCode } from "./arena.ts";
-import { getCurrentVersus } from "./versus.ts";
 
 const select = {
     id: match.id,
@@ -17,13 +16,8 @@ const select = {
     overtime: match.overtime
 }
 
-export function createOrUpdateMatch(matchData: MatchPayload, tournamentId: string) {
-    const matchFound = getCurrentMatch(tournamentId);
-    const versus = getCurrentVersus(tournamentId);
-
-    if (!versus) {
-        return undefined;
-    }
+export function createOrUpdateMatch(matchData: MatchPayload, versusId: number) {
+    const matchFound = getCurrentMatch(versusId);
 
     let clock;
     if (matchData.isUnlimited) {
@@ -35,7 +29,7 @@ export function createOrUpdateMatch(matchData: MatchPayload, tournamentId: strin
     }
 
     let query;
-    if (matchFound && !matchFound.finished) {
+    if (matchFound && ((!matchData.isEnded && !matchFound.finished) || (matchData.isEnded && !matchFound.finished) || (matchData.isEnded && matchFound.finished))) {
         query = db
             .update(match)
             .set({
@@ -52,7 +46,7 @@ export function createOrUpdateMatch(matchData: MatchPayload, tournamentId: strin
         query = db
             .insert(match)
             .values({
-                versusId: versus.id,
+                versusId: versusId,
                 scoreTeam1: matchData.score[0],
                 scoreTeam2: matchData.score[1],
                 clock: clock,
@@ -68,24 +62,17 @@ export function createOrUpdateMatch(matchData: MatchPayload, tournamentId: strin
         .get() as Match;
 }
 
-export function getCurrentMatch(tournamentId: string) {
-    const versus = getCurrentVersus(tournamentId);
-
-    if (!versus) {
-        return undefined;
-    }
-
-    const currentMatch = db
-        .select(select)
+export function getCurrentMatch(versusId: number) {
+    return db
+        .select({
+            ...select,
+            arena: arena
+        })
         .from(match)
-        .where(eq(match.versusId, versus.id))
+        .leftJoin(arena, eq(match.arenaCode, arena.code))
+        .where(eq(match.versusId, versusId))
         .orderBy(desc(match.createdAt))
         .get() as Match;
-
-    if (!currentMatch) {
-        return undefined;
-    }
-    return { ...currentMatch, arena: getArenaByCode(currentMatch.arenaCode) };
 }
 
 export function getMatchsByVersus(versusId: number) {

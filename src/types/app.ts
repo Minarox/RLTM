@@ -23,6 +23,6 @@ export interface Store {
     match: MatchPayload | null,
     players: PlayersPayload[] | null
     statistics: StatisticsPayload[] | null
-    scoreboard: null
+    scoreboard: any
     plugin: string | null
 }

@@ -10,52 +10,53 @@ import { Topic } from "../types/app.ts";
 
 const topics = [Topic.TOURNAMENT, Topic.SEASON, Topic.SCOREBOARD];
 
-export function getCurrentScoreboard(tournamentId: string) {
-    const season = app.store[tournamentId][Topic.SEASON];
-    const teams = getTeamsBySeasonId(season.id).map((team) => ({
-        ...team,
-        score: 0
-    }));
+export function getCurrentScoreboard(seasonId: number) {
+    const teams = getTeamsBySeasonId(seasonId)
+        .map((team) => ({
+            ...team,
+            score: 0
+        }));
 
-    getVersusBySeasonId(season.id).forEach((vs: Versus) => {
-        if (vs.teamForfeit) {
-            let winner;
-
-            if (vs.teamForfeit === 1) winner = teams.find((team) => team.id === vs.team1Id);
-            if (vs.teamForfeit === 2) winner = teams.find((team) => team.id === vs.team2Id);
-
-            if (winner) winner.score += 3;
-        } else {
-            const matchs = getMatchsByVersus(vs.id);
-            if (matchs.length) {
-                let versusScore = [0, 0];
-
-                matchs.forEach((match: Match) => {
-                    if (match.scoreTeam1 > match.scoreTeam2) {
-                        versusScore[0] += 1;
-                    } else if (match.scoreTeam1 < match.scoreTeam2) {
-                        versusScore[1] += 1;
-                    }
-                });
-
+    getVersusBySeasonId(seasonId)
+        .forEach((vs: Versus) => {
+            if (vs.teamForfeit) {
                 let winner;
-                let loser;
 
-                if (versusScore[0] > versusScore[1]) {
-                    winner = teams.find((team) => team.id === vs.team1Id);
-                    loser = teams.find((team) => team.id === vs.team2Id);
-                } else {
-                    winner = teams.find((team) => team.id === vs.team2Id);
-                    loser = teams.find((team) => team.id === vs.team1Id);
-                }
+                if (vs.teamForfeit === 1) winner = teams.find((team) => team.id === vs.team1Id);
+                if (vs.teamForfeit === 2) winner = teams.find((team) => team.id === vs.team2Id);
 
-                if (winner && loser) {
-                    winner.score += 3;
-                    loser.score += 1;
+                if (winner) winner.score += 3;
+            } else {
+                const matchs = getMatchsByVersus(vs.id);
+                if (matchs.length) {
+                    let versusScore = [0, 0];
+
+                    matchs.forEach((match: Match) => {
+                        if (match.scoreTeam1 > match.scoreTeam2) {
+                            versusScore[0] += 1;
+                        } else if (match.scoreTeam1 < match.scoreTeam2) {
+                            versusScore[1] += 1;
+                        }
+                    });
+
+                    let winner;
+                    let loser;
+
+                    if (versusScore[0] > versusScore[1]) {
+                        winner = teams.find((team) => team.id === vs.team1Id);
+                        loser = teams.find((team) => team.id === vs.team2Id);
+                    } else {
+                        winner = teams.find((team) => team.id === vs.team2Id);
+                        loser = teams.find((team) => team.id === vs.team1Id);
+                    }
+
+                    if (winner && loser) {
+                        winner.score += 3;
+                        loser.score += 1;
+                    }
                 }
             }
-        }
-    })
+        })
 
     return teams.sort((a, b) => b.score - a.score);
 }
