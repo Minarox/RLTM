@@ -17,6 +17,8 @@
         </main>
 
         <script>
+            const url = window.location.href.split('//')[1];
+            const protocol = url.startsWith('localhost') ? 'ws' : 'wss';
             const isForOBS = new URLSearchParams(window.location.search).has('obs');
             let data = {};
 
@@ -68,7 +70,7 @@
             }
 
             function connect() {
-                let ws = new WebSocket(window.location.href);
+                let ws = new WebSocket(`${protocol}://${url}`);
 
                 ws.onmessage = function (event) {
                     event = JSON.parse(event.data);
