@@ -1,7 +1,7 @@
 # Based on https://raw.githubusercontent.com/github/gitignore/main/Node.gitignore
 
 # Logs
-_.log
+*.log
 npm-debug.log_
 yarn-debug.log*
 yarn-error.log*

@@ -1,5 +1,5 @@
-import {createLogger, transports, format, config} from "winston";
 import colors from "colors";
+import { config, createLogger, format, transports } from "winston";
 
 const consoleFormat = format.printf(({ level, message }): string => {
     const color: string = config.npm.colors[level] as string;
@@ -59,8 +59,8 @@ export default createLogger({
             format: consoleFormat
         }),
         new transports.File({
-            dirname: "logs",
-            filename: "latest.log",
+            dirname: "",
+            filename: "all.log",
             format: fileFormat,
             lazy: true,
             maxsize: 1048576,
@@ -70,7 +70,7 @@ export default createLogger({
         }),
         new transports.File({
             level: "error",
-            dirname: "logs",
+            dirname: "",
             filename: "errors.log",
             format: fileFormat,
             lazy: true,
