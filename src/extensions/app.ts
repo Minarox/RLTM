@@ -6,7 +6,7 @@ const app = new Elysia({
     name: "App",
     websocket: {
         perMessageDeflate: true,
-        idleTimeout: 2
+        idleTimeout: 3
     }
 })
     .decorate({
@@ -15,13 +15,6 @@ const app = new Elysia({
     })
 
     .state("version", process.env['npm_package_version'])
-
-    .onRequest(({ request, server, log }): void => {
-        const origin: string = server?.url?.origin ?? '';
-        const path: string = request.url.slice(origin.length);
-
-        log.http(`${request.method} ${path}`);
-    })
 
     .onError(({ error, request, code, server, log }): void => {
         const origin: string = server?.url?.origin ?? '';

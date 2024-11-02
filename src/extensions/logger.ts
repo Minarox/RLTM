@@ -1,12 +1,12 @@
 import colors from "colors";
 import { config, createLogger, format, transports } from "winston";
 
-const consoleFormat = format.printf(({ level, message }): string => {
-    const color: string = config.npm.colors[level] as string;
-    const bgColor: string = `bg${color.slice(0, 1).toUpperCase()}${color.slice(1)}`; // @ts-ignore
-    const status: string = colors.bold(colors[bgColor](` ${level.toUpperCase()} `))
+const currentTime: string = new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' });
 
-    const currentTime: string = new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' });
+const consoleFormat = format.printf(({ level, message }): any => {
+    const color: string = config.npm.colors[level] as string;
+    const bgColor: string = `bg${color.slice(0, 1).toUpperCase()}${color.slice(1)}`;
+    const status: string = colors.bold(colors[bgColor](` ${level.toUpperCase()} `));
 
     if (level === 'http') {
         const split: string[] = message.split(' ');
@@ -25,11 +25,9 @@ const consoleFormat = format.printf(({ level, message }): string => {
     }
 
     return `[${currentTime}] ${status} ${message}`;
-})
+});
 
 const fileFormat = format.printf(({ level, message }): string => {
-    const currentTime: string = new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' });
-
     return JSON.stringify({
         timestamp: currentTime,
         level: level,
@@ -53,7 +51,7 @@ function colorizeMethod(method: string): string {
 }
 
 export default createLogger({
-    level: "info",
+    level: "debug",
     transports: [
         new transports.Console({
             format: consoleFormat

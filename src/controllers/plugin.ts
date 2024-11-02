@@ -3,7 +3,7 @@ import { getArenaByCode } from "../database/queries/arena.ts";
 import { createOrUpdateMatch, getCurrentMatch, getMatchsByVersus } from "../database/queries/match.ts";
 import { createOrUpdatePlayer } from "../database/queries/player.ts";
 import { createOrUpdateStatistic, getCurrentStatistics } from "../database/queries/statistic.ts";
-import { getTournamentById, getTournamentByToken } from "../database/queries/tournament.ts";
+import { getTournamentByToken } from "../database/queries/tournament.ts";
 import type { Match } from "../database/schemas/match.ts";
 import app from "../extensions/app.ts";
 import { Topic } from "../types/app.ts";
@@ -16,39 +16,45 @@ import {
 import { getCurrentScoreboard } from "./scoreboard.ts";
 
 export default new Elysia({
-    name: "Main"
+    name: "Plugin",
+    prefix: "/"
 })
-    .ws("/:tournamentId", {
-        beforeHandle({ set, params }): string | void {
-            if (!app.store.hasOwnProperty(params["tournamentId"]) || !getTournamentById(params["tournamentId"])) {
+    .ws("", {
+        beforeHandle({ set, query }): string | void {
+            if (!query?.hasOwnProperty('token') || !getTournamentByToken(query['token'] as string)) {
+                app.decorator.log.warn(`⚠️ Token not matching or not found in database`);
+
                 set.status = "Not Found";
                 return "NOT_FOUND";
             }
         },
 
         open({ data, id, send }): void {
-            const tournamentId: string = data.params.tournamentId;
+            const tournamentId: string = data.params['tournamentId'];
 
-            if (data.query?.hasOwnProperty('token')) {
-                const token = data.query['token'] as string;
-
-                if (getTournamentByToken(token)) {
-                    app.store[tournamentId][Topic.PLUGIN] = id;
-                    send(JSON.stringify({ valid: true }));
-
-                    // @ts-ignore
-                    const server = app.getServer();
-                    server?.publish(`${tournamentId}_${Topic.PLUGIN}`, JSON.stringify({ [Topic.PLUGIN]: id }));
-                    app.decorator.log.info(`Game "${id}" connected to "${app.store[tournamentId][Topic.TOURNAMENT].name}".`);
-                    return;
-                }
+            if (!app.store[tournamentId][Topic.PLUGIN]) {
+                app.decorator.log.info(`🎮 Game "${id}" connected to "${app.store[tournamentId][Topic.TOURNAMENT].name}".`);
+            } else if (app.store[tournamentId][Topic.PLUGIN] !== id) {
+                app.decorator.log.warning(`🎮 Game "${app.store[tournamentId][Topic.PLUGIN]}" replaced by "${id}" connected to "${app.store[tournamentId][Topic.TOURNAMENT].name}".`);
             }
-        },
 
-        message({ data }, message: any): void {
+            app.store[tournamentId][Topic.PLUGIN] = id;
+            send(JSON.stringify({ valid: true }));
+
             // @ts-ignore
             const server = app.getServer();
-            const tournamentId: string = data.params.tournamentId;
+            server?.publish(`${tournamentId}_${Topic.PLUGIN}`, JSON.stringify({ [Topic.PLUGIN]: id }));
+        },
+
+        message({ data, id, send }, message: any): void {
+            // @ts-ignore
+            const server = app.getServer();
+            const tournamentId: string = data.params['tournamentId'];
+
+            if (id !== app.store[tournamentId][Topic.PLUGIN]) {
+                send(JSON.stringify({ valid: false }));
+                return;
+            }
 
             switch (message?.topic) {
                 case Topic.MATCH:
@@ -120,17 +126,17 @@ export default new Elysia({
         },
 
         close({ data, id }): void {
-            const tournamentId: string = data.params.tournamentId;
+            const tournamentId: string = data.params['tournamentId'];
 
-            if (id === app.store[tournamentId][Topic.PLUGIN]) {
-                app.store[tournamentId][Topic.PLUGIN] = null;
-                app.store[tournamentId][Topic.PLAYERS] = null;
+            if (id !== app.store[tournamentId][Topic.PLUGIN]) return;
 
-                // @ts-ignore
-                const server = app.getServer();
-                server?.publish(`${tournamentId}_${Topic.PLAYERS}`, JSON.stringify({ [Topic.PLAYERS]: null }));
-                server?.publish(`${tournamentId}_${Topic.PLUGIN}`, JSON.stringify({ [Topic.PLUGIN]: null }));
-                app.decorator.log.info(`Game "${id}" disconnected.`);
-            }
+            app.store[tournamentId][Topic.PLUGIN] = null;
+            app.store[tournamentId][Topic.PLAYERS] = null;
+
+            // @ts-ignore
+            const server = app.getServer();
+            server?.publish(`${tournamentId}_${Topic.PLAYERS}`, JSON.stringify({ [Topic.PLAYERS]: null }));
+            server?.publish(`${tournamentId}_${Topic.PLUGIN}`, JSON.stringify({ [Topic.PLUGIN]: null }));
+            app.decorator.log.info(`🎮 Game "${id}" disconnected.`);
         }
     });

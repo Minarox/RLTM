@@ -1,32 +1,17 @@
 import { Elysia } from "elysia";
-import { getTournamentById } from "../database/queries/tournament.ts";
 import app from "../extensions/app.ts";
 import { Topic } from "../types/app.ts";
 
 const topics = [Topic.TOURNAMENT, Topic.SEASON, Topic.VERSUS, Topic.MATCH, Topic.PLAYERS, Topic.STATISTICS, Topic.ENTITIES];
 
 export default new Elysia({
-    name: "Overlay"
+    name: "Overlay",
+    prefix: "/overlay"
 })
-    .get("/:tournamentId/overlay", ({set, params}) => {
-        if (!app.store.hasOwnProperty(params["tournamentId"]) || !getTournamentById(params["tournamentId"])) {
-            set.status = "Not Found";
-            return "NOT_FOUND";
-        }
-
-        return Bun.file('src/pages/overlay.html');
-    })
-
-    .ws("/:tournamentId/overlay", {
-        beforeHandle({ set, params }): string | void {
-            if (!app.store.hasOwnProperty(params["tournamentId"]) || !getTournamentById(params["tournamentId"])) {
-                set.status = "Not Found";
-                return "NOT_FOUND";
-            }
-        },
-
+    .get("", Bun.file('src/pages/overlay.html'))
+    .ws("", {
         open({ data, subscribe, send }): void {
-            const tournamentId: string = data.params.tournamentId;
+            const tournamentId: string = data.params['tournamentId'];
 
             topics.forEach((key: string): void => {
                 subscribe(`${tournamentId}_${key}`);
@@ -35,7 +20,7 @@ export default new Elysia({
         },
 
         close({ data, unsubscribe }): void {
-            const tournamentId: string = data.params.tournamentId;
+            const tournamentId: string = data.params['tournamentId'];
 
             topics.forEach((key: string): void => {
                 unsubscribe(`${tournamentId}_${key}`);

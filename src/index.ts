@@ -1,5 +1,5 @@
 import { staticPlugin } from "@elysiajs/static";
-import { Elysia } from "elysia";
+import { Elysia, t } from "elysia";
 import { compression } from "elysia-compression";
 import overlay from "./controllers/overlay.ts";
 import plugin from "./controllers/plugin.ts";
@@ -9,7 +9,7 @@ import versus from "./controllers/versus.ts";
 import { getCurrentMatch } from "./database/queries/match.ts";
 import { getCurrentSeason } from "./database/queries/season.ts";
 import { getCurrentStatistics } from "./database/queries/statistic.ts";
-import { getTournaments } from "./database/queries/tournament.ts";
+import { getTournamentById, getTournaments } from "./database/queries/tournament.ts";
 import { getCurrentVersus } from "./database/queries/versus.ts";
 import { type Tournament } from "./database/schemas/tournament.ts";
 import app from "./extensions/app.ts";
@@ -36,13 +36,37 @@ new Elysia({
     }))
     .use(app)
 
-    .use(plugin)
-    .use(overlay)
-    .use(statistics)
-    .use(versus)
-    .use(scoreboard)
-
     .get('/version', ({ store }) => store.version)
+
+    .group(
+        "/:tournamentId",
+        {
+            params: t.Object({
+                tournamentId: t.String(),
+            })
+        },
+        (group) => group
+            .guard({
+                beforeHandle({ set, params, path, headers, request }) {
+                    if (headers["upgrade"] !== "websocket") {
+                        app.decorator.log.http(`${request.method} ${path}`);
+                    }
+
+                    if (!app.store.hasOwnProperty(params["tournamentId"]) || !getTournamentById(params["tournamentId"])) {
+                        app.decorator.log.warn(`⚠️ Tournament ${params["tournamentId"]} not found in database.`);
+
+                        set.status = "Not Found";
+                        return "NOT_FOUND";
+                    }
+                },
+            })
+
+            .use(plugin)
+            .use(overlay)
+            .use(statistics)
+            .use(versus)
+            .use(scoreboard)
+    )
 
     .onStart(({ server }): void => {
         console.clear();
@@ -57,6 +81,7 @@ new Elysia({
                 const statistics = match && getCurrentStatistics(match.id) || null;
                 const scoreboard = season && getCurrentScoreboard(season.id) || null;
 
+                app.decorator.log.verbose(`🏬 Load tournament "${tournament.name}" in store`);
                 app.state(tournament.id, {
                     [Topic.TOURNAMENT]: tournament,
                     [Topic.SEASON]: season,
@@ -69,6 +94,6 @@ new Elysia({
                 } as Store);
             });
 
-        app.decorator.log.info(`🚀 RLTM is running at ${server?.url}.`);
+        app.decorator.log.info(`🚀 RLTM is running at ${server?.url}`);
     })
     .listen(3300);

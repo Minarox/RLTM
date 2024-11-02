@@ -62,18 +62,11 @@ export function getCurrentScoreboard(seasonId: number) {
 }
 
 export default new Elysia({
-    name: "Scoreboard"
+    name: "Scoreboard",
+    prefix: "/scoreboard"
 })
-    .get("/:tournamentId/scoreboard", ({set, params}) => {
-        if (!app.store.hasOwnProperty(params["tournamentId"]) || !getTournamentById(params["tournamentId"])) {
-            set.status = "Not Found";
-            return "NOT_FOUND";
-        }
-
-        return Bun.file('src/pages/scoreboard.html');
-    })
-
-    .ws("/:tournamentId/scoreboard", {
+    .get("", Bun.file('src/pages/scoreboard.html'))
+    .ws("", {
         beforeHandle({ set, params }): string | void {
             if (!app.store.hasOwnProperty(params["tournamentId"]) || !getTournamentById(params["tournamentId"])) {
                 set.status = "Not Found";
@@ -82,7 +75,7 @@ export default new Elysia({
         },
 
         open({ data, subscribe, send }): void {
-            const tournamentId: string = data.params.tournamentId;
+            const tournamentId: string = data.params['tournamentId'];
 
             topics.forEach((key: string): void => {
                 subscribe(`${tournamentId}_${key}`);
@@ -91,7 +84,7 @@ export default new Elysia({
         },
 
         close({ data, unsubscribe }): void {
-            const tournamentId: string = data.params.tournamentId;
+            const tournamentId: string = data.params['tournamentId'];
 
             topics.forEach((key: string): void => {
                 unsubscribe(`${tournamentId}_${key}`);
