@@ -17,7 +17,7 @@ let db: BunSQLiteDatabase<any> | null = null;
 
 function database(): BunSQLiteDatabase<any> {
     if (!db) {
-        const sqlite: Database = new Database("src/database/sqlite.db", { create: true });
+        const sqlite: Database = new Database("sqlite.db", { create: true });
         sqlite.exec("PRAGMA journal_mode = WAL;");
 
         db = drizzle(sqlite, { schema: { ...arena, ...car, ...match, ...player, ...season, ...statistic, ...team, ...tournament, ...versus } });
