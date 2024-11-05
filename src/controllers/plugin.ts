@@ -35,7 +35,7 @@ export default new Elysia({
             if (!app.store[tournamentId][Topic.PLUGIN]) {
                 app.decorator.log.info(`🎮 Game "${id}" connected to "${app.store[tournamentId][Topic.TOURNAMENT].name}".`);
             } else if (app.store[tournamentId][Topic.PLUGIN] !== id) {
-                app.decorator.log.warning(`🎮 Game "${app.store[tournamentId][Topic.PLUGIN]}" replaced by "${id}" connected to "${app.store[tournamentId][Topic.TOURNAMENT].name}".`);
+                app.decorator.log.warn(`🎮 Game "${app.store[tournamentId][Topic.PLUGIN]}" replaced by "${id}" connected to "${app.store[tournamentId][Topic.TOURNAMENT].name}".`);
             }
 
             app.store[tournamentId][Topic.PLUGIN] = id;
