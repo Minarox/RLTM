@@ -1,4 +1,5 @@
 import { and, desc, eq } from "drizzle-orm";
+import app from "../../extensions/app.ts";
 import db from "../../extensions/database.ts";
 import type { MatchPayload } from "../../types/plugin.ts";
 import { arena } from "../schemas/arena.ts";
@@ -41,7 +42,11 @@ export function createOrUpdateMatch(matchData: MatchPayload, versusId: number) {
                 finished: matchData.isEnded,
                 overtime: matchData.isOvertime
             })
-            .where(eq(match.id, matchFound.id));
+            .where(eq(match.id, matchFound.id))
+            .returning(select)
+            .get() as Match;
+
+        app.decorator.log.debug(`Update match ${query.id} for versus ${versusId}`);
     } else {
         query = db
             .insert(match)
@@ -54,12 +59,14 @@ export function createOrUpdateMatch(matchData: MatchPayload, versusId: number) {
                 arenaCode: matchData.arenaCode,
                 finished: matchData.isEnded,
                 overtime: matchData.isOvertime
-            });
+            })
+            .returning(select)
+            .get() as Match;
+
+        app.decorator.log.debug(`Create new match ${query.id} for versus ${versusId}`);
     }
 
-    return query
-        .returning(select)
-        .get() as Match;
+    return query;
 }
 
 export function getCurrentMatch(versusId: number) {

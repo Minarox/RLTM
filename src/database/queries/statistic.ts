@@ -1,4 +1,5 @@
 import { and, eq } from "drizzle-orm";
+import app from "../../extensions/app.ts";
 import db from "../../extensions/database.ts";
 import type { StatisticsPayload } from "../../types/plugin.ts";
 import { player } from "../schemas/player.ts";
@@ -126,7 +127,11 @@ export function createOrUpdateStatistic(statisticData: StatisticsPayload, matchI
                     eq(statistic.matchId, matchId),
                     eq(statistic.playerId, playerId)
                 )
-            );
+            )
+            .returning(select)
+            .get() as Statistic;
+
+            app.decorator.log.debug(`Update statistic ${query.id} for player ${playerId} in match ${matchId}`);
     } else {
         query = db
             .insert(statistic)
@@ -182,12 +187,14 @@ export function createOrUpdateStatistic(statisticData: StatisticsPayload, matchI
                 koHeavyBlock: statisticData.KO_HeavyBlock,
                 koPlayerGrabbed: statisticData.KO_PlayerGrabbed,
                 koPlayerThrown: statisticData.KO_PlayerThrown
-            });
+            })
+            .returning(select)
+            .get() as Statistic;
+
+            app.decorator.log.debug(`Create new statistic ${query.id} for player ${playerId} in match ${matchId}`);
     }
 
-    return query
-        .returning(select)
-        .get() as Statistic;
+    return query;
 }
 
 export function getStatistic(matchId: number, playerId: number) {

@@ -1,4 +1,5 @@
 import { and, eq } from "drizzle-orm";
+import app from "../../extensions/app.ts";
 import db from "../../extensions/database.ts";
 import type { PlayersPayload } from "../../types/plugin.ts";
 import { car } from "../schemas/car.ts";
@@ -30,7 +31,11 @@ export function createOrUpdatePlayer(playerData: PlayersPayload) {
         query = db
             .update(player)
             .set(values)
-            .where(eq(player.id, playerFound.id));
+            .where(eq(player.id, playerFound.id))
+            .returning(select)
+            .get() as Player;
+
+        app.decorator.log.debug(`Update ${query.bot ? 'bot' : 'player'} ${query.id} (${query.name})`);
     } else {
         query = db
             .insert(player)
@@ -40,11 +45,13 @@ export function createOrUpdatePlayer(playerData: PlayersPayload) {
                 bot: playerData.bot,
                 carId: carExist ? playerData.carId : 23
             })
+            .returning(select)
+            .get() as Player;
+
+        app.decorator.log.debug(`Create new ${query.bot ? 'bot' : 'player'} ${query.id} (${query.name})`);
     }
 
-    return query
-        .returning(select)
-        .get() as Player;
+    return query;
 }
 
 export function getPlayerById(playerId: number) {
