@@ -1,7 +1,6 @@
 import { Elysia } from "elysia";
 import { getMatchsByVersus } from "../database/queries/match.ts";
 import { getTeamsBySeasonId } from "../database/queries/team.ts";
-import { getTournamentById } from "../database/queries/tournament.ts";
 import { getVersusBySeasonId } from "../database/queries/versus.ts";
 import type { Match } from "../database/schemas/match.ts";
 import type { Versus } from "../database/schemas/versus.ts";
@@ -67,13 +66,6 @@ export default new Elysia({
 })
     .get("", Bun.file('src/pages/scoreboard.html'))
     .ws("", {
-        beforeHandle({ set, params }): string | void {
-            if (!app.store.hasOwnProperty(params["tournamentId"]) || !getTournamentById(params["tournamentId"])) {
-                set.status = "Not Found";
-                return "NOT_FOUND";
-            }
-        },
-
         open({ data, subscribe, send }): void {
             const tournamentId: string = data.params['tournamentId'];
 
