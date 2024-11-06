@@ -4,6 +4,7 @@ import db from "../../extensions/database.ts";
 import type { Match } from "../schemas/match.ts";
 import { team } from "../schemas/team.ts";
 import { versus, type Versus } from "../schemas/versus.ts";
+import { getCarById } from "./car.ts";
 import { getMatchsByVersus } from "./match.ts";
 import { getPlayerById } from "./player.ts";
 
@@ -47,27 +48,33 @@ export function getCurrentVersus(seasonId: number): Versus | undefined {
         for (let i = 0; i < versusData[key]?.players.length; i++) {
             const player = versusData[key].players[i];
             if (typeof player === "number") {
-                versusData[key].players[i] = getPlayerById(player)
+                const playerData = getPlayerById(player);
+
+                if (playerData) {
+                    playerData.car = getCarById(playerData.carId);
+                }
+
+                versusData[key].players[i] = playerData;
             }
         }
     })
 
     const matchs = getMatchsByVersus(versusData.id);
-    let versusScore = [0, 0];
+    let score = [0, 0];
 
     if (matchs) {
         matchs.forEach((match: Match) => {
             if (match.scoreTeam1 > match.scoreTeam2) {
-                versusScore[0] += 1;
+                score[0] += 1;
             } else if (match.scoreTeam1 < match.scoreTeam2) {
-                versusScore[1] += 1;
+                score[1] += 1;
             }
         });
     }
 
     return {
         ...versusData,
-        versusScore: versusScore,
+        score: score,
     } as Versus;
 }
 

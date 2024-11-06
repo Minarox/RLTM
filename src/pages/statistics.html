@@ -82,8 +82,8 @@
 
             function setMatchInfos() {
                 let matchInfos = [];
-                if (data?.versus?.versusScore) {
-                    const index = data.versus.versusScore[0] + data.versus.versusScore[1] + (data?.match?.finished ? 0: 1);
+                if (data?.versus?.score) {
+                    const index = data.versus.score[0] + data.versus.score[1] + (data?.match?.finished ? 0: 1);
                     matchInfos.push(`Match ${index}`);
                 }
                 if (data?.match?.arena) matchInfos.push(data.match.arena.name);

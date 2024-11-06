@@ -79,7 +79,7 @@
                 let tournamentInfos = [];
                 if (data?.tournament?.name) tournamentInfos.push(data.tournament.name);
                 if (data?.season?.name) tournamentInfos.push(data.season.name);
-                if (data?.versus?.versusScore?.length) tournamentInfos.push(`Match ${data.versus.versusScore[0] + data.versus.versusScore[1] + 1}`);
+                if (data?.versus?.score?.length) tournamentInfos.push(`Match ${data.versus.score[0] + data.versus.score[1] + 1}`);
                 tournament.innerHTML = tournamentInfos?.join('&nbsp; - &nbsp;') || '&nbsp;';
             }
 
@@ -96,13 +96,13 @@
                 scoreVersusTeam1.innerHTML = '';
                 scoreVersusTeam2.innerHTML = '';
 
-                if (data?.versus?.length && data?.versus?.versusScore) {
-                    const highestScore = Math.max(data.versus.versusScore[0], data.versus.versusScore[1]);
+                if (data?.versus?.length && data?.versus?.score) {
+                    const highestScore = Math.max(data.versus.score[0], data.versus.score[1]);
                     let versusLength = data.versus.length - 2;
                     versusLength = highestScore >= versusLength ? highestScore : versusLength;
 
-                    for (const team in data.versus.versusScore) {
-                        const score = data.versus.versusScore[team];
+                    for (const team in data.versus.score) {
+                        const score = data.versus.score[team];
                         for (let i = 0; i < versusLength; i++) {
                             const round = document.createElement('i');
                             if (i < score) round.classList.add("fill");
