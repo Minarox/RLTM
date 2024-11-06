@@ -21,23 +21,36 @@ function loadStore(): void {
         .forEach((tournament: Tournament): void => {
             if (!tournament.enabled) return;
 
+            const oldData = app.store[tournament.id] ? Object.assign({}, app.store[tournament.id]) : null;
             const season = getCurrentSeason(tournament.id) || null;
             const versus = season && getCurrentVersus(season.id) || null;
             const match = versus && getCurrentMatch(versus.id) || null;
             const statistics = match && getCurrentStatistics(match.id) || null;
             const scoreboard = season && getCurrentScoreboard(season.id) || null;
 
-            app.decorator.log.verbose(`🏬 Load tournament "${tournament.name}" in store`);
             app.state(tournament.id, {
                 [Topic.TOURNAMENT]: tournament,
                 [Topic.SEASON]: season,
                 [Topic.VERSUS]: versus,
                 [Topic.MATCH]: match,
                 [Topic.STATISTICS]: statistics,
-                [Topic.PLAYERS]: null,
+                [Topic.PLAYERS]: oldData ? oldData[Topic.PLAYERS] : null,
                 [Topic.SCOREBOARD]: scoreboard,
-                [Topic.PLUGIN]: null
+                [Topic.PLUGIN]: oldData ? oldData[Topic.PLUGIN] : null
             } as Store);
+
+            app.decorator.log.verbose(`🏬 ${oldData ? 'Update' : 'Load'} tournament "${tournament.name}" in store`);
+
+            if (oldData) {
+                // @ts-ignore
+                const server = app.getServer();
+                Object.keys(oldData)
+                    .forEach((key) => {
+                        if (JSON.stringify(oldData[key]) !== app.store[tournament.id][key]) {
+                            server?.publish(`${tournament.id}_${key}`, JSON.stringify({ [key]: app.store[tournament.id][key] || null }));
+                        }
+                    })
+            }
         });
 }
 
