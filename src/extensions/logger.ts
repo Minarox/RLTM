@@ -1,8 +1,6 @@
 import colors from "colors";
 import { config, createLogger, format, transports } from "winston";
 
-const currentTime: string = new Date().toLocaleString('fr-FR', { timeZone: 'Europe/Paris' });
-
 const consoleFormat = format.printf(({ level, message }): any => {
     const color: string = config.npm.colors[level] as string;
     const bgColor: string = `bg${color.slice(0, 1).toUpperCase()}${color.slice(1)}`;
@@ -24,12 +22,12 @@ const consoleFormat = format.printf(({ level, message }): any => {
         message = `${method} ${splitRequest.slice(1, 2).join(' ')} ${code}\r\n${split[1].slice(1)}`;
     }
 
-    return `[${currentTime}] ${status} ${message}`;
+    return `[${new Date().toLocaleString('fr-FR', { timeZone: 'UTC' })}] ${status} ${message}`;
 });
 
 const fileFormat = format.printf(({ level, message }): string => {
     return JSON.stringify({
-        timestamp: currentTime,
+        timestamp: new Date().toLocaleString('fr-FR', { timeZone: 'UTC' }),
         level: level,
         message: message
     })
