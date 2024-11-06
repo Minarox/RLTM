@@ -42,6 +42,7 @@
     "typescript": "^5.5.4"
   },
   "dependencies": {
+    "@elysiajs/cron": "^1.1.1",
     "@elysiajs/static": "^1.1.1",
     "colors": "^1.4.0",
     "drizzle-orm": "^0.33.0",

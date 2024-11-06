@@ -1,3 +1,4 @@
+import cron from "@elysiajs/cron";
 import { staticPlugin } from "@elysiajs/static";
 import { Elysia, t } from "elysia";
 import { compression } from "elysia-compression";
@@ -15,25 +16,63 @@ import { type Tournament } from "./database/schemas/tournament.ts";
 import app from "./extensions/app.ts";
 import { Topic, type Store } from "./types/app.ts";
 
+function loadStore(): void {
+    getTournaments()
+        .forEach((tournament: Tournament): void => {
+            if (!tournament.enabled) return;
+
+            const season = getCurrentSeason(tournament.id) || null;
+            const versus = season && getCurrentVersus(season.id) || null;
+            const match = versus && getCurrentMatch(versus.id) || null;
+            const statistics = match && getCurrentStatistics(match.id) || null;
+            const scoreboard = season && getCurrentScoreboard(season.id) || null;
+
+            app.decorator.log.verbose(`🏬 Load tournament "${tournament.name}" in store`);
+            app.state(tournament.id, {
+                [Topic.TOURNAMENT]: tournament,
+                [Topic.SEASON]: season,
+                [Topic.VERSUS]: versus,
+                [Topic.MATCH]: match,
+                [Topic.STATISTICS]: statistics,
+                [Topic.PLAYERS]: null,
+                [Topic.SCOREBOARD]: scoreboard,
+                [Topic.PLUGIN]: null
+            } as Store);
+        });
+}
+
 new Elysia({
     name: "RLTM"
 })
-    .use(compression({
-        type: 'gzip',
-        options: {
-            level: 9,
-            memLevel: 9
-        }
-    }))
-    .use(staticPlugin({
-        assets: 'assets',
-        alwaysStatic: true,
-        noExtension: false,
-        noCache: process.env['NODE_ENV'] === "development",
-        directive: process.env['NODE_ENV'] === "development" ? "no-cache" : "public",
-        indexHTML: false,
-        prefix: '/assets/',
-    }))
+    .use(
+        compression({
+            type: 'gzip',
+            options: {
+                level: 9,
+                memLevel: 9
+            }
+        })
+    )
+    .use(
+        staticPlugin({
+            assets: 'assets',
+            alwaysStatic: true,
+            noExtension: false,
+            noCache: process.env['NODE_ENV'] === "development",
+            directive: process.env['NODE_ENV'] === "development" ? "no-cache" : "public",
+            indexHTML: false,
+            prefix: '/assets/',
+        })
+    )
+    .use(
+        cron({
+            name: 'updateStore',
+            pattern: '0 0 0 * * *',
+            run() {
+                loadStore();
+            }
+        })
+    )
     .use(app)
 
     .get('/version', ({ store }) => store.version)
@@ -70,30 +109,7 @@ new Elysia({
 
     .onStart(({ server }): void => {
         console.clear();
-
-        getTournaments()
-            .forEach((tournament: Tournament): void => {
-                if (!tournament.enabled) return;
-
-                const season = getCurrentSeason(tournament.id) || null;
-                const versus = season && getCurrentVersus(season.id) || null;
-                const match = versus && getCurrentMatch(versus.id) || null;
-                const statistics = match && getCurrentStatistics(match.id) || null;
-                const scoreboard = season && getCurrentScoreboard(season.id) || null;
-
-                app.decorator.log.verbose(`🏬 Load tournament "${tournament.name}" in store`);
-                app.state(tournament.id, {
-                    [Topic.TOURNAMENT]: tournament,
-                    [Topic.SEASON]: season,
-                    [Topic.VERSUS]: versus,
-                    [Topic.MATCH]: match,
-                    [Topic.STATISTICS]: statistics,
-                    [Topic.PLAYERS]: null,
-                    [Topic.SCOREBOARD]: scoreboard,
-                    [Topic.PLUGIN]: null
-                } as Store);
-            });
-
+        loadStore();
         app.decorator.log.info(`🚀 RLTM is running at ${server?.url}`);
     })
     .listen(3300);
