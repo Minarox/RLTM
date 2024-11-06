@@ -51,7 +51,7 @@ function colorizeMethod(method: string): string {
 }
 
 export default createLogger({
-    level: "debug",
+    level: "verbose",
     transports: [
         new transports.Console({
             format: consoleFormat
