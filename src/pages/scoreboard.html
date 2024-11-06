@@ -39,33 +39,36 @@
             function setScoreboard() {
                 scoreboard.innerHTML = '';
 
-                for (let i = 0; i < data?.scoreboard?.length; i++) {
-                    const team = data.scoreboard[i];
+                if (data?.teams) {
+                    for (let i = 0; i < data?.scoreboard?.length; i++) {
+                        const team = data.scoreboard[i];
+                        const teamData = data.teams.find((t) => t.id === team.id);
 
-                    const wrapper = document.createElement('div');
-                    wrapper.id = team.id;
-                    wrapper.style.border = `1px solid ${team.color || '#FFFFFF'}`;
+                        const wrapper = document.createElement('div');
+                        wrapper.id = teamData.id;
+                        wrapper.style.border = `1px solid ${teamData.color || '#FFFFFF'}`;
 
-                    const position = document.createElement('p');
-                    position.innerHTML = i + 1;
+                        const position = document.createElement('p');
+                        position.innerHTML = i + 1;
 
-                    const logo = document.createElement('img');
-                    logo.src = team.logo ? `data:image/png;base64,${team.logo || ''}` : '';
-                    logo.alt = 'Logo ' + team.name;
-                    logo.title = team.name;
+                        const logo = document.createElement('img');
+                        logo.src = teamData.logo ? `data:image/png;base64,${teamData.logo || ''}` : '';
+                        logo.alt = 'Logo ' + teamData.name;
+                        logo.title = teamData.name;
 
-                    const name = document.createElement('p');
-                    name.innerHTML = team.name;
+                        const name = document.createElement('p');
+                        name.innerHTML = teamData.name;
 
-                    const div = document.createElement('div');
-                    div.append(logo, name);
+                        const div = document.createElement('div');
+                        div.append(logo, name);
 
-                    const score = document.createElement('p');
-                    score.innerHTML = team.score;
+                        const score = document.createElement('p');
+                        score.innerHTML = teamData.score;
 
-                    const separator = document.createElement('hr');
-                    wrapper.append(position, separator, div, score);
-                    scoreboard.appendChild(wrapper);
+                        const separator = document.createElement('hr');
+                        wrapper.append(position, separator, div, score);
+                        scoreboard.appendChild(wrapper);
+                    }
                 }
             }
 
@@ -77,7 +80,7 @@
                     data = Object.assign(data, event || null);
 
                     if (typeof event?.tournament !== 'undefined' || typeof event?.season !== 'undefined') setTournament();
-                    if (typeof event?.scoreboard !== 'undefined') setScoreboard();
+                    if (typeof event?.teams !== 'undefined' || typeof event?.scoreboard !== 'undefined') setScoreboard();
                 }
 
                 ws.onerror = function () {

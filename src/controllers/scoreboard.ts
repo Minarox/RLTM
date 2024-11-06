@@ -1,16 +1,16 @@
 import { Elysia } from "elysia";
 import { getMatchsByVersus } from "../database/queries/match.ts";
-import { getTeamsBySeasonId } from "../database/queries/team.ts";
+import { getTeamsIdsBySeasonId } from "../database/queries/team.ts";
 import { getVersusBySeasonId } from "../database/queries/versus.ts";
 import type { Match } from "../database/schemas/match.ts";
 import type { Versus } from "../database/schemas/versus.ts";
 import app from "../extensions/app.ts";
 import { Topic } from "../types/app.ts";
 
-const topics = [Topic.TOURNAMENT, Topic.SEASON, Topic.SCOREBOARD];
+const topics = [Topic.TOURNAMENT, Topic.SEASON, Topic.TEAMS, Topic.SCOREBOARD];
 
 export function getCurrentScoreboard(seasonId: number) {
-    const teams = getTeamsBySeasonId(seasonId)
+    const teams = getTeamsIdsBySeasonId(seasonId)
         .map((team) => ({
             ...team,
             score: 0

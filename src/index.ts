@@ -10,6 +10,7 @@ import versus from "./controllers/versus.ts";
 import { getCurrentMatch } from "./database/queries/match.ts";
 import { getCurrentSeason } from "./database/queries/season.ts";
 import { getCurrentStatistics } from "./database/queries/statistic.ts";
+import { getTeamsBySeasonId } from "./database/queries/team.ts";
 import { checkTournament, getTournaments } from "./database/queries/tournament.ts";
 import { getCurrentVersus } from "./database/queries/versus.ts";
 import { type Tournament } from "./database/schemas/tournament.ts";
@@ -23,6 +24,7 @@ function loadStore(): void {
 
             const oldData = app.store[tournament.id] ? Object.assign({}, app.store[tournament.id]) : null;
             const season = getCurrentSeason(tournament.id) || null;
+            const teams = getTeamsBySeasonId(season?.id) || null;
             const versus = season && getCurrentVersus(season.id) || null;
             const match = versus && getCurrentMatch(versus.id) || null;
             const statistics = match && getCurrentStatistics(match.id) || null;
@@ -31,6 +33,7 @@ function loadStore(): void {
             app.state(tournament.id, {
                 [Topic.TOURNAMENT]: tournament,
                 [Topic.SEASON]: season,
+                [Topic.TEAMS]: teams,
                 [Topic.VERSUS]: versus,
                 [Topic.MATCH]: match,
                 [Topic.STATISTICS]: statistics,

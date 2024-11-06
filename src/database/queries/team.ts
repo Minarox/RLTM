@@ -13,15 +13,7 @@ const select = {
     color: team.color
 }
 
-export function getTeamById(teamId: number) {
-    const teamData = db
-        .select(select)
-        .from(team)
-        .where(eq(team.id, teamId))
-        .get() as Team;
-
-    if (!teamData) return undefined
-
+function addPlayersToTeam(teamData: Team) {
     if (teamData.players) {
         teamData.players = (teamData.players as any[])
             .map((player) => {
@@ -36,13 +28,24 @@ export function getTeamById(teamId: number) {
                 return player;
             })
     }
-
-    return teamData;
 }
 
 export function getTeamsBySeasonId(seasonId: number) {
-    return db
+    const teamData = db
         .select(select)
+        .from(team)
+        .where(eq(team.seasonId, seasonId))
+        .all() as Team[];
+
+    teamData.forEach(addPlayersToTeam);
+    return teamData;
+}
+
+export function getTeamsIdsBySeasonId(seasonId: number) {
+    return db
+        .select({
+            id: team.id
+        })
         .from(team)
         .where(eq(team.seasonId, seasonId))
         .all() as Team[];
