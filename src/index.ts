@@ -4,7 +4,7 @@ import { Elysia, t } from "elysia";
 import { compression } from "elysia-compression";
 import overlay from "./controllers/overlay.ts";
 import plugin from "./controllers/plugin.ts";
-import scoreboard, { getCurrentScoreboard } from "./controllers/scoreboard.ts";
+import results, { getResults } from "./controllers/results.ts";
 import statistics from "./controllers/statistics.ts";
 import versus from "./controllers/versus.ts";
 import { getCurrentMatch } from "./database/queries/match.ts";
@@ -24,21 +24,21 @@ function loadStore(): void {
 
             const oldData = app.store[tournament.id] ? Object.assign({}, app.store[tournament.id]) : null;
             const season = getCurrentSeason(tournament.id) || null;
-            const teams = getTeamsBySeasonId(season?.id) || null;
+            const teams = season && getTeamsBySeasonId(season.id) || null;
+            const results = season && getResults(season.id) || null;
             const versus = season && getCurrentVersus(season.id) || null;
             const match = versus && getCurrentMatch(versus.id) || null;
             const statistics = match && getCurrentStatistics(match.id) || null;
-            const scoreboard = season && getCurrentScoreboard(season.id) || null;
 
             app.state(tournament.id, {
                 [Topic.TOURNAMENT]: tournament,
                 [Topic.SEASON]: season,
                 [Topic.TEAMS]: teams,
+                [Topic.RESULTS]: results,
                 [Topic.VERSUS]: versus,
                 [Topic.MATCH]: match,
                 [Topic.STATISTICS]: statistics,
                 [Topic.PLAYERS]: oldData ? oldData[Topic.PLAYERS] : null,
-                [Topic.SCOREBOARD]: scoreboard,
                 [Topic.PLUGIN]: oldData ? oldData[Topic.PLUGIN] : null
             } as Store);
 
@@ -120,7 +120,7 @@ new Elysia({
             .use(overlay)
             .use(statistics)
             .use(versus)
-            .use(scoreboard)
+            .use(results)
     )
 
     .onStart(({ server }): void => {

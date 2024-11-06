@@ -1,10 +1,9 @@
 import { Elysia } from "elysia";
 import { getArenaByCode } from "../database/queries/arena.ts";
-import { createOrUpdateMatch, getCurrentMatch, getMatchsByVersus } from "../database/queries/match.ts";
+import { createOrUpdateMatch, getCurrentMatch } from "../database/queries/match.ts";
 import { createOrUpdatePlayer } from "../database/queries/player.ts";
 import { createOrUpdateStatistic, getCurrentStatistics } from "../database/queries/statistic.ts";
 import { checkTournament } from "../database/queries/tournament.ts";
-import type { Match } from "../database/schemas/match.ts";
 import app from "../extensions/app.ts";
 import { Topic } from "../types/app.ts";
 import {
@@ -13,7 +12,7 @@ import {
     type PlayersPayload,
     type StatisticPayload
 } from "../types/plugin.ts";
-import { getCurrentScoreboard } from "./scoreboard.ts";
+import { getResults } from "./results.ts";
 
 export default new Elysia({
     name: "Plugin",
@@ -74,32 +73,25 @@ export default new Elysia({
                                 app.store[tournamentId][Topic.STATISTICS] = currentStatistics;
                                 server?.publish(`${tournamentId}_${Topic.STATISTICS}`, JSON.stringify({ [Topic.STATISTICS]: currentStatistics }));
                             }
+                        }
 
-                            const matchs = getMatchsByVersus(app.store[tournamentId][Topic.VERSUS].id)
-                            let versusScore = [0, 0];
-                            if (matchs) {
-                                matchs.forEach((match: Match) => {
-                                    if (match.scoreTeam1 > match.scoreTeam2) {
-                                        versusScore[0] += 1;
-                                    } else if (match.scoreTeam1 < match.scoreTeam2) {
-                                        versusScore[1] += 1;
-                                    }
-                                });
+                        if (match?.isEnded) {
+                            const results = getResults(app.store[tournamentId][Topic.SEASON].id);
+                            if (app.store[tournamentId][Topic.RESULTS] !== results) {
+                                app.store[tournamentId][Topic.RESULTS] = results;
+                                server?.publish(`${tournamentId}_${Topic.RESULTS}`, JSON.stringify({ [Topic.RESULTS]: app.store[tournamentId][Topic.RESULTS] }));
                             }
 
-                            if (app.store[tournamentId][Topic.VERSUS].versusScore !== versusScore) {
-                                app.store[tournamentId][Topic.VERSUS].versusScore = versusScore;
-                                server?.publish(`${tournamentId}_${Topic.VERSUS}`, JSON.stringify({ versus: app.store[tournamentId][Topic.VERSUS] }));
-
-                                app.store[tournamentId][Topic.SCOREBOARD] = getCurrentScoreboard(app.store[tournamentId][Topic.SEASON].id);
-                                server?.publish(`${tournamentId}_${Topic.SCOREBOARD}`, JSON.stringify({ versus: app.store[tournamentId][Topic.SCOREBOARD] }));
+                            const currentScore = app.store[tournamentId][Topic.RESULTS]?.find((versus) => versus.id === app.store[tournamentId][Topic.VERSUS].id)?.score
+                            if (currentScore && app.store[tournamentId][Topic.VERSUS].score !== currentScore) {
+                                app.store[tournamentId][Topic.VERSUS].score = currentScore;
+                                server?.publish(`${tournamentId}_${Topic.VERSUS}`, JSON.stringify({ [Topic.VERSUS]: app.store[tournamentId][Topic.VERSUS] }));
                             }
                         }
 
                         if (match?.arenaCode) {
                             match.map = getArenaByCode(match.arenaCode) || null;
                         }
-
 
                         const currentMatch = getCurrentMatch(app.store[tournamentId][Topic.VERSUS].id) || null;
                         app.store[tournamentId][Topic.MATCH] = currentMatch;

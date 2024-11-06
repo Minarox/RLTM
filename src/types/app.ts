@@ -8,13 +8,13 @@ export enum Topic {
     TOURNAMENT = "tournament",
     SEASON = "season",
     TEAMS = 'teams',
+    RESULTS = 'results',
     VERSUS = "versus",
     MATCH = "match",
     PLAYERS = "players",
     STATISTICS = "statistics",
     STATISTIC = "statistic",
     ENTITIES = "entities",
-    SCOREBOARD = "scoreboard",
     PLUGIN = "plugin"
 }
 
@@ -22,10 +22,10 @@ export interface Store {
     tournament: Tournament,
     season: Season | null,
     teams: Team[] | null,
+    results: any
     versus: Versus | null,
     match: MatchPayload | null,
     players: PlayersPayload[] | null
     statistics: StatisticsPayload[] | null
-    scoreboard: any
     plugin: string | null
 }
