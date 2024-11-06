@@ -1,0 +1,70 @@
+@use '../shared/main.scss';
+
+main {
+    display: grid;
+    grid-template-columns: 1fr;
+    grid-template-rows: max-content 1fr;
+
+    > div {
+        justify-self: center;
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        color: white;
+        padding: 1.7rem 8rem;
+        height: 100%;
+        width: fit-content;
+        background-color: rgba(0, 0, 0, 0.7);
+        border-radius: 0 0 16px 16px;
+        text-transform: uppercase;
+        gap: 0.3rem;
+
+        > p:first-of-type {
+            font-size: 2.2em;
+            font-weight: 700;
+        }
+    }
+
+    #results {
+        justify-self: center;
+        display: flex;
+        flex-flow: column wrap;
+        align-items: stretch;
+        justify-content: center;
+        gap: 0.6rem 3rem;
+        color: white;
+        font-size: 1.2em;
+        font-weight: 600;
+        width: min(100%, 900px);
+
+        > div {
+            $logo-size: 62px;
+            $name-size: 1fr;
+            $score-size: 80px;
+
+            padding: 1rem;
+            display: grid;
+            grid-template-columns: $logo-size $name-size $score-size $name-size $logo-size;
+            align-items: center;
+            gap: 1rem;
+            background-color: rgba(0, 0, 0, 0.7);
+            border-radius: 8px;
+
+            > img {
+                max-height: 100%;
+                max-width: 100%;
+                object-fit: contain;
+            }
+
+            > p:nth-of-type(2) {
+                text-align: center;
+                font-size: 1.5em;
+            }
+
+            > p:nth-of-type(3) {
+                text-align: end;
+            }
+        }
+    }
+}

@@ -1,0 +1,99 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <title>Résultats</title>
+        <meta charset="UTF-8">
+        <meta content="width=device-width, initial-scale=1.0" name="viewport">
+        <link rel="stylesheet" href="/assets/css/results.css">
+    </head>
+    <body>
+        <main>
+            <div>
+                <p>Résultats généraux</p>
+                <p id="tournament"></p>
+            </div>
+
+            <article id="results">
+
+            </article>
+        </main>
+
+        <script>
+            const url = window.location.href.split('//')[1];
+            const protocol = url.startsWith('localhost') ? 'ws' : 'wss';
+            const isForOBS = new URLSearchParams(window.location.search).has('obs');
+            let data = {};
+
+
+            const results = document.getElementById('results');
+            const tournament = document.getElementById('tournament');
+
+            if (!isForOBS) {
+                document.body.style.setProperty('background', 'black');
+            }
+
+            function setTournament() {
+                let tournamentInfos = [];
+                if (data?.tournament?.name) tournamentInfos.push(data.tournament.name);
+                if (data?.season?.name) tournamentInfos.push(data.season.name);
+                tournament.innerHTML = tournamentInfos?.join('&nbsp; - &nbsp;') || '&nbsp;';
+            }
+
+            function setResults() {
+                results.innerHTML = '';
+
+                if (data?.teams && data?.results) {
+                    data.results
+                        .filter((versus) => versus.teamForfeit || versus.score[0] || versus.score[1])
+                        .map((versus) => ({
+                            ...versus,
+                            team1: data.teams.find((team) => team.id === versus.team1Id),
+                            team2: data.teams.find((team) => team.id === versus.team2Id)
+                        }))
+                        .forEach((versus) => {
+                            const wrapper = document.createElement('div');
+
+                            const logoTeam1 = document.createElement('img');
+                            const nameTeam1 = document.createElement('p');
+                            logoTeam1.src = versus.team1.logo ? `data:image/png;base64,${versus.team1.logo || ''}` : '';
+                            nameTeam1.innerHTML = versus.team1.name;
+
+                            const score = document.createElement('p');
+                            score.innerHTML = `${versus.score[0]} - ${versus.score[1]}`;
+
+                            const logoTeam2 = document.createElement('img');
+                            const nameTeam2 = document.createElement('p');
+                            logoTeam2.src = versus.team2.logo ? `data:image/png;base64,${versus.team2.logo || ''}` : '';
+                            nameTeam2.innerHTML = versus.team2.name;
+
+                            wrapper.append(logoTeam1, nameTeam1, score, nameTeam2, logoTeam2);
+                            results.append(wrapper);
+                        })
+                }
+            }
+
+            function connect() {
+                let ws = new WebSocket(`${protocol}://${url}`);
+
+                ws.onmessage = function (event) {
+                    event = JSON.parse(event.data);
+                    data = Object.assign(data, event || null);
+
+                    if (typeof event?.tournament !== 'undefined' || typeof event?.season !== 'undefined') setTournament();
+                    if (typeof event?.teams !== 'undefined' || typeof event?.results !== 'undefined') setResults();
+                }
+
+                ws.onerror = function () {
+                    ws.close();
+                }
+
+                ws.onclose = function () {
+                    ws = undefined;
+                    setTimeout(connect);
+                }
+            }
+
+            setTimeout(connect);
+        </script>
+    </body>
+</html>
