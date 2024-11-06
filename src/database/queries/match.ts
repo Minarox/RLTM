@@ -31,17 +31,22 @@ export function createOrUpdateMatch(matchData: MatchPayload, versusId: number) {
 
     let query;
     if (matchFound && ((!matchData.isEnded && !matchFound.finished) || (matchData.isEnded && !matchFound.finished) || (matchData.isEnded && matchFound.finished))) {
+        const data: any = {
+            scoreTeam1: matchData.score[0],
+            scoreTeam2: matchData.score[1],
+            duration: matchData.isUnlimited ? -1 : matchData.duration,
+            arenaCode: matchData.arenaCode,
+            finished: matchData.isEnded,
+            overtime: matchData.isOvertime
+        }
+
+        if (!matchData.isEnded) {
+            data.clock = clock;
+        }
+
         query = db
             .update(match)
-            .set({
-                scoreTeam1: matchData.score[0],
-                scoreTeam2: matchData.score[1],
-                clock: clock,
-                duration: matchData.isUnlimited ? -1 : matchData.duration,
-                arenaCode: matchData.arenaCode,
-                finished: matchData.isEnded,
-                overtime: matchData.isOvertime
-            })
+            .set(data)
             .where(eq(match.id, matchFound.id))
             .returning(select)
             .get() as Match;
