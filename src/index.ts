@@ -9,7 +9,7 @@ import versus from "./controllers/versus.ts";
 import { getCurrentMatch } from "./database/queries/match.ts";
 import { getCurrentSeason } from "./database/queries/season.ts";
 import { getCurrentStatistics } from "./database/queries/statistic.ts";
-import { getTournamentById, getTournaments } from "./database/queries/tournament.ts";
+import { checkTournament, getTournaments } from "./database/queries/tournament.ts";
 import { getCurrentVersus } from "./database/queries/versus.ts";
 import { type Tournament } from "./database/schemas/tournament.ts";
 import app from "./extensions/app.ts";
@@ -52,7 +52,7 @@ new Elysia({
                         app.decorator.log.http(`${request.method} ${path}`);
                     }
 
-                    if (!app.store.hasOwnProperty(params["tournamentId"]) || !getTournamentById(params["tournamentId"])) {
+                    if (!(app.store.hasOwnProperty(params["tournamentId"]) && checkTournament(params["tournamentId"]))) {
                         app.decorator.log.warn(`⚠️ Tournament ${params["tournamentId"]} not found in database.`);
 
                         set.status = "Not Found";

@@ -3,7 +3,7 @@ import { getArenaByCode } from "../database/queries/arena.ts";
 import { createOrUpdateMatch, getCurrentMatch, getMatchsByVersus } from "../database/queries/match.ts";
 import { createOrUpdatePlayer } from "../database/queries/player.ts";
 import { createOrUpdateStatistic, getCurrentStatistics } from "../database/queries/statistic.ts";
-import { getTournamentByToken } from "../database/queries/tournament.ts";
+import { checkTournament } from "../database/queries/tournament.ts";
 import type { Match } from "../database/schemas/match.ts";
 import app from "../extensions/app.ts";
 import { Topic } from "../types/app.ts";
@@ -20,8 +20,8 @@ export default new Elysia({
     prefix: "/"
 })
     .ws("", {
-        beforeHandle({ set, query }): string | void {
-            if (!query?.hasOwnProperty('token') || !getTournamentByToken(query['token'] as string)) {
+        beforeHandle({ set, params, query }): string | void {
+            if (!(query?.hasOwnProperty('token') && checkTournament(params['tournamentId'], query['token']))) {
                 app.decorator.log.warn(`⚠️ Token not matching or not found in database`);
 
                 set.status = "Not Found";
