@@ -1,0 +1,100 @@
+@use '../shared/main.scss';
+
+main {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    right: 0;
+    height: 42px;
+    background-color: rgba($color: #000000, $alpha: 0.5);
+    display: grid;
+    grid-template-columns: max-content 1fr max-content 100px;
+    align-items: center;
+    justify-content: center;
+    text-transform: uppercase;
+    color: white;
+
+    > * {
+        height: 100%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+    }
+
+    > p:first-of-type {
+        padding-inline: 1rem;
+        font-size: 1.1em;
+        font-weight: 700;
+    }
+
+    > hr {
+        width: 3px;
+        border: none;
+        background-color: white;
+    }
+
+    > p:last-of-type {
+        font-size: 1.3em;
+        font-weight: 700;
+        background-color: black;
+    }
+
+    > article {
+        $spacing: 9rem;
+        $duration: 86s;
+
+        width: 100%;
+        overflow: hidden;
+        position: relative;
+
+        section {
+            position: absolute;
+            top: 50%;
+            left: 0;
+            transform: translateY(-50%);
+            animation: scroll $duration infinite linear;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: $spacing;
+            white-space: nowrap;
+
+            > div {
+                width: max-content;
+                display: flex;
+                flex-wrap: nowrap;
+                gap: 0.6rem;
+
+                &:first-of-type {
+                    padding-left: $spacing;
+                }
+
+                > p:nth-of-type(2) {
+                    font-weight: 600;
+                }
+            }
+        }
+
+        #slider2 {
+            animation: scrollOffset $duration infinite linear;
+        }
+
+        @keyframes scroll {
+            from {
+                transform: translateX(calc(0% - $spacing)) translateY(-50%);
+            }
+            to {
+                transform: translateX(calc(-100% - $spacing)) translateY(-50%);
+            }
+        }
+
+        @keyframes scrollOffset {
+            from {
+                transform: translateX(calc(100% - $spacing)) translateY(-50%);
+            }
+            to {
+                transform: translateX(calc(0% - $spacing)) translateY(-50%);
+            }
+        }
+    }
+}

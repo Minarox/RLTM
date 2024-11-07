@@ -1,0 +1,97 @@
+<!DOCTYPE html>
+<html lang="fr">
+    <head>
+        <title>Bandeau</title>
+        <meta charset="UTF-8">
+        <meta content="width=device-width, initial-scale=1.0" name="viewport">
+        <link rel="stylesheet" href="/assets/css/slider.css">
+    </head>
+    <body>
+        <main>
+            <p>Précédents matchs :</p>
+            <article>
+                <section id="slider"></section>
+                <section id="slider2"></section>
+            </article>
+            <hr>
+            <p id="time">00:00</p>
+        </main>
+
+        <script>
+            const url = window.location.href.split('//')[1].split('/').slice(0, 2).join('/');
+            const protocol = url.startsWith('localhost') ? 'ws' : 'wss';
+            const isForOBS = new URLSearchParams(window.location.search).has('obs');
+            let data = {};
+
+            const slider = document.getElementById('slider');
+            const slider2 = document.getElementById('slider2');
+            const time = document.getElementById('time');
+
+            if (!isForOBS) {
+                document.body.style.setProperty('background', 'black');
+            }
+
+            function updateTime() {
+                const date = new Date();
+                const hours = ('0' + date.getHours()).slice(-2);
+                const minutes = ('0' + date.getMinutes()).slice(-2);
+                time.innerHTML = `${hours}:${minutes}`;
+            }
+
+            function setSlider() {
+                slider.innerHTML = '';
+                slider2.innerHTML = '';
+
+                if (data?.teams && data?.results) {
+                    data.results
+                        .filter((versus) => versus.teamForfeit || versus.score[0] || versus.score[1])
+                        .map((versus) => ({
+                            ...versus,
+                            team1: data.teams.find((team) => team.id === versus.team1Id),
+                            team2: data.teams.find((team) => team.id === versus.team2Id)
+                        }))
+                        .forEach((versus) => {
+                            const wrapper = document.createElement('div');
+
+                            const nameTeam1 = document.createElement('p');
+                            nameTeam1.innerHTML = versus.team1.name;
+
+                            const score = document.createElement('p');
+                            score.innerHTML = `${versus.score[0]} - ${versus.score[1]}`;
+
+                            const nameTeam2 = document.createElement('p');
+                            nameTeam2.innerHTML = versus.team2.name;
+
+                            wrapper.append(nameTeam1, score, nameTeam2);
+                            slider.append(wrapper);
+                            slider2.append(wrapper.cloneNode(true));
+                        });
+                }
+            }
+
+            function connect() {
+                let ws = new WebSocket(`${protocol}://${url}/results`);
+
+                ws.onmessage = function (event) {
+                    event = JSON.parse(event.data);
+                    data = Object.assign(data, event || null);
+
+                    if (typeof event?.teams !== 'undefined' || typeof event?.results !== 'undefined') setSlider();
+                }
+
+                ws.onerror = function () {
+                    ws.close();
+                }
+
+                ws.onclose = function () {
+                    ws = undefined;
+                    setTimeout(connect);
+                }
+            }
+
+            updateTime();
+            setInterval(updateTime, 1000);
+            setTimeout(connect);
+        </script>
+    </body>
+</html>
