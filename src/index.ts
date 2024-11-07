@@ -14,7 +14,8 @@ import { getTeamsBySeasonId } from "./database/queries/team.ts";
 import { checkTournament, getTournaments } from "./database/queries/tournament.ts";
 import { getCurrentVersus } from "./database/queries/versus.ts";
 import { type Tournament } from "./database/schemas/tournament.ts";
-import app from "./extensions/app.ts";
+import database from "./extensions/database.ts";
+import logger from "./extensions/logger.ts";
 import { Topic, type Store } from "./types/app.ts";
 
 function loadStore(): void {
@@ -57,8 +58,12 @@ function loadStore(): void {
         });
 }
 
-new Elysia({
-    name: "RLTM"
+export const app = new Elysia({
+    name: "RLTM",
+    websocket: {
+        perMessageDeflate: true,
+        idleTimeout: 3
+    }
 })
     .use(
         compression({
@@ -85,11 +90,18 @@ new Elysia({
             name: 'updateStore',
             pattern: '0 0 0 * * *',
             run() {
+                if (process.env.NODE_ENV === "test") return;
                 loadStore();
             }
         })
     )
-    .use(app)
+    .decorate({
+        log: logger,
+        db: database
+    })
+
+    .state("version", "1.0.0")
+    .state("plugin_version", "1.0.0")
 
     .get('/version', ({ store }) => store.version)
 
@@ -102,13 +114,13 @@ new Elysia({
         },
         (group) => group
             .guard({
-                beforeHandle({ set, params, path, headers, request }) {
+                beforeHandle({ set, params, path, headers, request, log, store }) {
                     if (headers["upgrade"] !== "websocket") {
-                        app.decorator.log.http(`${request.method} ${path}`);
+                        log.http(`${request.method} ${path}`);
                     }
 
-                    if (!(app.store.hasOwnProperty(params["tournamentId"]) && checkTournament(params["tournamentId"]))) {
-                        app.decorator.log.warn(`⚠️ Tournament ${params["tournamentId"]} not found in database.`);
+                    if (!(store.hasOwnProperty(params["tournamentId"]) && checkTournament(params["tournamentId"]))) {
+                        log.warn(`⚠️ Tournament ${params["tournamentId"]} not found in database.`);
 
                         set.status = "Not Found";
                         return "NOT_FOUND";
@@ -123,9 +135,17 @@ new Elysia({
             .use(results)
     )
 
-    .onStart(({ server }): void => {
+    .onError(({ error, request, code, server, log }): void => {
+        const origin: string = server?.url?.origin ?? '';
+        const path: string = request.url.slice(origin.length);
+
+        log.error(`${request.method} ${path} ${code} | ${error}`);
+    })
+    .onStart(({ server, decorator }): void => {
+        if (process.env.NODE_ENV === "test") return;
         console.clear();
-        loadStore();
-        app.decorator.log.info(`🚀 RLTM is running at ${server?.url}`);
+        decorator.log.info(`🚀 RLTM is running at ${server?.url}`);
     })
     .listen(3300);
+
+loadStore();

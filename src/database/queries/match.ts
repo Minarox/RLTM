@@ -1,6 +1,6 @@
 import { and, desc, eq } from "drizzle-orm";
-import app from "../../extensions/app.ts";
 import db from "../../extensions/database.ts";
+import { app } from "../../index.ts";
 import type { MatchPayload } from "../../types/plugin.ts";
 import { arena } from "../schemas/arena.ts";
 import { type Match, match } from "../schemas/match.ts";

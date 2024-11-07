@@ -1,18 +1,19 @@
-// test/index.test.ts
-import { describe, expect, it } from 'bun:test'
-import { Elysia } from 'elysia'
-import app from '../src/extensions/app.ts'
-import statistics from '../src/controllers/statistics.ts'
+import { describe, expect, test } from 'bun:test'
+import { app } from "../src/index.ts"
 
 describe('Statistics', () => {
-    it('GET /:tournamentId/statistics (without tournamentId)', async (): Promise<void> => {
-        const RLTM = new Elysia().use(app).use(statistics)
-
-        const response: Response = await RLTM
+    test('GET /:tournamentId/statistics (without tournamentId)', async (): Promise<void> => {
+        const responseNotFound: Response = await app
             .handle(new Request('http://localhost/_not_a_tournament_id_/statistics', { method: 'GET' }))
-            .then((res: Response) => res)
 
-            expect(response.status).toBe(404)
-            expect(await response.text()).toBe('NOT_FOUND')
+        expect(responseNotFound.status).toBe(404)
+        expect(await responseNotFound.text()).toBe('NOT_FOUND')
+    })
+
+    test('GET /:tournamentId/statistics', async (): Promise<void> => {
+        const response: Response = await app
+            .handle(new Request('http://localhost/DEFAULT/statistics', { method: 'GET' }))
+
+        expect(response.status).toBe(200)
     })
 })

@@ -1,16 +1,16 @@
-// test/index.test.ts
-import { describe, expect, it } from 'bun:test'
-import { Elysia } from 'elysia'
-import app from '../src/extensions/app.ts'
+import { describe, expect, test } from 'bun:test'
+import { app } from "../src/index.ts"
 
-describe('Index', () => {
-    it('GET /version', async (): Promise<void> => {
-        const RLTM = new Elysia().use(app).get('/version', ({ store }) => store.version)
+describe('App', () => {
+    test("Store", (): void => {
+        expect(app.store.version).toBe("1.0.0")
+        expect(app.store.plugin_version).toBe("1.0.0")
+    })
 
-        const response: string = await RLTM
+    test('GET /version', async (): Promise<void> => {
+        const response: Response = await app
             .handle(new Request('http://localhost/version', { method: 'GET' }))
-            .then((res: Response) => res.text())
 
-        expect(response).toBe(process.env['npm_package_version'] as string)
+        expect(await response.text()).toBe("1.0.0")
     })
 })

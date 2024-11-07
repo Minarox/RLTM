@@ -50,6 +50,7 @@ function colorizeMethod(method: string): string {
 
 export default createLogger({
     level: "verbose",
+    silent: process.env['NODE_ENV'] === "test",
     transports: [
         new transports.Console({
             format: consoleFormat

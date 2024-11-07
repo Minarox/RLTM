@@ -4,7 +4,7 @@ import { createOrUpdateMatch, getCurrentMatch } from "../database/queries/match.
 import { createOrUpdatePlayer } from "../database/queries/player.ts";
 import { createOrUpdateStatistic, getCurrentStatistics } from "../database/queries/statistic.ts";
 import { checkTournament } from "../database/queries/tournament.ts";
-import app from "../extensions/app.ts";
+import { app } from "../index.ts";
 import { Topic } from "../types/app.ts";
 import {
     type EntititesPayload,

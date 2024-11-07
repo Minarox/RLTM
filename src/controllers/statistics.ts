@@ -1,5 +1,5 @@
 import { Elysia } from "elysia";
-import app from "../extensions/app.ts";
+import { app } from "../index.ts";
 import { Topic } from "../types/app.ts";
 
 const topics = [Topic.TOURNAMENT, Topic.SEASON, Topic.VERSUS, Topic.MATCH, Topic.STATISTICS];

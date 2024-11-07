@@ -1,6 +1,6 @@
 import { and, eq } from "drizzle-orm";
-import app from "../../extensions/app.ts";
 import db from "../../extensions/database.ts";
+import { app } from "../../index.ts";
 import type { StatisticsPayload } from "../../types/plugin.ts";
 import { player } from "../schemas/player.ts";
 import { statistic, type Statistic } from "../schemas/statistic.ts";
