@@ -7,6 +7,7 @@ const select = {
     name: tournament.name,
     description: tournament.description,
     logo: tournament.logo,
+    color: tournament.color,
     enabled: tournament.enabled
 }
 
