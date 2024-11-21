@@ -49,8 +49,8 @@
                             let winner;
 
                             if (versus.teamForfeit) {
-                                if (versus.teamForfeit === 1) winner = teams.find((team) => team.id === versus.team1Id);
-                                if (versus.teamForfeit === 2) winner = teams.find((team) => team.id === versus.team2Id);
+                                if (versus.teamForfeit === 1) winner = teams.find((team) => team.id === versus.team2Id);
+                                if (versus.teamForfeit === 2) winner = teams.find((team) => team.id === versus.team1Id);
 
                                 if (winner) winner.score += 3;
                             } else {
