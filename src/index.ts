@@ -11,7 +11,7 @@ import { getCurrentMatch } from "./database/queries/match.ts";
 import { getCurrentSeason } from "./database/queries/season.ts";
 import { getCurrentStatistics } from "./database/queries/statistic.ts";
 import { getTeamsBySeasonId } from "./database/queries/team.ts";
-import { checkTournament, getTournaments } from "./database/queries/tournament.ts";
+import { checkTournamentById, getTournaments } from "./database/queries/tournament.ts";
 import { getCurrentVersus } from "./database/queries/versus.ts";
 import { type Tournament } from "./database/schemas/tournament.ts";
 import database from "./extensions/database.ts";
@@ -105,6 +105,8 @@ export const app = new Elysia({
 
     .get('/version', ({ store }) => store.version)
 
+    .use(plugin)
+
     .group(
         "/:tournamentId",
         {
@@ -119,7 +121,7 @@ export const app = new Elysia({
                         log.http(`${request.method} ${path}`);
                     }
 
-                    if (!(store.hasOwnProperty(params["tournamentId"]) && checkTournament(params["tournamentId"]))) {
+                    if (!(store.hasOwnProperty(params["tournamentId"]) && checkTournamentById(params["tournamentId"]))) {
                         log.warn(`⚠️ Tournament ${params["tournamentId"]} not found in database.`);
 
                         set.status = "Not Found";
@@ -128,7 +130,6 @@ export const app = new Elysia({
                 },
             })
 
-            .use(plugin)
             .use(overlay)
             .use(statistics)
             .use(versus)

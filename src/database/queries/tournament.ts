@@ -1,4 +1,4 @@
-import { and, eq } from "drizzle-orm";
+import { eq } from "drizzle-orm";
 import db from "../../extensions/database.ts";
 import { type Tournament, tournament } from "../schemas/tournament.ts";
 
@@ -11,29 +11,27 @@ const select = {
     enabled: tournament.enabled
 }
 
-export function getTournaments() {
+export function getTournaments(): Tournament[] {
     return db
         .select(select)
         .from(tournament)
         .all() as Tournament[];
 }
 
-export function checkTournament(id: string, token?: string): boolean {
-    let where: any;
-    if (token) {
-        where = and(
-            eq(tournament.id, id),
-            eq(tournament.token, token)
-        );
-    } else {
-        where = eq(tournament.id, id);
-    }
-
+export function checkTournamentById(id: string): boolean {
     return Boolean(
         db
-            .select(select)
+            .select({id: tournament.id})
             .from(tournament)
-            .where(where)
+            .where(eq(tournament.id, id))
             .get() as Tournament
     );
+}
+
+export function getTournamentByToken(token: string): Tournament {
+    return db
+        .select({id: tournament.id})
+        .from(tournament)
+        .where(eq(tournament.token, token))
+        .get() as Tournament;
 }

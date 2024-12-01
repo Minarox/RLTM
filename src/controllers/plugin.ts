@@ -3,7 +3,7 @@ import { getArenaByCode } from "../database/queries/arena.ts";
 import { createOrUpdateMatch, getCurrentMatch } from "../database/queries/match.ts";
 import { createOrUpdatePlayer } from "../database/queries/player.ts";
 import { createOrUpdateStatistic, getCurrentStatistics } from "../database/queries/statistic.ts";
-import { checkTournament } from "../database/queries/tournament.ts";
+import { getTournamentByToken } from "../database/queries/tournament.ts";
 import { app } from "../index.ts";
 import { Topic } from "../types/app.ts";
 import {
@@ -19,8 +19,8 @@ export default new Elysia({
     prefix: "/"
 })
     .ws("", {
-        beforeHandle({ set, params, query }): string | void {
-            if (!(query?.hasOwnProperty('token') && checkTournament(params['tournamentId'], query['token']))) {
+        beforeHandle({ set, query }): string | void {
+            if (!(query?.hasOwnProperty('token') && query['token'] && getTournamentByToken(query['token']))) {
                 app.decorator.log.warn(`⚠️ Token not matching or not found in database`);
 
                 set.status = "Not Found";
@@ -29,7 +29,7 @@ export default new Elysia({
         },
 
         open({ data, id, send }): void {
-            const tournamentId: string = data.params['tournamentId'];
+            const tournamentId: string = getTournamentByToken(data.query['token'] as string).id;
 
             if (!app.store[tournamentId][Topic.PLUGIN]) {
                 app.decorator.log.info(`🎮 Game "${id}" connected to "${app.store[tournamentId][Topic.TOURNAMENT].name}".`);
@@ -48,7 +48,7 @@ export default new Elysia({
         message({ data, id, send }, message: any): void {
             // @ts-ignore
             const server = app.getServer();
-            const tournamentId: string = data.params['tournamentId'];
+            const tournamentId: string = getTournamentByToken(data.query['token'] as string).id;
 
             if (id !== app.store[tournamentId][Topic.PLUGIN]) {
                 send(JSON.stringify({ valid: false }));
@@ -118,7 +118,7 @@ export default new Elysia({
         },
 
         close({ data, id }): void {
-            const tournamentId: string = data.params['tournamentId'];
+            const tournamentId: string = getTournamentByToken(data.query['token'] as string).id;
 
             if (id !== app.store[tournamentId][Topic.PLUGIN]) return;
 
