@@ -82,7 +82,7 @@ export const app = new Elysia({
             noCache: process.env['NODE_ENV'] === "development",
             directive: process.env['NODE_ENV'] === "development" ? "no-cache" : "public",
             indexHTML: false,
-            prefix: '/assets/',
+            prefix: 'assets',
         })
     )
     .use(
