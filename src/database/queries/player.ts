@@ -14,7 +14,7 @@ const select = {
     carId: player.carId
 }
 
-export function createOrUpdatePlayer(playerData: PlayersPayload) {
+export function createOrUpdatePlayer(playerData: PlayersPayload): Player {
     const playerFound = getPlayer(playerData);
     const carExist = !!getCarById(playerData.carId);
 
@@ -54,7 +54,7 @@ export function createOrUpdatePlayer(playerData: PlayersPayload) {
     return query;
 }
 
-export function getPlayerById(playerId: number) {
+export function getPlayerById(playerId: number): Player {
     return db
         .select({
             ...select,
@@ -66,7 +66,7 @@ export function getPlayerById(playerId: number) {
         .get() as Player;
 }
 
-export function getPlayer(playerData: PlayersPayload) {
+export function getPlayer(playerData: PlayersPayload): Player {
     const condition = () => {
         if (playerData.bot) {
             return and(

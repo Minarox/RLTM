@@ -1,8 +1,8 @@
-import db from "../../extensions/database.ts";
-import {type Car, car} from "../schemas/car.ts";
 import { eq } from "drizzle-orm";
+import db from "../../extensions/database.ts";
+import { type Car, car } from "../schemas/car.ts";
 
-export function getCarById(id: number) {
+export function getCarById(id: number): Car {
     return db
         .select()
         .from(car)

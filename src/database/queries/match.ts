@@ -17,7 +17,7 @@ const select = {
     overtime: match.overtime
 }
 
-export function createOrUpdateMatch(matchData: MatchPayload, versusId: number) {
+export function createOrUpdateMatch(matchData: MatchPayload, versusId: number): Match | undefined {
     const matchFound = getCurrentMatch(versusId);
 
     let clock;
@@ -74,7 +74,7 @@ export function createOrUpdateMatch(matchData: MatchPayload, versusId: number) {
     return query;
 }
 
-export function getCurrentMatch(versusId: number) {
+export function getCurrentMatch(versusId: number): Match {
     return db
         .select({
             ...select,
@@ -87,7 +87,7 @@ export function getCurrentMatch(versusId: number) {
         .get() as Match;
 }
 
-export function getMatchsByVersus(versusId: number) {
+export function getMatchsByVersus(versusId: number): Match[] {
     return db
         .select(select)
         .from(match)

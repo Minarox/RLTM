@@ -60,7 +60,7 @@ const select = {
     koPlayerThrown: statistic.koPlayerThrown
 }
 
-export function createOrUpdateStatistic(statisticData: StatisticsPayload, matchId?: number, playerId?: number) {
+export function createOrUpdateStatistic(statisticData: StatisticsPayload, matchId?: number, playerId?: number): Statistic | undefined {
     if (!playerId || !matchId) {
         return undefined;
     }
@@ -197,7 +197,7 @@ export function createOrUpdateStatistic(statisticData: StatisticsPayload, matchI
     return query;
 }
 
-export function getStatistic(matchId: number, playerId: number) {
+export function getStatistic(matchId: number, playerId: number): Statistic {
     return db
         .select(select)
         .from(statistic)
@@ -210,7 +210,7 @@ export function getStatistic(matchId: number, playerId: number) {
         .get() as Statistic;
 }
 
-export function getCurrentStatistics(matchId: number) {
+export function getCurrentStatistics(matchId: number): Statistic[] {
     return db
         .select({
             ...select,

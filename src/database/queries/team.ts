@@ -13,7 +13,7 @@ const select = {
     color: team.color
 }
 
-function addPlayersToTeam(teamData: Team) {
+function addPlayersToTeam(teamData: Team): void {
     if (teamData.players) {
         teamData.players = (teamData.players as any[])
             .map((player) => {
@@ -30,7 +30,7 @@ function addPlayersToTeam(teamData: Team) {
     }
 }
 
-export function getTeamsBySeasonId(seasonId: number) {
+export function getTeamsBySeasonId(seasonId: number): Team[] {
     const teamData = db
         .select(select)
         .from(team)
@@ -41,7 +41,7 @@ export function getTeamsBySeasonId(seasonId: number) {
     return teamData;
 }
 
-export function getTeamsIdsBySeasonId(seasonId: number) {
+export function getTeamsIdsBySeasonId(seasonId: number): Team[] {
     return db
         .select({
             id: team.id

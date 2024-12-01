@@ -7,14 +7,14 @@ const consoleFormat = format.printf(({ level, message }): any => {
     const status: string = colors.bold(colors[bgColor](` ${level.toUpperCase()} `));
 
     if (level === 'http') {
-        const split: string[] = message.split(' ');
+        const split: string[] = (message as string).split(' ');
         const method: string = colorizeMethod(split[0]);
 
         message = `${method} ${split.slice(1).join(' ')}`;
     }
 
     if (level === 'error') {
-        const split: string[] = message.split('|');
+        const split: string[] = (message as string).split('|');
         const splitRequest: string[] = split[0].split(' ');
         const method: string = colorizeMethod(splitRequest[0]);
         const code: string = colors.red(splitRequest[2]);
