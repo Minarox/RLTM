@@ -22,9 +22,11 @@
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
+    "check": "astro check",
     "build": "astro build",
     "preview": "astro preview",
-    "astro": "astro"
+    "test": "vitest run --coverage",
+    "coverage": "vite preview --outDir ./coverage"
   },
   "dependencies": {
     "astro": "^5.5.3"
@@ -35,5 +37,9 @@
       "esbuild",
       "sharp"
     ]
+  },
+  "devDependencies": {
+    "vite": "^6.2.2",
+    "vitest": "^3.0.9"
   }
 }
