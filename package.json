@@ -1,6 +1,24 @@
 {
-  "name": "astro",
+  "name": "rltm",
+  "description": "Rocket League Tournament Manager",
+  "author": {
+    "name": "Mathis Serrieres Maniecki",
+    "email": "contact@minarox.fr",
+    "url": "https://minarox.fr/"
+  },
+  "bugs": {
+    "url": "https://github.com/Minarox/RLTM/issues",
+    "email": "contact@minarox.fr"
+  },
+  "homepage": "https://github.com/Minarox/RLTM#readme",
+  "readme": "./README.md",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/Minarox/RLTM.git"
+  },
   "type": "module",
+  "private": "true",
   "version": "0.0.1",
   "scripts": {
     "dev": "astro dev",
