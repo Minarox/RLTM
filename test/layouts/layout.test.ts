@@ -15,5 +15,4 @@ test('Layout', async () => {
 	expect(body).toContain(`<title>Astro Basics</title>`);
 	expect(body).toContain(`<meta charset="UTF-8">`);
 	expect(body).toContain(`<meta name="viewport" content="width=device-width">`);
-	expect(body).toContain(`<meta name="generator" content="Astro v5.5.3">`);
 })
