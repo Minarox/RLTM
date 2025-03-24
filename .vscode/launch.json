@@ -2,10 +2,46 @@
   "version": "0.2.0",
   "configurations": [
     {
-      "command": "./node_modules/.bin/astro dev",
-      "name": "Development server",
+      "type": "node-terminal",
+      "name": "Dev",
       "request": "launch",
-      "type": "node-terminal"
+      "command": "pnpm dev",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "node-terminal",
+      "name": "Check",
+      "request": "launch",
+      "command": "pnpm check",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "node-terminal",
+      "name": "Build",
+      "request": "launch",
+      "command": "pnpm build",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "node-terminal",
+      "name": "Preview",
+      "request": "launch",
+      "command": "pnpm preview",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "node-terminal",
+      "name": "Test",
+      "request": "launch",
+      "command": "pnpm test",
+      "cwd": "${workspaceFolder}"
+    },
+    {
+      "type": "node-terminal",
+      "name": "Coverage",
+      "request": "launch",
+      "command": "pnpm coverage",
+      "cwd": "${workspaceFolder}"
     }
   ]
 }
