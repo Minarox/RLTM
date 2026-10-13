@@ -4,7 +4,7 @@ import { app } from "../src/index.ts"
 describe('App', () => {
     test("Store", (): void => {
         expect(app.store.version).toBe("1.0.0")
-        expect(app.store.plugin_version).toBe("1.0.0")
+        expect(app.store.plugin_protocol).toBe(2)
     })
 
     test('GET /version', async (): Promise<void> => {

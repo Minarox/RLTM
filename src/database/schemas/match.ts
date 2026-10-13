@@ -6,6 +6,7 @@ import { versus } from "./versus.ts";
 export const match = sqliteTable("match", {
     id: integer("id").primaryKey({ autoIncrement: true }),
     versusId: integer("versus_id").notNull().references(() => versus.id),
+    guid: text("guid"),
     scoreTeam1: integer("score_team_1").notNull().default(0),
     scoreTeam2: integer("score_team_2").notNull().default(0),
     clock: integer("clock"),

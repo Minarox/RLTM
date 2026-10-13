@@ -47,7 +47,6 @@
     "colors": "^1.4.0",
     "drizzle-orm": "^0.44.5",
     "elysia": "^1.3.21",
-    "elysia-compression": "^0.0.7",
     "winston": "^3.17.0"
   }
 }

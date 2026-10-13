@@ -1,7 +1,6 @@
 import cron from "@elysiajs/cron";
 import { staticPlugin } from "@elysiajs/static";
 import { Elysia, t } from "elysia";
-import { compression } from "elysia-compression";
 import overlay from "./controllers/overlay.ts";
 import plugin from "./controllers/plugin.ts";
 import results, { getResults } from "./controllers/results.ts";
@@ -16,7 +15,8 @@ import { getCurrentVersus } from "./database/queries/versus.ts";
 import { type Tournament } from "./database/schemas/tournament.ts";
 import database from "./extensions/database.ts";
 import logger from "./extensions/logger.ts";
-import { Topic, type Store } from "./types/app.ts";
+import { pluginStateTopics, Topic, type Store } from "./types/app.ts";
+import { PLUGIN_PROTOCOL } from "./types/plugin.ts";
 
 function loadStore(): void {
     getTournaments()
@@ -39,8 +39,9 @@ function loadStore(): void {
                 [Topic.VERSUS]: versus,
                 [Topic.MATCH]: match,
                 [Topic.STATISTICS]: statistics,
-                [Topic.PLAYERS]: oldData ? oldData[Topic.PLAYERS] : null,
-                [Topic.PLUGIN]: oldData ? oldData[Topic.PLUGIN] : null
+                // States received from the plugin
+                ...Object.fromEntries(pluginStateTopics.map((topic) => [topic, oldData ? oldData[topic] : null])),
+                connection: oldData ? oldData.connection : null
             } as Store);
 
             app.decorator.log.verbose(`🏬 ${oldData ? 'Update' : 'Load'} tournament "${tournament.name}" in store`);
@@ -65,15 +66,6 @@ export const app = new Elysia({
         idleTimeout: 3
     }
 })
-    .use(
-        compression({
-            type: 'gzip',
-            options: {
-                level: 9,
-                memLevel: 9
-            }
-        })
-    )
     .use(
         staticPlugin({
             assets: 'assets',
@@ -101,7 +93,7 @@ export const app = new Elysia({
     })
 
     .state("version", "1.0.0")
-    .state("plugin_version", "1.0.0")
+    .state("plugin_protocol", PLUGIN_PROTOCOL)
 
     .get('/version', ({ store }) => store.version)
 

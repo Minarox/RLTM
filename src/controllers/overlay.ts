@@ -1,8 +1,8 @@
 import { Elysia } from "elysia";
 import { app } from "../index.ts";
-import { Topic } from "../types/app.ts";
+import { pluginEventTopics, pluginStateTopics, Topic } from "../types/app.ts";
 
-const topics = [Topic.TOURNAMENT, Topic.SEASON, Topic.VERSUS, Topic.MATCH, Topic.PLAYERS, Topic.STATISTICS, Topic.ENTITIES];
+const topics = [Topic.TOURNAMENT, Topic.SEASON, Topic.VERSUS, Topic.MATCH, Topic.STATISTICS, ...pluginStateTopics];
 
 export default new Elysia({
     name: "Overlay",
@@ -17,12 +17,16 @@ export default new Elysia({
                 subscribe(`${tournamentId}_${key}`);
                 send(JSON.stringify({ [key]: app.store[tournamentId][key] }));
             })
+
+            pluginEventTopics.forEach((key: string): void => {
+                subscribe(`${tournamentId}_${key}`);
+            })
         },
 
         close({ data, unsubscribe }): void {
             const tournamentId: string = data.params['tournamentId'];
 
-            topics.forEach((key: string): void => {
+            [...topics, ...pluginEventTopics].forEach((key: string): void => {
                 unsubscribe(`${tournamentId}_${key}`);
             })
         }
