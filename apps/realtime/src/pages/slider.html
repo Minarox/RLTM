@@ -18,8 +18,9 @@
         </main>
 
         <script>
-            const url = window.location.href.split('//')[1].split('/').slice(0, 2).join('/');
-            const protocol = url.startsWith('localhost') ? 'ws' : 'wss';
+            // WebSocket of the results of the tournament: /<tournament>/results
+            const url = `${window.location.host}/${window.location.pathname.split('/')[1]}`;
+            const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
             const isForOBS = new URLSearchParams(window.location.search).has('obs');
             let data = {};
 

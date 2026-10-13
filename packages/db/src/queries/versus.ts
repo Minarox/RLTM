@@ -1,7 +1,8 @@
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, sql, type SQL } from "drizzle-orm";
 import { alias } from "drizzle-orm/sqlite-core/alias";
 import db from "../client.ts";
 import type { Match } from "../schemas/match.ts";
+import { season } from "../schemas/season.ts";
 import { team } from "../schemas/team.ts";
 import { versus, type Versus } from "../schemas/versus.ts";
 import { getCarById } from "./car.ts";
@@ -18,8 +19,7 @@ const select = {
     playedAt: versus.playedAt
 }
 
-export function getCurrentVersus(seasonId: number): Versus | undefined {
-    const currentDate: string = new Date().toISOString().split('T')[0];
+function selectVersusWithTeams(condition: SQL | undefined): Versus | undefined {
     let team1 = alias(team, 't1');
     let team2 = alias(team, 't2');
 
@@ -32,21 +32,17 @@ export function getCurrentVersus(seasonId: number): Versus | undefined {
         .from(versus)
         .leftJoin(team1, eq(versus.team1Id, team1.id))
         .leftJoin(team2, eq(versus.team2Id, team2.id))
-        .where(
-            and(
-                eq(versus.seasonId, seasonId),
-                eq(sql`DATE(${versus.playedAt})`, currentDate)
-            )
-        )
+        .where(condition)
         .get() as Versus;
 
     if (!versusData) {
         return undefined;
     }
 
-    ["team1", "team2"].forEach(key => {
-        for (let i = 0; i < versusData[key]?.players.length; i++) {
-            const player = versusData[key].players[i];
+    (["team1", "team2"] as const).forEach(key => {
+        const players: any[] | undefined = versusData[key]?.players as any[];
+        for (let i = 0; i < (players?.length ?? 0); i++) {
+            const player = players![i];
             if (typeof player === "number") {
                 const playerData = getPlayerById(player);
 
@@ -54,7 +50,7 @@ export function getCurrentVersus(seasonId: number): Versus | undefined {
                     playerData.car = getCarById(playerData.carId);
                 }
 
-                versusData[key].players[i] = playerData;
+                players![i] = playerData;
             }
         }
     })
@@ -76,6 +72,34 @@ export function getCurrentVersus(seasonId: number): Versus | undefined {
         ...versusData,
         score: score,
     } as Versus;
+}
+
+// Versus of the season played today
+export function getCurrentVersus(seasonId: number): Versus | undefined {
+    const currentDate: string = new Date().toISOString().split('T')[0];
+
+    return selectVersusWithTeams(
+        and(
+            eq(versus.seasonId, seasonId),
+            eq(sql`DATE(${versus.playedAt})`, currentDate)
+        )
+    );
+}
+
+// Versus with its teams, their players and the score of the versus
+export function getVersusById(versusId: number): Versus | undefined {
+    return selectVersusWithTeams(eq(versus.id, versusId));
+}
+
+export function isVersusOfTournament(versusId: number, tournamentId: string): boolean {
+    return Boolean(
+        db
+            .select({ id: versus.id })
+            .from(versus)
+            .innerJoin(season, eq(versus.seasonId, season.id))
+            .where(and(eq(versus.id, versusId), eq(season.tournamentId, tournamentId)))
+            .get()
+    );
 }
 
 export function getVersusBySeasonId(seasonId: number): Versus[] {

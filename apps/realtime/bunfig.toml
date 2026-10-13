@@ -1,0 +1,3 @@
+[test]
+# Database of the tests, with its tournament, slots and versus
+preload = ["./tests/setup.ts"]

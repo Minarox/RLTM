@@ -8,7 +8,7 @@
   "scripts": {
     "typecheck": "tsc --noEmit -p .",
     "db:migrate": "drizzle-kit generate",
-    "db:seed": "bun src/seeders/arena.ts; bun src/seeders/car.ts; bun src/seeders/tournament.ts; bun src/seeders/season.ts"
+    "db:seed": "bun src/seeders/arena.ts; bun src/seeders/car.ts; bun src/seeders/tournament.ts; bun src/seeders/season.ts; bun src/seeders/slot.ts"
   },
   "dependencies": {
     "@rltm/shared": "workspace:*",

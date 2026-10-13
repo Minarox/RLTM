@@ -9,6 +9,7 @@ import { car } from "./schemas/car.ts";
 import { match } from "./schemas/match.ts";
 import { player } from "./schemas/player.ts";
 import { season } from "./schemas/season.ts";
+import { slot } from "./schemas/slot.ts";
 import { statistic } from "./schemas/statistic.ts";
 import { team } from "./schemas/team.ts";
 import { tournament } from "./schemas/tournament.ts";
@@ -21,7 +22,7 @@ function database(): BunSQLiteDatabase<any> {
         const sqlite: Database = new Database(getDatabasePath(), { create: true });
         sqlite.exec("PRAGMA journal_mode = WAL;");
 
-        db = drizzle(sqlite, { schema: { ...arena, ...car, ...match, ...player, ...season, ...statistic, ...team, ...tournament, ...versus } });
+        db = drizzle(sqlite, { schema: { ...arena, ...car, ...match, ...player, ...season, ...slot, ...statistic, ...team, ...tournament, ...versus } });
         migrate(db, { migrationsFolder });
     }
 

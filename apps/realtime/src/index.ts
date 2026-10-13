@@ -8,9 +8,10 @@ import plugin from "./controllers/plugin.ts";
 import results from "./controllers/results.ts";
 import statistics from "./controllers/statistics.ts";
 import versus from "./controllers/versus.ts";
+import slotsApi from "./controllers/api/slots.ts";
 import logger from "./extensions/logger.ts";
 import { setServer } from "./live/bus.ts";
-import { loadStore, store as liveStore } from "./live/store.ts";
+import { getSlotLive, getTournamentLive, loadStore } from "./live/store.ts";
 import { assetsDir } from "./paths.ts";
 
 setLogger(logger);
@@ -34,6 +35,7 @@ export const app = new Elysia({
         })
     )
     .use(
+        // Safety net: the current season of the tournaments depends on the date. The other changes refresh the store when they happen.
         cron({
             name: 'updateStore',
             pattern: '0 0 0 * * *',
@@ -54,7 +56,9 @@ export const app = new Elysia({
     .get('/version', ({ store }) => store.version)
 
     .use(plugin)
+    .use(slotsApi)
 
+    // Overlays of the tournament
     .group(
         "/:tournamentId",
         {
@@ -69,7 +73,7 @@ export const app = new Elysia({
                         log.http(`${request.method} ${path}`);
                     }
 
-                    if (!(liveStore.hasOwnProperty(params["tournamentId"]) && checkTournamentById(params["tournamentId"]))) {
+                    if (!(getTournamentLive(params["tournamentId"]) && checkTournamentById(params["tournamentId"]))) {
                         log.warn(`⚠️ Tournament ${params["tournamentId"]} not found in database.`);
 
                         set.status = "Not Found";
@@ -78,10 +82,33 @@ export const app = new Elysia({
                 },
             })
 
-            .use(overlay)
-            .use(statistics)
-            .use(versus)
             .use(results)
+
+            // Overlays of a slot of the tournament
+            .group(
+                "/:slotId",
+                {
+                    params: t.Object({
+                        tournamentId: t.String(),
+                        slotId: t.String(),
+                    })
+                },
+                (slotGroup) => slotGroup
+                    .guard({
+                        beforeHandle({ set, params, log }) {
+                            if (!getSlotLive(params["tournamentId"], params["slotId"])) {
+                                log.warn(`⚠️ Slot ${params["slotId"]} not found in tournament ${params["tournamentId"]}.`);
+
+                                set.status = "Not Found";
+                                return "NOT_FOUND";
+                            }
+                        },
+                    })
+
+                    .use(overlay)
+                    .use(statistics)
+                    .use(versus)
+            )
     )
 
     .onError(({ error, request, code, server, log }): void => {

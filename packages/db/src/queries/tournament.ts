@@ -28,10 +28,10 @@ export function checkTournamentById(id: string): boolean {
     );
 }
 
-export function getTournamentByToken(token: string): Tournament {
+export function getTournamentById(id: string): Tournament | undefined {
     return db
-        .select({id: tournament.id})
+        .select(select)
         .from(tournament)
-        .where(eq(tournament.token, token))
-        .get() as Tournament;
+        .where(eq(tournament.id, id))
+        .get() as Tournament | undefined;
 }
