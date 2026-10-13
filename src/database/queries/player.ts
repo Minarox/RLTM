@@ -1,7 +1,7 @@
 import { and, eq } from "drizzle-orm";
 import db from "../../extensions/database.ts";
 import { app } from "../../index.ts";
-import type { PlayersPayload } from "../../types/plugin.ts";
+import type { PlayerReference } from "../../types/plugin.ts";
 import { car } from "../schemas/car.ts";
 import { player, type Player } from "../schemas/player.ts";
 import { getCarById } from "./car.ts";
@@ -14,9 +14,10 @@ const select = {
     carId: player.carId
 }
 
-export function createOrUpdatePlayer(playerData: PlayersPayload): Player {
+// carId is only known from the players topic, the car of the player is kept without it
+export function createOrUpdatePlayer(playerData: PlayerReference & { carId?: number | undefined }): Player {
     const playerFound = getPlayer(playerData);
-    const carExist = !!getCarById(playerData.carId);
+    const carExist = playerData.carId !== undefined && !!getCarById(playerData.carId);
 
     let query;
     if (playerFound) {
@@ -24,7 +25,7 @@ export function createOrUpdatePlayer(playerData: PlayersPayload): Player {
             name: playerData.name
         }
 
-        if ([0, 1].includes(playerData.teamIndex)) {
+        if (playerData.carId !== undefined && [0, 1].includes(playerData.teamIndex)) {
             values.carId = carExist ? playerData.carId : 23;
         }
 
@@ -43,7 +44,7 @@ export function createOrUpdatePlayer(playerData: PlayersPayload): Player {
                 uid: playerData.uid,
                 name: playerData.name,
                 bot: playerData.bot,
-                carId: carExist ? playerData.carId : 23
+                carId: carExist ? playerData.carId! : 23
             })
             .returning(select)
             .get() as Player;
@@ -66,7 +67,7 @@ export function getPlayerById(playerId: number): Player {
         .get() as Player;
 }
 
-export function getPlayer(playerData: PlayersPayload): Player {
+export function getPlayer(playerData: Pick<PlayerReference, "uid" | "name" | "bot">): Player {
     const condition = () => {
         if (playerData.bot) {
             return and(

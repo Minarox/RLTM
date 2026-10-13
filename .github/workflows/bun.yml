@@ -18,3 +18,7 @@ jobs:
 
       - run: bun install
       - run: bun run build
+      - run: bun run db:seed
+      - run: bun test
+        env:
+          NODE_ENV: test
