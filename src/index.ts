@@ -1,7 +1,6 @@
 import cron from "@elysiajs/cron";
 import { staticPlugin } from "@elysiajs/static";
 import { Elysia, t } from "elysia";
-import { compression } from "elysia-compression";
 import overlay from "./controllers/overlay.ts";
 import plugin from "./controllers/plugin.ts";
 import results, { getResults } from "./controllers/results.ts";
@@ -65,15 +64,6 @@ export const app = new Elysia({
         idleTimeout: 3
     }
 })
-    .use(
-        compression({
-            type: 'gzip',
-            options: {
-                level: 9,
-                memLevel: 9
-            }
-        })
-    )
     .use(
         staticPlugin({
             assets: 'assets',
