@@ -1,6 +1,33 @@
 # RLTM
 Rocket League Tournament Manager
 
+## Structure
+RLTM is a [Bun workspace](https://bun.sh/docs/install/workspaces):
+
+```
+apps/
+  realtime/     Elysia server: plugin WebSocket, overlays (pages, styles, assets), live store
+packages/
+  db/           Drizzle schemas, migrations, seeders, queries and scoring (SQLite)
+  shared/       Topics and messages of the plugin, shared by the apps
+```
+
+The database is `apps/realtime/sqlite.db` by default, or the path of the `DATABASE_URL` environment variable (relative to the working directory).
+
+## Development
+From the root of the repository:
+
+```bash
+bun install
+bun run db:seed     # Arenas, cars, default tournament and season
+bun run dev         # http://localhost:3300
+bun test            # NODE_ENV=test to hide the startup logs
+bun run typecheck
+bun run build && bun run start
+```
+
+`bun run db:migrate` generates a migration after a change of the schemas of `packages/db`. Migrations are applied when the server starts.
+
 ## Dependencies
 - [Bun](https://bun.sh/)
 - [Elysia](https://elysiajs.com/)

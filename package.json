@@ -1,5 +1,6 @@
 {
   "name": "rltm",
+  "private": true,
   "description": "Rocket League Tournament Manager",
   "version": "0.1.0",
   "author": {
@@ -17,36 +18,24 @@
     "type": "git",
     "url": "https://github.com/Minarox/RLTM.git"
   },
-  "module": "src/index.js",
   "type": "module",
+  "workspaces": [
+    "apps/*",
+    "packages/*"
+  ],
   "scripts": {
-    "dev": "run-p sass:watch elysia:dev",
-    "build": "run-s sass:build elysia:build",
-    "start": "run-s build elysia:start",
+    "dev": "bun run --filter @rltm/realtime dev",
+    "build": "bun run --filter @rltm/realtime build",
+    "start": "bun run --filter @rltm/realtime start",
     "test": "bun test",
-    "elysia:dev": "NODE_ENV=development bun --watch src/index.ts",
-    "elysia:build": "bun build --minify --entrypoints src/index.ts --outdir build --target bun",
-    "elysia:start": "bun build/index.js",
-    "db:migrate": "drizzle-kit generate",
-    "db:seed": "bun src/database/seeders/arena.ts; bun src/database/seeders/car.ts; bun src/database/seeders/tournament.ts; bun src/database/seeders/season.ts",
-    "sass:watch": "sass --watch src/styles/pages:assets/css",
-    "sass:build": "sass src/styles/pages:assets/css"
+    "typecheck": "bun run --filter '*' typecheck",
+    "db:migrate": "bun run --filter @rltm/db db:migrate",
+    "db:seed": "bun run --filter @rltm/db db:seed"
   },
   "devDependencies": {
-    "@types/bun": "^1.2.21",
-    "drizzle-kit": "^0.31.4",
-    "npm-run-all": "^4.1.5",
-    "sass": "^1.91.0"
+    "@types/bun": "^1.2.21"
   },
   "peerDependencies": {
     "typescript": "^5.9.2"
-  },
-  "dependencies": {
-    "@elysiajs/cron": "^1.3.0",
-    "@elysiajs/static": "^1.3.0",
-    "colors": "^1.4.0",
-    "drizzle-orm": "^0.44.5",
-    "elysia": "^1.3.21",
-    "winston": "^3.17.0"
   }
 }

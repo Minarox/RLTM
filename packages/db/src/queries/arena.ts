@@ -1,0 +1,11 @@
+import { eq } from "drizzle-orm";
+import db from "../client.ts";
+import { type Arena, arena } from "../schemas/arena.ts";
+
+export function getArenaByCode(code: string): Arena {
+    return db
+        .select()
+        .from(arena)
+        .where(eq(arena.code, code))
+        .get() as Arena;
+}

@@ -1,0 +1,32 @@
+{
+  "name": "@rltm/realtime",
+  "private": true,
+  "type": "module",
+  "module": "src/index.ts",
+  "scripts": {
+    "dev": "run-p sass:watch elysia:dev",
+    "build": "run-s sass:build elysia:build",
+    "start": "run-s build elysia:start",
+    "test": "bun test",
+    "typecheck": "tsc --noEmit -p .",
+    "elysia:dev": "NODE_ENV=development bun --watch src/index.ts",
+    "elysia:build": "bun build --minify-whitespace --minify-syntax --entrypoints src/index.ts --outdir build --target bun --external @rltm/db",
+    "elysia:start": "bun build/index.js",
+    "sass:watch": "sass --watch src/styles/pages:assets/css",
+    "sass:build": "sass src/styles/pages:assets/css"
+  },
+  "dependencies": {
+    "@rltm/db": "workspace:*",
+    "@rltm/shared": "workspace:*",
+    "@elysiajs/cron": "^1.3.0",
+    "@elysiajs/static": "^1.3.0",
+    "colors": "^1.4.0",
+    "elysia": "^1.3.21",
+    "winston": "^3.17.0"
+  },
+  "devDependencies": {
+    "npm-run-all": "^4.1.5",
+    "sass": "^1.91.0",
+    "drizzle-orm": "^0.44.5"
+  }
+}
