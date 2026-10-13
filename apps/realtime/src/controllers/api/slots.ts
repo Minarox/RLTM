@@ -2,6 +2,7 @@ import {
     createSlot,
     deleteSlot,
     getSlotOfTournament,
+    getSlotOfVersus,
     getSlotsByTournamentId,
     getTournamentById,
     isVersusOfTournament,
@@ -38,6 +39,16 @@ export const updateSlotBody = t.Object({
     enabled: t.Optional(t.Boolean())
 });
 
+// Error of the versus to assign to a slot, if any
+function checkVersus(tournamentId: string, versusId: number | null | undefined, slotId?: string): string | undefined {
+    if (!versusId) return undefined;
+    if (!isVersusOfTournament(versusId, tournamentId)) return "VERSUS_NOT_IN_TOURNAMENT";
+
+    // Two slots of a versus would save their matches in it, and show the matches of each other
+    if (getSlotOfVersus(versusId, slotId)) return "VERSUS_ALREADY_ASSIGNED";
+    return undefined;
+}
+
 // Slot with the state of its plugin
 function toResponse(slot: Slot) {
     return {
@@ -64,9 +75,8 @@ export default new Elysia({
     .get("", ({ params }) => getSlotsByTournamentId(params.tournamentId).map(toResponse), { params: tournamentParams })
 
     .post("", ({ params, body, status }) => {
-        if (body.versusId && !isVersusOfTournament(body.versusId, params.tournamentId)) {
-            return status(422, "VERSUS_NOT_IN_TOURNAMENT");
-        }
+        const versusError = checkVersus(params.tournamentId, body.versusId);
+        if (versusError) return status(422, versusError);
 
         const slot = createSlot(params.tournamentId, body);
         refreshSlot(slot.id);
@@ -75,9 +85,8 @@ export default new Elysia({
 
     .patch("/:slotId", ({ params, body, status }) => {
         if (!getSlotOfTournament(params.tournamentId, params.slotId)) return status(404, "SLOT_NOT_FOUND");
-        if (body.versusId && !isVersusOfTournament(body.versusId, params.tournamentId)) {
-            return status(422, "VERSUS_NOT_IN_TOURNAMENT");
-        }
+        const versusError = checkVersus(params.tournamentId, body.versusId, params.slotId);
+        if (versusError) return status(422, versusError);
 
         const slot = updateSlot(params.slotId, body)!;
         refreshSlot(slot.id);

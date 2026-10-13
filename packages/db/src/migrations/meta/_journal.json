@@ -22,6 +22,13 @@
       "when": 1791898406722,
       "tag": "0002_slot",
       "breakpoints": true
+    },
+    {
+      "idx": 3,
+      "version": "6",
+      "when": 1791900078854,
+      "tag": "0003_slot_versus_unique",
+      "breakpoints": true
     }
   ]
 }

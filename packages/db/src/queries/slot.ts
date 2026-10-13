@@ -1,4 +1,4 @@
-import { and, eq, sql } from "drizzle-orm";
+import { and, eq, ne, sql } from "drizzle-orm";
 import db from "../client.ts";
 import { log } from "../logger.ts";
 import { type Slot, slot } from "../schemas/slot.ts";
@@ -82,4 +82,13 @@ export function deleteSlot(slotId: string): boolean {
 
     log.debug(`Delete slot ${slotId}`);
     return Boolean(query);
+}
+
+// Other slot showing the versus: a versus is shown by one slot at most
+export function getSlotOfVersus(versusId: number, exceptSlotId?: string): Slot | undefined {
+    return db
+        .select()
+        .from(slot)
+        .where(and(eq(slot.versusId, versusId), exceptSlotId ? ne(slot.id, exceptSlotId) : undefined))
+        .get() as Slot | undefined;
 }

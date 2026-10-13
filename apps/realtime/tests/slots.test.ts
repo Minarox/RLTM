@@ -123,14 +123,27 @@ describe('Slots API', () => {
         await api('/SECOND', { method: 'PATCH', body: JSON.stringify({ versusId: 2 }) })
     })
 
+    test('A versus is assigned to one slot at most', async (): Promise<void> => {
+        // Versus 1 is shown by the slot DEFAULT
+        const patched = await api('/SECOND', { method: 'PATCH', body: JSON.stringify({ versusId: 1 }) })
+        expect(patched.status).toBe(422)
+        expect(await patched.text()).toBe('VERSUS_ALREADY_ASSIGNED')
+
+        const created = await api('', { method: 'POST', body: JSON.stringify({ name: 'Slot 5', versusId: 1 }) })
+        expect(created.status).toBe(422)
+
+        // Assigning its own versus again to a slot is allowed
+        expect((await api('/DEFAULT', { method: 'PATCH', body: JSON.stringify({ versusId: 1 }) })).status).toBe(200)
+    })
+
     test('Create, regenerate the token and delete a slot', async (): Promise<void> => {
-        const created = await api('', { method: 'POST', body: JSON.stringify({ name: 'Slot 3', versusId: 1 }) })
+        const created = await api('', { method: 'POST', body: JSON.stringify({ name: 'Slot 3', versusId: 3 }) })
         expect(created.status).toBe(201)
         const slot = await created.json()
         expect(slot.token).toMatch(/^[0-9A-F]{76}$/)
 
         const overlay = await connectOverlay(slot.id)
-        expect((await overlay.waitFor((message) => message.versus)).versus.id).toBe(1)
+        expect((await overlay.waitFor((message) => message.versus)).versus.id).toBe(3)
 
         // The plugin connected with the previous token is disconnected and the token refused
         const plugin = await connectPlugin(slot.token)

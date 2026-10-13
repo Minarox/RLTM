@@ -68,7 +68,7 @@ The slots are managed with the API, under `/api/tournaments/<tournament>/slots`.
 | `POST /<slot>/regenerate-token` | | New token, the connected plugin is disconnected |
 | `DELETE /<slot>` | | Delete the slot, its plugin is disconnected |
 
-The overlays of the slot are updated at once. The type of the application is exported (`type App` of `apps/realtime/src/index.ts`) for [Eden Treaty](https://elysiajs.com/eden/treaty/overview).
+A versus is shown by one slot at most: assigning a versus already assigned to another slot (enabled or not) is refused with `422 VERSUS_ALREADY_ASSIGNED`. The overlays of the slot are updated at once. The type of the application is exported (`type App` of `apps/realtime/src/index.ts`) for [Eden Treaty](https://elysiajs.com/eden/treaty/overview).
 
 To get the token of a slot:
 
