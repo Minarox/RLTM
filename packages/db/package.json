@@ -12,9 +12,9 @@
   },
   "dependencies": {
     "@rltm/shared": "workspace:*",
-    "drizzle-orm": "^0.44.5"
+    "drizzle-orm": "^0.45.4"
   },
   "devDependencies": {
-    "drizzle-kit": "^0.31.4"
+    "drizzle-kit": "^0.31.11"
   }
 }

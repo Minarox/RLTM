@@ -33,9 +33,9 @@
     "db:seed": "bun run --filter @rltm/db db:seed"
   },
   "devDependencies": {
-    "@types/bun": "^1.2.21"
+    "@types/bun": "^1.4.3"
   },
   "peerDependencies": {
-    "typescript": "^5.9.2"
+    "typescript": "^7.0.2"
   }
 }

@@ -7,7 +7,7 @@ export default new Elysia({
     name: "Results",
     prefix: ""
 })
-    .get("/results", page('results'))
-    .get("/scoreboard", page('scoreboard'))
-    .get("/slider", page('slider'))
+    .get("/results", () => page('results'))
+    .get("/scoreboard", () => page('scoreboard'))
+    .get("/slider", () => page('slider'))
     .ws("/results", overlaySocket({ tournament: tournamentTopics }));

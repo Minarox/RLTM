@@ -27,8 +27,8 @@ export const app = new Elysia({
         staticPlugin({
             assets: assetsDir,
             alwaysStatic: true,
-            noExtension: false,
-            noCache: process.env['NODE_ENV'] === "development",
+            extension: true,
+            maxAge: process.env['NODE_ENV'] === "development" ? 0 : 86400,
             directive: process.env['NODE_ENV'] === "development" ? "no-cache" : "public",
             indexHTML: false,
             prefix: 'assets',
@@ -79,6 +79,15 @@ export const app = new Elysia({
                         set.status = "Not Found";
                         return "NOT_FOUND";
                     }
+
+                    // Overlays of a slot: the slot must be enabled and belong to the tournament
+                    const slotId = (params as { slotId?: string })["slotId"];
+                    if (slotId !== undefined && !getSlotLive(params["tournamentId"], slotId)) {
+                        log.warn(`⚠️ Slot ${slotId} not found in tournament ${params["tournamentId"]}.`);
+
+                        set.status = "Not Found";
+                        return "NOT_FOUND";
+                    }
                 },
             })
 
@@ -94,17 +103,6 @@ export const app = new Elysia({
                     })
                 },
                 (slotGroup) => slotGroup
-                    .guard({
-                        beforeHandle({ set, params, log }) {
-                            if (!getSlotLive(params["tournamentId"], params["slotId"])) {
-                                log.warn(`⚠️ Slot ${params["slotId"]} not found in tournament ${params["tournamentId"]}.`);
-
-                                set.status = "Not Found";
-                                return "NOT_FOUND";
-                            }
-                        },
-                    })
-
                     .use(overlay)
                     .use(statistics)
                     .use(versus)

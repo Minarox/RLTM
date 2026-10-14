@@ -7,7 +7,7 @@ export default new Elysia({
     name: "Overlay",
     prefix: "/overlay"
 })
-    .get("", page('overlay'))
+    .get("", () => page('overlay'))
     .ws("", overlaySocket({
         tournament: [Topic.TOURNAMENT, Topic.SEASON],
         slot: [Topic.VERSUS, Topic.MATCH, Topic.STATISTICS, ...pluginStateTopics],

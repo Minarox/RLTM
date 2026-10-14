@@ -7,5 +7,5 @@ export default new Elysia({
     name: "Versus",
     prefix: "/versus"
 })
-    .get("", page('versus'))
+    .get("", () => page('versus'))
     .ws("", overlaySocket({ slot: [Topic.VERSUS] }));
