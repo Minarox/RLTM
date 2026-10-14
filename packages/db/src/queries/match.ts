@@ -29,9 +29,11 @@ export interface MatchStatistic {
 // The guid of the game identifies the match: a result received again updates it.
 export function saveMatchResult(resultData: ResultPayload, versusId: number, statistics: MatchStatistic[]): Match {
     return db.transaction(() => {
-        const matchFound = resultData.guid ? getMatchByGuid(resultData.guid, versusId) : undefined;
+        const matchFound = resultData.guid ? getMatchByGuid(resultData.guid) : undefined;
 
+        // The versus of the slot when the match ends: it can be changed during the match
         const data = {
+            versusId: versusId,
             scoreTeam1: resultData.score[0],
             scoreTeam2: resultData.score[1],
             arenaCode: resultData.arenaCode,
@@ -54,7 +56,6 @@ export function saveMatchResult(resultData: ResultPayload, versusId: number, sta
                 .insert(match)
                 .values({
                     ...data,
-                    versusId: versusId,
                     guid: resultData.guid || null,
                     clock: Math.round(resultData.timePlayed),
                     duration: resultData.duration
@@ -74,16 +75,12 @@ export function saveMatchResult(resultData: ResultPayload, versusId: number, sta
     });
 }
 
-export function getMatchByGuid(guid: string, versusId: number): Match | undefined {
+// A match of the game is saved once, whatever its versus
+export function getMatchByGuid(guid: string): Match | undefined {
     return db
         .select(select)
         .from(match)
-        .where(
-            and(
-                eq(match.guid, guid),
-                eq(match.versusId, versusId)
-            )
-        )
+        .where(eq(match.guid, guid))
         .get() as Match | undefined;
 }
 
