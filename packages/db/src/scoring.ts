@@ -1,30 +1,29 @@
-import { getMatchsByVersus } from "./queries/match.ts";
+import { and, eq, sql } from "drizzle-orm";
+import db from "./client.ts";
 import { getVersusBySeasonId } from "./queries/versus.ts";
-import type { Match } from "./schemas/match.ts";
+import { match } from "./schemas/match.ts";
+import { versus } from "./schemas/versus.ts";
 
-// Score of each versus of the season: number of matches won by each team
+// Score of each versus of the season: number of matches won by each team, counted in one query
 export function getResults(seasonId: number) {
+    const wins = new Map(
+        db
+            .select({
+                versusId: match.versusId,
+                team1: sql<number>`sum(${match.scoreTeam1} > ${match.scoreTeam2})`,
+                team2: sql<number>`sum(${match.scoreTeam1} < ${match.scoreTeam2})`
+            })
+            .from(match)
+            .innerJoin(versus, eq(match.versusId, versus.id))
+            .where(and(eq(versus.seasonId, seasonId), eq(match.finished, true)))
+            .groupBy(match.versusId)
+            .all()
+            .map((row) => [row.versusId, [Number(row.team1), Number(row.team2)]])
+    );
+
     return getVersusBySeasonId(seasonId)
-        .map((versus: any) => {
-            versus.score = [0, 0];
-
-            if (!versus.teamForfeit) {
-                const matchs = getMatchsByVersus(versus.id);
-                if (matchs.length) {
-                    let score = [0, 0];
-
-                    matchs.forEach((match: Match) => {
-                        if (match.scoreTeam1 > match.scoreTeam2) {
-                            score[0] += 1;
-                        } else if (match.scoreTeam1 < match.scoreTeam2) {
-                            score[1] += 1;
-                        }
-                    });
-
-                    versus.score = score;
-                }
-            }
-
-            return versus;
-        });
+        .map((versusData: any) => ({
+            ...versusData,
+            score: versusData.teamForfeit ? [0, 0] : wins.get(versusData.id) ?? [0, 0]
+        }));
 }

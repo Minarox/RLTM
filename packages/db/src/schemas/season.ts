@@ -1,5 +1,5 @@
 import { sql, type InferSelectModel } from "drizzle-orm";
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { tournament } from "./tournament.ts";
 
 export const season = sqliteTable("season", {
@@ -13,7 +13,9 @@ export const season = sqliteTable("season", {
     endAt: text("end_at").notNull(),
     createdAt: text("created_at").notNull().default(sql`(CURRENT_TIMESTAMP)`),
     updatedAt: text("updated_at").notNull().default(sql`(CURRENT_TIMESTAMP)`).$onUpdate(() => sql`(CURRENT_TIMESTAMP)`)
-});
+}, (table) => [
+    index("season_tournament").on(table.tournamentId)
+]);
 
 export type Season = InferSelectModel<typeof season> & {
     tournament?: InferSelectModel<typeof tournament>;

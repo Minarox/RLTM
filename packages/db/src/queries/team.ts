@@ -1,8 +1,7 @@
 import { eq } from "drizzle-orm";
 import db from "../client.ts";
 import { type Team, team } from "../schemas/team.ts";
-import { getCarById } from "./car.ts";
-import { getPlayerById } from "./player.ts";
+import { resolveTeamPlayers } from "./player.ts";
 
 const select = {
     id: team.id,
@@ -13,23 +12,6 @@ const select = {
     color: team.color
 }
 
-function addPlayersToTeam(teamData: Team): void {
-    if (teamData.players) {
-        teamData.players = (teamData.players as any[])
-            .map((player) => {
-                if (typeof player === 'number') {
-                    const playerData = getPlayerById(player);
-
-                    if (playerData) {
-                        playerData.car = getCarById(playerData.carId);
-                    }
-                    return playerData;
-                }
-                return player;
-            })
-    }
-}
-
 export function getTeamsBySeasonId(seasonId: number): Team[] {
     const teamData = db
         .select(select)
@@ -37,7 +19,7 @@ export function getTeamsBySeasonId(seasonId: number): Team[] {
         .where(eq(team.seasonId, seasonId))
         .all() as Team[];
 
-    teamData.forEach(addPlayersToTeam);
+    resolveTeamPlayers(teamData);
     return teamData;
 }
 

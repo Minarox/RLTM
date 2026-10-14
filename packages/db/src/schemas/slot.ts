@@ -1,5 +1,5 @@
 import { type InferSelectModel, sql } from "drizzle-orm";
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { tournament } from "./tournament.ts";
 import { versus } from "./versus.ts";
 
@@ -15,6 +15,8 @@ export const slot = sqliteTable("slot", {
     enabled: integer("enabled", { mode: "boolean" }).notNull().default(true),
     createdAt: text("created_at").notNull().default(sql`(CURRENT_TIMESTAMP)`),
     updatedAt: text("updated_at").notNull().default(sql`(CURRENT_TIMESTAMP)`).$onUpdate(() => sql`(CURRENT_TIMESTAMP)`)
-});
+}, (table) => [
+    index("slot_tournament").on(table.tournamentId)
+]);
 
 export type Slot = InferSelectModel<typeof slot>;

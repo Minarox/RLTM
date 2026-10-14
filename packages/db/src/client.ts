@@ -21,6 +21,8 @@ function database(): BunSQLiteDatabase<any> {
     if (!db) {
         const sqlite: Database = new Database(getDatabasePath(), { create: true });
         sqlite.exec("PRAGMA journal_mode = WAL;");
+        // Safe with WAL: a commit is only lost on a power loss, not on a crash of the application
+        sqlite.exec("PRAGMA synchronous = NORMAL;");
 
         db = drizzle(sqlite, { schema: { ...arena, ...car, ...match, ...player, ...season, ...slot, ...statistic, ...team, ...tournament, ...versus } });
         migrate(db, { migrationsFolder });

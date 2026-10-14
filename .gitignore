@@ -156,3 +156,6 @@ build
 **/*.tgz
 **/*.log
 *.pem
+
+# Logs of RLTM
+logs/

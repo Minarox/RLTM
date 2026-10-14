@@ -1,5 +1,6 @@
 import colors from "colors";
 import { config, createLogger, format, transports } from "winston";
+import { logsDir } from "../paths.ts";
 
 const consoleFormat = format.printf(({ level, message }): any => {
     const color: string = config.npm.colors[level] as string;
@@ -56,7 +57,7 @@ export default createLogger({
             format: consoleFormat
         }),
         new transports.File({
-            dirname: "",
+            dirname: logsDir,
             filename: "all.log",
             format: fileFormat,
             lazy: true,
@@ -67,7 +68,7 @@ export default createLogger({
         }),
         new transports.File({
             level: "error",
-            dirname: "",
+            dirname: logsDir,
             filename: "errors.log",
             format: fileFormat,
             lazy: true,

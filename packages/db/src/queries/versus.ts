@@ -5,9 +5,8 @@ import type { Match } from "../schemas/match.ts";
 import { season } from "../schemas/season.ts";
 import { team } from "../schemas/team.ts";
 import { versus, type Versus } from "../schemas/versus.ts";
-import { getCarById } from "./car.ts";
 import { getMatchsByVersus } from "./match.ts";
-import { getPlayerById } from "./player.ts";
+import { resolveTeamPlayers } from "./player.ts";
 
 const select = {
     id: versus.id,
@@ -39,21 +38,7 @@ function selectVersusWithTeams(condition: SQL | undefined): Versus | undefined {
         return undefined;
     }
 
-    (["team1", "team2"] as const).forEach(key => {
-        const players: any[] | undefined = versusData[key]?.players as any[];
-        for (let i = 0; i < (players?.length ?? 0); i++) {
-            const player = players![i];
-            if (typeof player === "number") {
-                const playerData = getPlayerById(player);
-
-                if (playerData) {
-                    playerData.car = getCarById(playerData.carId);
-                }
-
-                players![i] = playerData;
-            }
-        }
-    })
+    resolveTeamPlayers([versusData.team1, versusData.team2]);
 
     const matchs = getMatchsByVersus(versusData.id);
     let score = [0, 0];

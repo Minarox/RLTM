@@ -27,12 +27,11 @@ export function overlaySocket(subscriptions: Subscriptions) {
 
             getTopicNames(params, subscriptions).forEach((name) => ws.subscribe(name));
 
-            (subscriptions.tournament || []).forEach((topic) => {
-                ws.send(JSON.stringify({ [topic]: tournamentLive?.[topic] ?? null }));
-            });
-            (subscriptions.slot || []).forEach((topic) => {
-                ws.send(JSON.stringify({ [topic]: slotLive?.[topic] ?? null }));
-            });
+            // Current values of all the topics in one message: the pages merge the topics of each message
+            ws.send(JSON.stringify({
+                ...Object.fromEntries((subscriptions.tournament || []).map((topic) => [topic, tournamentLive?.[topic] ?? null])),
+                ...Object.fromEntries((subscriptions.slot || []).map((topic) => [topic, slotLive?.[topic] ?? null]))
+            }));
         },
 
         close(ws: any): void {

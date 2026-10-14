@@ -83,6 +83,7 @@ curl -H "Authorization: Bearer $RLTM_ADMIN_TOKEN" http://localhost:3300/api/tour
 | `DATABASE_URL` | `apps/realtime/sqlite.db` | SQLite database, relative to the working directory |
 | `RLTM_ADMIN_TOKEN` | | Token of the administration API, disabled without it |
 | `ENTITIES_INTERVAL` | `33` | Minimum interval in ms between two `entities` messages published to the overlays of a slot (~30 Hz) |
+| `LOGS_DIR` | `apps/realtime/logs` | Folder of the log files (`all.log`, `errors.log`) |
 
 ## Game plugin
 RLTM receives the data of the game from the BakkesMod plugin [RLTM Bridge](https://github.com/Minarox/RLTM-Bridge), protocol 2 (RLTM Bridge 1.1.0 or later).

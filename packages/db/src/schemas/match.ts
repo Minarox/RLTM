@@ -1,5 +1,5 @@
 import { sql, type InferSelectModel } from "drizzle-orm";
-import { integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
+import { index, integer, sqliteTable, text } from "drizzle-orm/sqlite-core";
 import { arena } from "./arena.ts";
 import { versus } from "./versus.ts";
 
@@ -15,7 +15,10 @@ export const match = sqliteTable("match", {
     finished: integer("finished", { mode: "boolean" }).notNull().default(false),
     overtime: integer("overtime", { mode: "boolean" }).notNull().default(false),
     createdAt: text("created_at").notNull().default(sql`(CURRENT_TIMESTAMP)`)
-});
+}, (table) => [
+    index("match_versus").on(table.versusId),
+    index("match_guid").on(table.guid)
+]);
 
 export type Match = InferSelectModel<typeof match> & {
     versus?: InferSelectModel<typeof versus>;
