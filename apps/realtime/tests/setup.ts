@@ -9,6 +9,9 @@ const path = join(tmpdir(), `rltm-test-${process.pid}.db`);
 process.env['DATABASE_URL'] = path;
 process.env['NODE_ENV'] = "test";
 process.env['RLTM_ADMIN_TOKEN'] = "ADMIN-TOKEN";
+process.env['REPLAYS_DIR'] = join(tmpdir(), `rltm-test-replays-${process.pid}`);
+process.env['REPLAY_MAX_SIZE'] = String(1024 * 1024);
+rmSync(process.env['REPLAYS_DIR'], { recursive: true, force: true });
 
 const { arena, db, player, season, slot, team, tournament, versus } = await import("@rltm/db");
 

@@ -9,10 +9,12 @@ import results from "./controllers/results.ts";
 import statistics from "./controllers/statistics.ts";
 import versus from "./controllers/versus.ts";
 import slotsApi from "./controllers/api/slots.ts";
+import { replayDownload, replayUpload } from "./controllers/replays.ts";
 import logger from "./extensions/logger.ts";
 import { setServer } from "./live/bus.ts";
 import { getSlotLive, getTournamentLive, loadStore } from "./live/store.ts";
 import { assetsDir } from "./paths.ts";
+import { maxReplaySize } from "./replays.ts";
 
 setLogger(logger);
 
@@ -21,6 +23,10 @@ export const app = new Elysia({
     websocket: {
         perMessageDeflate: true,
         idleTimeout: 3
+    },
+    serve: {
+        // Replays are the largest requests
+        maxRequestBodySize: maxReplaySize + 1024 * 1024
     }
 })
     .use(
@@ -57,6 +63,7 @@ export const app = new Elysia({
 
     .use(plugin)
     .use(slotsApi)
+    .use(replayUpload)
 
     // Overlays of the tournament
     .group(
@@ -92,6 +99,19 @@ export const app = new Elysia({
             })
 
             .use(results)
+
+            // Matches of the tournament
+            .group(
+                "/matches/:guid",
+                {
+                    params: t.Object({
+                        tournamentId: t.String(),
+                        guid: t.String(),
+                    })
+                },
+                (matchGroup) => matchGroup
+                    .use(replayDownload)
+            )
 
             // Overlays of a slot of the tournament
             .group(

@@ -6,6 +6,8 @@ import { createOrUpdatePlayer } from "./player.ts";
 import { createOrUpdateStatistic, type StatisticValues } from "./statistic.ts";
 import { arena } from "../schemas/arena.ts";
 import { type Match, match } from "../schemas/match.ts";
+import { season } from "../schemas/season.ts";
+import { versus } from "../schemas/versus.ts";
 
 const select = {
     id: match.id,
@@ -109,4 +111,15 @@ export function getMatchsByVersus(versusId: number): Match[] {
         )
         .orderBy(desc(match.id))
         .all() as Match[];
+}
+
+// Tournament of a match of the game, undefined if the match isn't saved
+export function getTournamentIdOfMatch(guid: string): string | undefined {
+    return db
+        .select({ tournamentId: season.tournamentId })
+        .from(match)
+        .innerJoin(versus, eq(match.versusId, versus.id))
+        .innerJoin(season, eq(versus.seasonId, season.id))
+        .where(eq(match.guid, guid))
+        .get()?.tournamentId;
 }

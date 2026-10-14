@@ -159,3 +159,6 @@ build
 
 # Logs of RLTM
 logs/
+
+# Replays sent by the plugin
+replays/

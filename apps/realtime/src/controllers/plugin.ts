@@ -1,4 +1,4 @@
-import { getSlotByToken, saveMatchResult, type MatchStatistic } from "@rltm/db";
+import { saveMatchResult, type MatchStatistic } from "@rltm/db";
 import {
     PLUGIN_PROTOCOL,
     Topic,
@@ -23,6 +23,7 @@ import {
     setSlotState,
     type SlotLive
 } from "../live/store.ts";
+import { getSlotOfPlugin } from "../plugin/auth.ts";
 import { findPlayer, getReplayNameCommand, getStatisticValues } from "../plugin/utils.ts";
 
 interface Connection {
@@ -40,25 +41,6 @@ const connections = new Map<string, Connection>();
 
 // Last result received for each slot: the plugin sends it again on each connection
 const lastResults = new Map<string, string>();
-
-function getToken(data: any): string | undefined {
-    const query = data?.query?.['token'];
-    if (typeof query === "string" && query) return query;
-
-    const authorization = data?.headers?.['authorization'];
-    if (typeof authorization === "string" && authorization.startsWith("Bearer ")) {
-        return authorization.slice("Bearer ".length).trim() || undefined;
-    }
-
-    return undefined;
-}
-
-// Slot of the token of the plugin, if it is enabled and in the store
-function getSlotOfToken(data: any): SlotLive | undefined {
-    const token = getToken(data);
-    const slot = token ? getSlotByToken(token) : undefined;
-    return slot?.enabled ? getSlotLive(slot.tournamentId, slot.id) : undefined;
-}
 
 // Slot of the connection, if it is still the plugin of the slot
 function getSlotOfConnection(connectionId: string, connection: Connection): SlotLive | undefined {
@@ -184,7 +166,7 @@ export default new Elysia({
 })
     .ws("", {
         beforeHandle({ set, query, headers }): string | void {
-            if (!getSlotOfToken({ query, headers })) {
+            if (!getSlotOfPlugin({ query, headers })) {
                 logger.warn(`⚠️ Token not matching or not found in database`);
 
                 set.status = "Not Found";
@@ -194,7 +176,7 @@ export default new Elysia({
 
         open(ws): void {
             // The token is checked once: the slot of the connection is kept for its messages
-            const slotLive = getSlotOfToken(ws.data);
+            const slotLive = getSlotOfPlugin(ws.data);
             if (!slotLive) {
                 ws.close();
                 return;

@@ -84,6 +84,8 @@ curl -H "Authorization: Bearer $RLTM_ADMIN_TOKEN" http://localhost:3300/api/tour
 | `RLTM_ADMIN_TOKEN` | | Token of the administration API, disabled without it |
 | `ENTITIES_INTERVAL` | `33` | Minimum interval in ms between two `entities` messages published to the overlays of a slot (~30 Hz) |
 | `LOGS_DIR` | `apps/realtime/logs` | Folder of the log files (`all.log`, `errors.log`) |
+| `REPLAYS_DIR` | `apps/realtime/replays` | Folder of the replays sent by the plugin |
+| `REPLAY_MAX_SIZE` | `33554432` (32 MB) | Maximum size of a replay file, in bytes |
 
 ## Game plugin
 RLTM receives the data of the game from the BakkesMod plugin [RLTM Bridge](https://github.com/Minarox/RLTM-Bridge), protocol 2 (RLTM Bridge 1.1.0 or later).
@@ -93,3 +95,4 @@ In the settings of the plugin, set the server URL to `ws://<RLTM address>:3300/?
 - During a game, the match and the statistics shown by the overlays come from the plugin and are kept in memory: nothing is written in the database. The match and the statistics of the players are saved at the end of the game, from the `result` message, in one transaction, in the versus of the slot. The result is saved once per game, identified by its `guid` (the plugin sends it again on each connection until the end of the next game).
 - The replay of each game is named with the teams of the versus and the number of the game (`set_replay_name` command). The teams are placed on the blue and orange sides from the players of each side.
 - The overlays of the slot receive the states of the plugin (`plugin`, `players`, `scoreboard`, `stats`, `spectator`, `entities`, `null` when the game disconnects) and its events (`statistic`, `event`, `result`).
+- At the end of each match, the plugin sends the replay of the match (`PUT /api/replays/<match guid>`, with the token of the slot, the body is the `.replay` file). It is kept in `REPLAYS_DIR`, named by the guid of the match, and can be downloaded from `/<tournament>/matches/<match guid>/replay` once the match is saved. Matches without guid (offline matches) have no replay.
