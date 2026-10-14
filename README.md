@@ -55,7 +55,7 @@ The default slot of a tournament created before the slots has the id of the tour
 | Versus | `/<tournament>/<slot>/versus` |
 | Results of the tournament | `/<tournament>/results`, `/<tournament>/scoreboard`, `/<tournament>/slider` |
 
-Add `?obs` to the URL in OBS for a transparent background.
+The background of the overlays is transparent, in OBS as in a browser.
 
 ### Administration API
 The slots are managed with the API, under `/api/tournaments/<tournament>/slots`. Until the accounts of the organizers, the API needs the token of the `RLTM_ADMIN_TOKEN` environment variable in the `Authorization: Bearer <token>` header: it is disabled (403) without it.

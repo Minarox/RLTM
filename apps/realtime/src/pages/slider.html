@@ -21,16 +21,12 @@
             // WebSocket of the results of the tournament: /<tournament>/results
             const url = `${window.location.host}/${window.location.pathname.split('/')[1]}`;
             const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-            const isForOBS = new URLSearchParams(window.location.search).has('obs');
             let data = {};
 
             const slider = document.getElementById('slider');
             const slider2 = document.getElementById('slider2');
             const time = document.getElementById('time');
 
-            if (!isForOBS) {
-                document.body.style.setProperty('background', 'black');
-            }
 
             function updateTime() {
                 const date = new Date();

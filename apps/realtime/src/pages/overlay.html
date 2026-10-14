@@ -54,7 +54,6 @@
             // Same path as the page: /<tournament>/<slot>/<overlay> or /<tournament>/results
             const url = `${window.location.host}${window.location.pathname}`;
             const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-            const isForOBS = new URLSearchParams(window.location.search).has('obs');
             let data = {};
 
             const tournament = document.getElementById('tournament');
@@ -72,9 +71,6 @@
             const entitiesTeam1 = document.getElementById('entities-team1');
             const entitiesTeam2 = document.getElementById('entities-team2');
 
-            if (!isForOBS) {
-                document.body.style.setProperty('background', 'black');
-            }
 
             function setTournamentInfos() {
                 let tournamentInfos = [];

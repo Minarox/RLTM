@@ -21,16 +21,12 @@
             // Same path as the page: /<tournament>/<slot>/<overlay> or /<tournament>/results
             const url = `${window.location.host}${window.location.pathname}`;
             const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-            const isForOBS = new URLSearchParams(window.location.search).has('obs');
             let data = {};
 
             const team1 = document.getElementById('team1');
             const team2 = document.getElementById('team2');
             const gradient = document.getElementById('gradient');
 
-            if (!isForOBS) {
-                document.body.style.setProperty('background', 'black');
-            }
 
             function setVersus() {
                 team1.innerHTML = '';

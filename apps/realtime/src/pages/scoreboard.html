@@ -20,15 +20,11 @@
             // WebSocket of the results of the tournament: /<tournament>/results
             const url = `${window.location.host}/${window.location.pathname.split('/')[1]}`;
             const protocol = window.location.protocol === 'https:' ? 'wss' : 'ws';
-            const isForOBS = new URLSearchParams(window.location.search).has('obs');
             let data = {};
 
             const scoreboard = document.getElementById('scoreboard');
             const tournament = document.getElementById('tournament');
 
-            if (!isForOBS) {
-                document.body.style.setProperty('background', 'black');
-            }
 
             function setTournament() {
                 let tournamentInfos = [];

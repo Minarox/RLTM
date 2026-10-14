@@ -35,6 +35,12 @@
     font-family: "Gotham Pro";
 }
 
+// Overlays are shown over the game, in OBS as in a browser
+html,
+body {
+    background: transparent;
+}
+
 main {
     width: 100vw;
     height: 100vh;
