@@ -1,10 +1,4 @@
-import {
-    createOrUpdateMatch,
-    createOrUpdatePlayer,
-    createOrUpdateStatistic,
-    getSlotByToken,
-    saveMatchResult
-} from "@rltm/db";
+import { getSlotByToken, saveMatchResult, type MatchStatistic } from "@rltm/db";
 import {
     PLUGIN_PROTOCOL,
     Topic,
@@ -37,9 +31,6 @@ interface Connection {
     // plugin message received at the connection, null for a plugin older than the protocol 2
     plugin: PluginInfoPayload | null;
     warned: boolean;
-    // Match of the database the scoreboard is saved in, and its versus
-    matchId: number | null;
-    versusId: number | null;
     // Last replay name sent to the game
     replayName: string | null;
     close: () => void;
@@ -90,22 +81,20 @@ function onMatchEnded(connection: Connection): void {
     refreshSlot(connection.slotId);
 }
 
-function saveScoreboard(slotLive: SlotLive, matchId: number, scoreboard: ScoreboardPayload): void {
-    Object.values(scoreboard).forEach((playerData) => {
-        if (!isObject(playerData) || typeof playerData.uid !== "string" || typeof playerData.name !== "string") return;
-
-        const playerFound = createOrUpdatePlayer({
-            uid: playerData.uid,
-            name: playerData.name,
-            bot: Boolean(playerData.bot),
-            teamIndex: playerData.teamIndex,
-            // carId is only in the players topic
-            carId: findPlayer(slotLive.players, playerData)?.carId
-        });
-        if (playerFound) {
-            createOrUpdateStatistic(getStatisticValues(playerData), matchId, playerFound.id);
-        }
-    });
+// Statistics of the players of the scoreboard, with their car from the players topic
+function getMatchStatistics(slotLive: SlotLive, scoreboard: ScoreboardPayload): MatchStatistic[] {
+    return Object.values(scoreboard)
+        .filter((playerData) => isObject(playerData) && typeof playerData.uid === "string" && typeof playerData.name === "string")
+        .map((playerData) => ({
+            player: {
+                uid: playerData.uid,
+                name: playerData.name,
+                bot: Boolean(playerData.bot),
+                teamIndex: playerData.teamIndex,
+                carId: findPlayer(slotLive.players, playerData)?.carId
+            },
+            values: getStatisticValues(playerData)
+        }));
 }
 
 // Name the replay of the game with the teams of the versus, sent again when the teams or the game change
@@ -137,37 +126,21 @@ function onPlugin(connection: Connection, slotLive: SlotLive, payload: unknown):
 }
 
 function onMatch(ws: any, connection: Connection, slotLive: SlotLive, payload: unknown): void {
-    const game = isObject(payload) ? payload as MatchPayload : null;
-    slotLive.game = game;
+    slotLive.game = isObject(payload) ? payload as MatchPayload : null;
 
-    if (!game) {
-        connection.matchId = null;
+    if (!slotLive.game) {
         connection.replayName = null;
-    } else if (slotLive.versus) {
-        if (game.isStarted) {
-            connection.matchId = createOrUpdateMatch(game, slotLive.versus.id)?.id || null;
-            connection.versusId = slotLive.versus.id;
-        }
-
-        if (game.isEnded) {
-            onMatchEnded(connection);
-        }
-
+    } else {
         updateReplayName(ws, connection, slotLive);
     }
 
+    // The match is kept in memory during the game, and saved with its result
     refreshSlotMatch(slotLive);
 }
 
-function onScoreboard(connection: Connection, slotLive: SlotLive, payload: unknown): void {
-    const scoreboard = isObject(payload) ? payload as ScoreboardPayload : null;
-    setSlotState(slotLive, Topic.SCOREBOARD, scoreboard);
-
-    // The versus of the slot can be changed during the match
-    if (scoreboard && connection.matchId && slotLive.game?.isStarted && connection.versusId === slotLive.versus?.id) {
-        saveScoreboard(slotLive, connection.matchId, scoreboard);
-        refreshSlotMatch(slotLive);
-    }
+function onScoreboard(slotLive: SlotLive, payload: unknown): void {
+    setSlotState(slotLive, Topic.SCOREBOARD, isObject(payload) ? payload : null);
+    refreshSlotMatch(slotLive);
 }
 
 function onResult(connection: Connection, slotLive: SlotLive, payload: unknown): void {
@@ -184,17 +157,12 @@ function onResult(connection: Connection, slotLive: SlotLive, payload: unknown):
     const versus = slotLive.versus;
     if (!versus) return;
 
-    // Without guid, the result is only saved in the match that just ended: on a connection, it can be the one of a previous match
-    if (!result.guid && !(connection.matchId && slotLive.game?.isEnded)) return;
+    // Without guid, the result is only saved for the match that just ended: on a connection, it can be the one of a previous match
+    if (!result.guid && !slotLive.game?.isEnded) return;
 
-    const matchData = saveMatchResult(result, versus.id, result.guid ? null : connection.matchId);
-    if (!matchData) return;
-
+    const statistics = isObject(result.scoreboard) ? getMatchStatistics(slotLive, result.scoreboard) : [];
+    const matchData = saveMatchResult(result, versus.id, statistics);
     logger.info(`🏆 Result of match ${matchData.id} saved (${result.score[0]} - ${result.score[1]}).`);
-
-    if (isObject(result.scoreboard)) {
-        saveScoreboard(slotLive, matchData.id, result.scoreboard);
-    }
 
     onMatchEnded(connection);
 }
@@ -248,8 +216,6 @@ export default new Elysia({
                 tournamentId: slotLive.slot.tournamentId,
                 plugin: null,
                 warned: false,
-                matchId: null,
-                versusId: null,
                 replayName: null,
                 close: () => ws.close()
             };
@@ -297,7 +263,7 @@ export default new Elysia({
                     break;
 
                 case Topic.SCOREBOARD:
-                    onScoreboard(connection, slotLive, payload);
+                    onScoreboard(slotLive, payload);
                     break;
 
                 case Topic.STATS:

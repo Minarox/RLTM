@@ -1,5 +1,5 @@
 import type { Player, StatisticValues, Versus } from "@rltm/db";
-import type { PlayerReference, PlayersPayload, PluginCommand, ScoreboardPlayer } from "@rltm/shared";
+import type { MatchPayload, PlayerReference, PlayersPayload, PluginCommand, ScoreboardPlayer } from "@rltm/shared";
 
 // Stat events of the scoreboard saved in the statistic table
 const eventColumns = {
@@ -121,4 +121,12 @@ export function getReplayNameCommand(versus: Versus, players: PlayersPayload[] |
         payload: { ...sides, game },
         id: `replay-${versus.id}-${game}`
     };
+}
+
+// Time played in seconds, as saved in the database: the clock of the game is the remaining time, or the time played
+// in an unlimited match or in the overtime
+export function getElapsedTime(game: MatchPayload): number {
+    if (game.isUnlimited) return game.clock;
+    if (game.isOvertime) return game.duration + game.clock;
+    return game.duration - game.clock;
 }

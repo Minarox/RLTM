@@ -89,6 +89,6 @@ RLTM receives the data of the game from the BakkesMod plugin [RLTM Bridge](https
 
 In the settings of the plugin, set the server URL to `ws://<RLTM address>:3300/?token=<slot token>`. The token can also be set in the *Token* setting of the plugin (`Authorization` header) instead of the URL. One game is connected to each slot: a new connection with the same token replaces the previous one. Several games can be connected to the same tournament with the tokens of different slots.
 
-- The match, the scoreboard and the result of each game are saved in the versus of the slot. The final result is saved once per game, identified by its `guid`.
+- During a game, the match and the statistics shown by the overlays come from the plugin and are kept in memory: nothing is written in the database. The match and the statistics of the players are saved at the end of the game, from the `result` message, in one transaction, in the versus of the slot. The result is saved once per game, identified by its `guid` (the plugin sends it again on each connection until the end of the next game).
 - The replay of each game is named with the teams of the versus and the number of the game (`set_replay_name` command). The teams are placed on the blue and orange sides from the players of each side.
 - The overlays of the slot receive the states of the plugin (`plugin`, `players`, `scoreboard`, `stats`, `spectator`, `entities`, `null` when the game disconnects) and its events (`statistic`, `event`, `result`).

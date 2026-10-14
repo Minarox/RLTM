@@ -1,4 +1,5 @@
 import {
+    getArenaByCode,
     getCurrentMatch,
     getCurrentSeason,
     getCurrentStatistics,
@@ -9,6 +10,7 @@ import {
     getTournamentById,
     getTournaments,
     getVersusById,
+    type Arena,
     type Match,
     type Season,
     type Slot,
@@ -36,10 +38,16 @@ import {
     pluginEventTopics
 } from "@rltm/shared";
 import logger from "../extensions/logger.ts";
+import { getElapsedTime, getStatisticValues } from "../plugin/utils.ts";
 import { publish } from "./bus.ts";
 import { disconnectPlugin } from "./plugins.ts";
 
-export type LiveMatch = Match & { replay: boolean, teams: MatchTeam[] | null };
+// Match of the slot: the match being played, from the messages of the plugin, or the last match saved.
+// id is null until the match is saved, at its end.
+export type LiveMatch = Omit<Match, "id"> & { id: number | null, replay: boolean, teams: MatchTeam[] | null };
+
+// Statistics of a player: saved ones, or the ones of the match being played
+export type LiveStatistic = Omit<Partial<Statistic>, "player"> & { player: { uid: string, name: string } };
 
 // Data shared by all the slots of a tournament
 export interface TournamentLive {
@@ -55,7 +63,7 @@ export interface SlotLive {
     slot: Slot;
     versus: Versus | null;
     match: LiveMatch | null;
-    statistics: Statistic[] | null;
+    statistics: LiveStatistic[] | null;
     plugin: PluginInfoPayload | null;
     players: PlayersPayload[] | null;
     scoreboard: ScoreboardPayload | null;
@@ -146,19 +154,57 @@ function removeTournament(tournamentId: string): void {
     logger.verbose(`🏬 Remove tournament "${tournamentLive.tournament.name}" from store`);
 }
 
-function getLiveMatch(slotLive: Pick<SlotLive, "game">, versus: Versus | null): LiveMatch | null {
+// Arenas never change: they are read once
+const arenas = new Map<string, Arena | null>();
+
+function getArena(code: string): Arena | null {
+    if (!arenas.has(code)) arenas.set(code, getArenaByCode(code) || null);
+    return arenas.get(code)!;
+}
+
+// Match and statistics of the slot. While a match is played, they come from the plugin and are saved at the end of the
+// match (result message): nothing is written in the database during the match.
+function getSlotMatch(slotLive: Pick<SlotLive, "game" | "scoreboard">, versus: Versus | null): { match: LiveMatch | null, statistics: LiveStatistic[] | null } {
+    const game = slotLive.game;
+
+    if (versus && game?.isStarted) {
+        return {
+            match: {
+                id: null,
+                versusId: versus.id,
+                guid: game.guid || null,
+                scoreTeam1: game.score?.[0] ?? 0,
+                scoreTeam2: game.score?.[1] ?? 0,
+                clock: getElapsedTime(game),
+                duration: game.isUnlimited ? -1 : game.duration,
+                arenaCode: game.arenaCode,
+                finished: Boolean(game.isEnded),
+                overtime: Boolean(game.isOvertime),
+                createdAt: "",
+                arena: getArena(game.arenaCode),
+                replay: Boolean(game.isReplay),
+                teams: game.teams || null
+            } as LiveMatch,
+            statistics: slotLive.scoreboard
+                ? Object.values(slotLive.scoreboard).map((player) => ({ ...getStatisticValues(player), player: { uid: player.uid, name: player.name } }))
+                : null
+        };
+    }
+
     const match = versus && getCurrentMatch(versus.id) || null;
-    return match && {
-        ...match,
-        replay: slotLive.game?.isReplay || false,
-        teams: slotLive.game?.teams || null
+    return {
+        match: match && {
+            ...match,
+            replay: game?.isReplay || false,
+            teams: game?.teams || null
+        },
+        statistics: match && getCurrentStatistics(match.id) as LiveStatistic[] || null
     };
 }
 
-// Reloads the match and the statistics of the slot and publishes them if they changed
+// Updates the match and the statistics of the slot and publishes them if they changed
 export function refreshSlotMatch(slotLive: SlotLive): void {
-    const match = getLiveMatch(slotLive, slotLive.versus);
-    const statistics = match && getCurrentStatistics(match.id) || null;
+    const { match, statistics } = getSlotMatch(slotLive, slotLive.versus);
 
     if (changed(slotLive.match, match)) setSlotState(slotLive, Topic.MATCH, match);
     if (changed(slotLive.statistics, statistics)) setSlotState(slotLive, Topic.STATISTICS, statistics);
@@ -178,12 +224,12 @@ export function refreshSlot(slotId: string): SlotLive | undefined {
 
     let slotLive = tournamentLive.slots.get(slotId);
     if (!slotLive) {
-        const match = getLiveMatch({ game: null }, versus);
+        const { match, statistics } = getSlotMatch({ game: null, scoreboard: null }, versus);
         slotLive = {
             slot,
             versus,
             match,
-            statistics: match && getCurrentStatistics(match.id) || null,
+            statistics,
             plugin: null,
             players: null,
             scoreboard: null,

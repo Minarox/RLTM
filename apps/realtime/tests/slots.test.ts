@@ -1,7 +1,9 @@
 import { afterEach, describe, expect, test } from 'bun:test'
 import { app } from "../src/index.ts"
 import { entitiesInterval, getSlotLive } from "../src/live/store.ts"
-import { matchMessage, playersMessage, pluginMessage } from "./fixtures/plugin.ts"
+import { db, match, statistic } from "@rltm/db"
+import { eq } from "drizzle-orm"
+import { matchMessage, playersMessage, pluginMessage, scoreboardMessage } from "./fixtures/plugin.ts"
 import { adminHeaders, closeSockets, connect, connectOverlay, connectPlugin, sleep } from "./helpers.ts"
 
 const api = (path: string, init: RequestInit = {}) => app.handle(new Request(
@@ -47,19 +49,55 @@ describe('Slots', () => {
         expect(plugin2.messages.find((message) => message.command === "set_replay_name").payload).toEqual({ blue: "Team C", orange: "Team D", game: 1 })
     })
 
-    test('End of a match updates the results of the tournament', async (): Promise<void> => {
+    test('Match saved only at its end, with its result', async (): Promise<void> => {
+        const countRows = () => ({
+            matches: db.select({ id: match.id }).from(match).all().length,
+            statistics: db.select({ id: statistic.id }).from(statistic).all().length
+        })
+        const before = countRows()
+
         const results = await connect('ws://localhost:3300/DEFAULT/results')
         const overlay = await connectOverlay('DEFAULT')
         const plugin = await connectPlugin('TOKEN-DEFAULT')
         plugin.send(pluginMessage)
+        plugin.send(playersMessage)
 
+        // During the match, the overlays get the match and the statistics from the plugin, nothing is written
+        const game = { ...matchMessage.payload, guid: "SAVED-GAME", score: [2, 1] }
+        plugin.send({ ...matchMessage, payload: game })
+        plugin.send(scoreboardMessage)
+        const liveMatch = (await overlay.waitFor((message) => message.match?.guid === "SAVED-GAME")).match
+        expect(liveMatch.id).toBeNull()
+        expect([liveMatch.scoreTeam1, liveMatch.scoreTeam2, liveMatch.clock, liveMatch.arena?.name]).toEqual([2, 1, 117, "DFH Stadium"])
+        const liveStatistics = (await overlay.waitFor((message) => message.statistics?.length)).statistics
+        expect(liveStatistics[0]).toMatchObject({ player: { name: "Player1" }, score: 320, demolish: 2, epicSave: 0 })
+
+        plugin.send({ ...matchMessage, payload: { ...game, isEnded: true } })
+        await sleep(100)
+        expect(countRows()).toEqual(before)
+
+        // The result saves the match and the statistics, and updates the results of the tournament
         results.messages.length = 0
         overlay.messages.length = 0
-        plugin.send({ ...matchMessage, payload: { ...matchMessage.payload, guid: "ENDED-GAME", score: [2, 1], isEnded: true } })
+        plugin.send({ topic: "result", payload: {
+            guid: "SAVED-GAME", client: "PC", endedAt: Date.now(), arenaCode: "Stadium_P", duration: 300, timePlayed: 300,
+            isOvertime: false, score: [2, 1], winner: 0, mvp: null, teams: [], scoreboard: scoreboardMessage.payload, stats: null, replayName: null
+        } })
 
         const versusResults = (await results.waitFor((message) => message.results)).results
         expect(versusResults.find((versus: any) => versus.id === 1).score).toEqual([1, 0])
         expect((await overlay.waitFor((message) => message.versus)).versus.score).toEqual([1, 0])
+        expect(countRows()).toEqual({ matches: before.matches + 1, statistics: before.statistics + 1 })
+
+        const saved = db.select().from(match).where(eq(match.guid, "SAVED-GAME")).get()!
+        expect([saved.scoreTeam1, saved.scoreTeam2, saved.finished]).toEqual([2, 1, true])
+        const savedStatistic = db.select().from(statistic).where(eq(statistic.matchId, saved.id)).get()!
+        expect([savedStatistic.score, savedStatistic.demolish, savedStatistic.koDoubleKO]).toEqual([320, 2, 1])
+
+        // The result sent again on a connection isn't saved twice
+        plugin.send({ topic: "result", payload: { guid: "SAVED-GAME", client: "PC", endedAt: 1, arenaCode: "Stadium_P", duration: 300, timePlayed: 300, isOvertime: false, score: [2, 1], winner: 0, mvp: null, teams: [], scoreboard: {}, stats: null, replayName: null } })
+        await sleep(100)
+        expect(countRows()).toEqual({ matches: before.matches + 1, statistics: before.statistics + 1 })
     })
 
     test('Entities published at most once per interval', async (): Promise<void> => {

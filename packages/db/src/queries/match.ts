@@ -1,7 +1,9 @@
 import { and, desc, eq } from "drizzle-orm";
 import db from "../client.ts";
 import { log } from "../logger.ts";
-import type { MatchPayload, ResultPayload } from "@rltm/shared";
+import type { PlayerReference, ResultPayload } from "@rltm/shared";
+import { createOrUpdatePlayer } from "./player.ts";
+import { createOrUpdateStatistic, type StatisticValues } from "./statistic.ts";
 import { arena } from "../schemas/arena.ts";
 import { type Match, match } from "../schemas/match.ts";
 
@@ -18,114 +20,58 @@ const select = {
     overtime: match.overtime
 }
 
-export function createOrUpdateMatch(matchData: MatchPayload, versusId: number): Match | undefined {
-    // The guid of the game identifies the match, the last match of the versus is used without it (offline matches)
-    const matchFound = matchData.guid ? getMatchByGuid(matchData.guid, versusId) : getCurrentMatch(versusId);
-
-    let clock;
-    if (matchData.isUnlimited) {
-        clock = matchData.clock;
-    } else if (matchData.isOvertime) {
-        clock = matchData.duration + matchData.clock;
-    } else {
-        clock = matchData.duration - matchData.clock;
-    }
-
-    let query;
-    if (matchFound && (matchData.guid || matchData.isEnded || !matchFound.finished)) {
-        const data: any = {
-            scoreTeam1: matchData.score[0],
-            scoreTeam2: matchData.score[1],
-            duration: matchData.isUnlimited ? -1 : matchData.duration,
-            arenaCode: matchData.arenaCode,
-            finished: matchData.isEnded,
-            overtime: matchData.isOvertime
-        }
-
-        if (!matchData.isEnded) {
-            data.clock = clock;
-        }
-
-        query = db
-            .update(match)
-            .set(data)
-            .where(eq(match.id, matchFound.id))
-            .returning(select)
-            .get() as Match;
-
-        log.debug(`Update match ${query.id} for versus ${versusId}`);
-    } else {
-        query = db
-            .insert(match)
-            .values({
-                versusId: versusId,
-                guid: matchData.guid || null,
-                scoreTeam1: matchData.score[0],
-                scoreTeam2: matchData.score[1],
-                clock: clock,
-                duration: matchData.isUnlimited ? -1 : matchData.duration,
-                arenaCode: matchData.arenaCode,
-                finished: matchData.isEnded,
-                overtime: matchData.isOvertime
-            })
-            .returning(select)
-            .get() as Match;
-
-        log.debug(`Create new match ${query.id} for versus ${versusId}`);
-    }
-
-    return query;
+export interface MatchStatistic {
+    player: PlayerReference & { carId?: number | undefined };
+    values: StatisticValues;
 }
 
-export function saveMatchResult(resultData: ResultPayload, versusId: number, matchId?: number | null): Match | undefined {
-    let matchFound = resultData.guid ? getMatchByGuid(resultData.guid, versusId) : undefined;
-    if (!matchFound && matchId) {
-        matchFound = getMatchById(matchId);
-    }
+// Saves the result of a match and the statistics of its players, at the end of the match, in one transaction.
+// The guid of the game identifies the match: a result received again updates it.
+export function saveMatchResult(resultData: ResultPayload, versusId: number, statistics: MatchStatistic[]): Match {
+    return db.transaction(() => {
+        const matchFound = resultData.guid ? getMatchByGuid(resultData.guid, versusId) : undefined;
 
-    const data = {
-        scoreTeam1: resultData.score[0],
-        scoreTeam2: resultData.score[1],
-        arenaCode: resultData.arenaCode,
-        finished: true,
-        overtime: resultData.isOvertime
-    }
+        const data = {
+            scoreTeam1: resultData.score[0],
+            scoreTeam2: resultData.score[1],
+            arenaCode: resultData.arenaCode,
+            finished: true,
+            overtime: resultData.isOvertime
+        };
 
-    let query;
-    if (matchFound) {
-        query = db
-            .update(match)
-            .set(data)
-            .where(eq(match.id, matchFound.id))
-            .returning(select)
-            .get() as Match;
+        let query: Match;
+        if (matchFound) {
+            query = db
+                .update(match)
+                .set(data)
+                .where(eq(match.id, matchFound.id))
+                .returning(select)
+                .get() as Match;
 
-        log.debug(`Save result of match ${query.id} for versus ${versusId}`);
-    } else {
-        query = db
-            .insert(match)
-            .values({
-                ...data,
-                versusId: versusId,
-                guid: resultData.guid || null,
-                clock: Math.round(resultData.timePlayed),
-                duration: resultData.duration
-            })
-            .returning(select)
-            .get() as Match;
+            log.debug(`Save result of match ${query.id} for versus ${versusId}`);
+        } else {
+            query = db
+                .insert(match)
+                .values({
+                    ...data,
+                    versusId: versusId,
+                    guid: resultData.guid || null,
+                    clock: Math.round(resultData.timePlayed),
+                    duration: resultData.duration
+                })
+                .returning(select)
+                .get() as Match;
 
-        log.debug(`Create match ${query.id} from result for versus ${versusId}`);
-    }
+            log.debug(`Create match ${query.id} from result for versus ${versusId}`);
+        }
 
-    return query;
-}
+        statistics.forEach(({ player, values }) => {
+            const playerFound = createOrUpdatePlayer(player);
+            createOrUpdateStatistic(values, query.id, playerFound.id);
+        });
 
-export function getMatchById(matchId: number): Match | undefined {
-    return db
-        .select(select)
-        .from(match)
-        .where(eq(match.id, matchId))
-        .get() as Match | undefined;
+        return query;
+    });
 }
 
 export function getMatchByGuid(guid: string, versusId: number): Match | undefined {
@@ -150,7 +96,7 @@ export function getCurrentMatch(versusId: number): Match {
         .from(match)
         .leftJoin(arena, eq(match.arenaCode, arena.code))
         .where(eq(match.versusId, versusId))
-        .orderBy(desc(match.createdAt))
+        .orderBy(desc(match.id))
         .get() as Match;
 }
 
@@ -164,6 +110,6 @@ export function getMatchsByVersus(versusId: number): Match[] {
                 eq(match.finished, true)
             )
         )
-        .orderBy(desc(match.createdAt))
+        .orderBy(desc(match.id))
         .all() as Match[];
 }
